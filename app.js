@@ -58,6 +58,10 @@
 	var leftPressed = false;
 	document.addEventListener("keydown", keyDownHandler, false);
 	document.addEventListener("keyup", keyUpHandler, false);
+	$(document).mousemove(function (event) {
+		x = event.pageX;
+		y = event.pageY;
+	})
 	function keyDownHandler(e) {
 		if(e.keyCode == 39){
 			rightPressed = true;
