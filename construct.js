@@ -39,6 +39,12 @@
 		if(params.rotate){
 			this.rotate = params.rotate;
 		}
+		if(params.width){
+			this.width = params.width;
+		}
+		if(params.height){
+			this.height = params.height;
+		}
 	};
 	flyObject.prototype = {
 		className: 'flyObject',
@@ -104,7 +110,7 @@
 	function planeGame(params) {
 		if(params.backgroundSrc){
 			planeGame.backgroundSrc = params.backgroundSrc;
-		} 
+		}
 		if(params.canvasElement){
 			this.canvasElement = params.canvasElement;
 			this.context = this.canvasElement.getContext('2d');
