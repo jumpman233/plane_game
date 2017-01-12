@@ -26,11 +26,15 @@
             image.onload = params.onload;
             return image;
         },
-        deepCopy: function () {
-            
-        },
-        addAttribute: function (obj,params) {
-            
+        copy: function (obj) {
+            var util = this;
+            if(typeof obj != 'object') return obj;
+
+            var newObj = new Object();
+            for(var i in obj){
+                newObj[i] = util.copy(obj[i]);
+            }
+            return newObj;
         },
         sleep: function (duration) {
             var start = new Date();
@@ -124,16 +128,18 @@
         constructor: FlyObject,
         context: null,
         loadImg: function () {
-            this.img = $util.initImage({
-                width: this.width,
-                height: this.height,
-                src: this.src,
+            var obj = this;
+            obj.img = $util.initImage({
+                width: obj.width,
+                height: obj.height,
+                src: obj.src,
                 onload: function () {
-                    this.isInit = true;
+                    obj.isInit = true;
                 }
             });
         }
     };
+
     /**
      * plane
      * object can shoot
@@ -149,9 +155,6 @@
     function Plane(params) {
         if (!params) return;
 
-        function a(){}
-
-        a.prototype = FlyObject;
         FlyObject.apply(this, arguments);
         if (params.type) {
             this.type = params.type;
@@ -164,17 +167,13 @@
         }
     }
 
-    console.log(new Plane());
-    Plane.prototype = {
-        className: 'plane',
-        constructor: Plane,
-        draw: function () {
-
-        },
-        init: function () {
-            console.log(this);
-            this.loadImg();
-        }
+    Plane.prototype = $util.copy(FlyObject.prototype);
+    Plane.prototype.constructor = Plane;
+    Plane.prototype.init = function () {
+        this.loadImg();
+    };
+    Plane.prototype.draw = function () {
+        
     };
 
     /**
@@ -201,15 +200,13 @@
         }
     }
 
-    Bullet.prototype = {
-        className: 'bullet',
-        constructor: Bullet,
-        draw: function () {
+    Bullet.prototype = $util.copy(FlyObject.prototype);
+    Bullet.prototype.constructor = Bullet;
+    Bullet.prototype.init = function () {
+        this.loadImg();
+    };
+    Bullet.prototype.draw = function () {
 
-        },
-        init: function () {
-            this.loadImg();
-        }
     };
 
 
@@ -250,20 +247,8 @@
                 success: function (data) {
                     console.log('获取成功：' + game.planeDataSrc);
                     for(var i in data){
-                        data[i].img = $util.initImage({
-                            width: data[i].width,
-                            height: data[i].height,
-                            src: data[i].src,
-                            onload: function () {
-                                game.planeDataList.loadNum++;
-                                if(game.planeDataList.length == game.planeDataList.loadNum){
-                                    game.planeDataList.isLoad = true;
-                                }
-                            }
-                        });
                         game.planeDataList.push(new Plane(data[i]));
                     }
-                    console.log(game.planeDataList);
                 },
                 error: function (response) {
                     console.log('获取失败：' + game.planeDataSrc);
@@ -274,7 +259,7 @@
             var game = this;
             console.log('开始获取：' + game.bulletDataSrc);
             $.ajax({
-                url: this.bulletDataSrc,
+                url: game.bulletDataSrc,
                 cache: false,
                 async: false,
                 type: "POST",
@@ -284,7 +269,6 @@
                     for(var i in data){
                         game.bulletDataList.push(new Bullet(data[i]));
                     }
-                    console.log(game.bulletDataList);
                 },
                 error: function () {
                     console.log('获取失败：' + game.bulletDataSrc);
@@ -315,6 +299,7 @@
         testAllModules: function () {
             var game = this;
             game.ifInit(function () {
+                console.log("!");
                 var x = 0;
                 var y = 0;
                 game.context.beginPath();
@@ -342,25 +327,20 @@
         },
         checkInit: function () {
             var game = this;
-            if(game.isInit) {
-                return true;
-            }
+            if(game.isInit) return true;
 
-            else{
-                var flag = true;
-                for(var i in game.bulletDataList){
-                    if(!game.bulletDataList[i].isInit){
-                        return false;
-                    }
+            var flag = true;
+            for(var i in game.bulletDataList){
+                if(!game.bulletDataList[i].isInit){
+                    flag = false;
                 }
-                for(var i in game.planeDataList){
-                    if(!game.planeDataList[i].isInit){
-                        return false;
-                    }
-                }
-                game.isInit = true;
-                return flag;
             }
+            for(var i in game.planeDataList){
+                if(!game.planeDataList[i].isInit){
+                    flag = false;
+                }
+            }
+            return flag;
         },
         ifInit: function (callback) {
             var game = this;
@@ -368,9 +348,12 @@
                 callback();
             } else{
                 var interval = window.setInterval(function () {
-                    if(game.bulletDataList.isLoad && game.planeDataList.isLoad){
+                    if(game.isInit){
                         window.clearTimeout(interval);
                         callback();
+                    } else{
+                        console.log("!");
+                        game.isInit = game.checkInit();
                     }
                 },100,0);
             }
