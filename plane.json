@@ -1,3 +1,9 @@
 [{
-	"a": "b"
+	"type": "1",
+	"width": 30,
+    "height": 30,
+    "speed": 20,
+    "src": "plane.png",
+    "role": "player",
+    "bulletType": [1]
 }]
