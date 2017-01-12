@@ -172,8 +172,10 @@
     Plane.prototype.init = function () {
         this.loadImg();
     };
-    Plane.prototype.draw = function () {
-        
+    Plane.prototype.draw = function (ctx) {
+        ctx.beginPath();
+        ctx.drawImage(this.img, this.position.x, this.position.y, this.width, this.height);
+        ctx.closePath();
     };
 
     /**
@@ -232,6 +234,7 @@
         this.planeDataList = [];
         this.bulletDataList = [];
         this.isInit = false;
+        this.player = null;
     }
 
     PlaneGame.prototype = {
@@ -289,17 +292,28 @@
             }
             console.log(game.planeDataList);
         },
+        initPlayer: function () {
+            var game = this;
+            game.player = new Player();
+            game.player.plane = game.planeDataList[0];
+        },
         start: function () {
-            if (this.isInit) {
+            var game = this;
+            game.ifInit(function () {
                 window.setInterval(function () {
+                    game.draw();
+                }, 1000 / game.fps);
+            })
+        },
+        draw: function () {
+            var game = this;
+            game.context.clearRect(0,0,1000,1000);
 
-                }, 1000 / this.fps);
-            }
+            game.player.plane.draw(game.context);
         },
         testAllModules: function () {
             var game = this;
             game.ifInit(function () {
-                console.log("!");
                 var x = 0;
                 var y = 0;
                 game.context.beginPath();
@@ -324,6 +338,12 @@
                 }
                 game.context.closePath();
             });
+        },
+        testPlayer: function () {
+          var game = this;
+          game.ifInit(function () {
+
+          });
         },
         checkInit: function () {
             var game = this;
@@ -389,7 +409,27 @@
             game.getPlaneData();
             game.initBulletData();
             game.initPlaneData();
+            game.initPlayer();
         }
+    };
+
+    function Player() {
+        this.plane = null;
+        this.lives = null;
+    }
+
+    function GameEventHandler() {
+        this.planeGame = null;
+    }
+    GameEventHandler.prototype = {
+        mouse:function () {
+            var gve = this;
+            document.addEventListener('mousemove',function (e) {
+                gve.planeGame.player.plane.position.x = e.pageX;
+                gve.planeGame.player.plane.position.y = e.pageY;
+            })
+        },
+        constructor: GameEventHandler
     };
 
     var config = {
@@ -399,7 +439,12 @@
         fps: '50'
     };
     var planeGame = new PlaneGame(config);
+    var gve = new GameEventHandler();
+    gve.planeGame = planeGame;
+    gve.mouse();
     planeGame.init();
-    planeGame.testAllModules();
+    // planeGame.testAllModules();
+    // planeGame.test();
+    planeGame.start();
 }());
 //};
