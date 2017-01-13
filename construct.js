@@ -43,6 +43,17 @@
             }
             return newObj;
         },
+        collisionTest: function (obj1, obj2) {
+            if(obj1.position && obj1.width && obj1.height &&
+                obj2.position && obj2.width && obj2.height){
+                return (obj1.position.x + obj1.width > obj2.position.x) &&
+                    (obj1.position.y < obj2.position.y + obj2.height) &&
+                    (obj2.position.x + obj2.width > obj1.position.x) &&
+                    (obj2.position.y < obj1.position.y + obj1.height)
+            } else{
+                throw Error('GameUtil collisionTest(): params is not right! ');
+            }
+        },
         sleep: function (duration) {
             var start = new Date();
             while(true){
@@ -196,6 +207,7 @@
 
     Plane.prototype = $util.copy(FlyObject.prototype);
     Plane.prototype.constructor = Plane;
+    Plane.prototype.className = 'plane';
     Plane.prototype.list = [];
     Plane.prototype.init = function () {
         var plane = this;
@@ -221,6 +233,7 @@
             var bulList = plane.bulletStyle.getBullets(1);
             for (var i = 0 ;i<bulList.length;i++){
                 bulList[i].position = $util.copy(plane.position);
+                bulList[i].parent = plane;
                 plane.bulletList.push(bulList[i]);
             }
         }
@@ -262,15 +275,12 @@
         } else{
             this.direction = 0;
         }
-        if (params.rotate){
-            this.rotate = params.rotate;
-        } else{
-            this.rotate = 0;
-        }
+        this.parent = null;
     }
 
     Bullet.prototype = $util.copy(FlyObject.prototype);
     Bullet.prototype.constructor = Bullet;
+    Bullet.prototype.className = 'bullet';
     Bullet.prototype.list = [];
     Bullet.prototype.init = function () {
         this.loadImg();
@@ -615,7 +625,7 @@
         planeDataSrc: 'plane.json',
         bulletDataSrc: 'bullet.json',
         bulletStyleSrc: 'bullet-style.json',
-        fps: '5'
+        fps: '20'
     };
 
     var planeGame = new PlaneGame(config);
