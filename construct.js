@@ -30,18 +30,27 @@
             var util = this;
 
             if(obj == undefined) return;
-            if(Array.isArray(obj)) return obj;
-            if(typeof obj != 'object') return obj;
-
-            var newObj = new Object();
-            for(var i in obj){
-                if(obj[i] instanceof Image){
-                    newObj[i] = obj[i];
-                } else{
-                    newObj[i] = util.copy(obj[i]);
+            if(Array.isArray(obj) && obj) {
+                var list = [];
+                for(var i in obj){
+                    list.push(util.copy(obj[i]));
                 }
+                return list;
+            } else if(typeof obj == 'object'){
+                var newObj = new Object();
+                for(var i in obj){
+                    if(obj[i] instanceof Image || obj[i] == Object.getPrototypeOf(obj)[i]){
+                        newObj[i] = obj[i];
+                    } else{
+                        newObj[i] = util.copy(obj[i]);
+                    }
+                }
+                return newObj;
             }
-            return newObj;
+            else {
+                return obj;
+            }
+
         },
         collisionTest: function (obj1, obj2) {
             if(obj1.position && obj1.width && obj1.height &&
@@ -302,7 +311,6 @@
         }
     };
 
-
     function BulletStyle(params){
         if(!params) return;
 
@@ -478,7 +486,7 @@
             var player = game.player;
             var geh = game.geh;
 
-            player.plane = game.planeDataList[0];
+            player.plane = $util.copy(new Plane().getByType(1));
 
             geh.mouseMove(function (e) {
                 player.plane.position.x = e.pageX;
@@ -529,11 +537,38 @@
                 game.context.closePath();
             });
         },
-        testPlayer: function () {
-          var game = this;
-          game.ifInit(function () {
+        test1: function () {
+            var game = this;
+            var time = 0;
+            var planeList = [];
+            game.ifInit(function () {
+                window.setInterval(function () {
+                    time += game.frameTime;
+                    game.frameNum++;
+                    game.draw(game.frameNum);
+                    var x = Math.random()*200;
+                    var y = Math.random()*200;
+                    if(game.frameNum % 50 == 0){
+                        var plane = $util.copy(new Plane().getByType(1));
+                        plane.position.x = x;
+                        plane.position.y = y;
+                        planeList.push(plane);
+                    }
 
-          });
+                    for (var i in planeList){
+                        planeList[i].drawImg(game.context);
+                    }
+
+                    for(var i in planeList){
+                        for (var j in game.player.plane.bulletList){
+                            if($util.collisionTest(planeList[i],game.player.plane.bulletList[j])){
+                                planeList[i].position.x = -100;
+                                planeList[i].position.y = -100;
+                            }
+                        }
+                    }
+                },game.frameTime);
+            })
         },
         checkInit: function () {
             var game = this;
@@ -632,8 +667,9 @@
     var gve = new GameEventHandler();
     gve.planeGame = planeGame;
     planeGame.init();
-     //planeGame.testAllModules();
-    // planeGame.test();
-    planeGame.start();
+    //planeGame.testAllModules();
+    //planeGame.test();
+    //planeGame.start();
+    planeGame.test1();
 }());
 //};
