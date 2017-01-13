@@ -1,0 +1,23 @@
+[{
+  "type" : 1,
+  "style": [
+    [{
+    "type": 1,
+    "speed": 20,
+    "direction": 0
+    }],
+    [{
+      "type": 1,
+      "speed": 20,
+      "direction": 0
+    },{
+      "type": 1,
+      "speed": 20,
+      "direction": 30
+    },{
+      "type": 1,
+      "speed": 20,
+      "direction": -30
+    }]
+  ]
+}]

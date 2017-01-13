@@ -28,11 +28,18 @@
         },
         copy: function (obj) {
             var util = this;
+
+            if(obj == undefined) return;
+            if(Array.isArray(obj)) return obj;
             if(typeof obj != 'object') return obj;
 
             var newObj = new Object();
             for(var i in obj){
-                newObj[i] = util.copy(obj[i]);
+                if(obj[i] instanceof Image){
+                    newObj[i] = obj[i];
+                } else{
+                    newObj[i] = util.copy(obj[i]);
+                }
             }
             return newObj;
         },
@@ -50,6 +57,18 @@
         }
     };
     var $util = new GameUtil();
+
+    /**
+     * GameTime
+     * manage the game time
+     */
+    function GameTime(){
+        this.curTime = 0;
+
+    }
+    GameTime.prototype = {
+        constructor: GameTime
+    };
 
 
     /**
@@ -98,8 +117,6 @@
 
 
         if (params.x && params.y) {
-            this.width = params.width;
-            this.height = params.height;
             this.position = new Position(
                 params.x + this.width / 2,
                 params.y + this.height / 2);
@@ -137,6 +154,11 @@
                     obj.isInit = true;
                 }
             });
+        },
+        drawImg: function (ctx) {
+            ctx.beginPath();
+            ctx.drawImage(this.img, this.position.x - this.width/2, this.position.y - this.height/2, this.width, this.height);
+            ctx.closePath();
         }
     };
 
@@ -162,20 +184,55 @@
         if (params.maxHp) {
             this.maxHp = params.maxHp;
         }
+        if(params.shootRate){
+            this.shootRate = params.shootRate;
+        }
         if(params.bulletType){
             this.bulletType = params.bulletType;
         }
+
+        this.bulletList = [];
     }
 
     Plane.prototype = $util.copy(FlyObject.prototype);
     Plane.prototype.constructor = Plane;
+    Plane.prototype.list = [];
     Plane.prototype.init = function () {
+        var plane = this;
+        var bulletStyle = new BulletStyle();
+        plane.bulletStyle = bulletStyle.getByType(plane.bulletType);
         this.loadImg();
     };
-    Plane.prototype.draw = function (ctx) {
-        ctx.beginPath();
-        ctx.drawImage(this.img, this.position.x, this.position.y, this.width, this.height);
-        ctx.closePath();
+    Plane.prototype.drawPlane = function (ctx) {
+        this.drawImg(ctx);
+    };
+    Plane.prototype.drawBullet = function (ctx) {
+        var plane = this;
+        for(var i in plane.bulletList){
+            plane.bulletList[i].draw(ctx);
+            plane.bulletList[i].move(ctx);
+        }
+    };
+    Plane.prototype.draw = function (ctx, time) {
+        var plane = this;
+        plane.drawPlane(ctx);
+
+        if(time % plane.shootRate <= 10){
+            var bulList = plane.bulletStyle.getBullets(1);
+            for (var i = 0 ;i<bulList.length;i++){
+                bulList[i].position = $util.copy(plane.position);
+                plane.bulletList.push(bulList[i]);
+            }
+        }
+        plane.drawBullet(ctx);
+    };
+    Plane.prototype.getByType = function (type) {
+        var list = new Plane().list;
+        for(var i in list){
+            if(type == list[i].type){
+                return list[i];
+            }
+        }
     };
 
     /**
@@ -200,17 +257,88 @@
         if (params.damage) {
             this.damage = params.damage;
         }
+        if (params.direction){
+            this.direction = params.direction;
+        } else{
+            this.direction = 0;
+        }
+        if (params.rotate){
+            this.rotate = params.rotate;
+        } else{
+            this.rotate = 0;
+        }
     }
 
     Bullet.prototype = $util.copy(FlyObject.prototype);
     Bullet.prototype.constructor = Bullet;
+    Bullet.prototype.list = [];
     Bullet.prototype.init = function () {
         this.loadImg();
     };
-    Bullet.prototype.draw = function () {
-
+    Bullet.prototype.draw = function (ctx) {
+        this.drawImg(ctx);
+    };
+    Bullet.prototype.move = function () {
+        var bullet = this;
+        bullet.position.y -= bullet.speed * Math.cos(bullet.direction / 360 * Math.PI * 2);
+        bullet.position.x += bullet.speed * Math.sin(bullet.direction / 360 * Math.PI * 2);
+    };
+    Bullet.prototype.getByType = function (type) {
+        var list = new Bullet().list;
+        for(var i in list){
+            if(list[i].type == type){
+                return list[i];
+            }
+        }
     };
 
+
+    function BulletStyle(params){
+        if(!params) return;
+
+        if(params.type){
+            this.type = params.type;
+        }
+        if(params.style){
+            this.style = params.style;
+        }
+    }
+    BulletStyle.prototype = {
+        constructor: BulletStyle,
+        list: [],
+        init: function () {
+            var bullet = new Bullet();
+            var bulletStyle = this;
+            for(var i in bulletStyle.list){
+                var styles = bulletStyle.list[i].style;
+                for(var j in styles){
+                    var style = styles[j];
+                    for(var k in style){
+                        style[k].bullet = $util.copy(bullet.getByType(style[k].type));
+                        style[k].bullet.direction = style[k].direction;
+                        style[k].bullet.speed = style[k].speed;
+                    }
+                }
+            }
+            console.log(bulletStyle);
+        },
+        getByType: function (type) {
+            var list = this.list
+            for(var i in list){
+                if(list[i].type == type){
+                    return list[i];
+                }
+            }
+        },
+        getBullets: function (index) {
+            var style = this.style[index];
+            var list = [];
+            for(var i in style){
+                list.push($util.copy(style[i].bullet));
+            }
+            return list;
+        }
+    };
 
     function PlaneGame(params) {
         if (!params) return;
@@ -220,6 +348,8 @@
         }
         if (params.canvasElement) {
             this.canvasElement = params.canvasElement;
+            this.width = this.canvasElement.getAttribute('width');
+            this.height = this.canvasElement.getAttribute('height');
             this.context = this.canvasElement.getContext('2d');
         }
         if (params.planeDataSrc) {
@@ -228,13 +358,20 @@
         if (params.bulletDataSrc) {
             this.bulletDataSrc = params.bulletDataSrc;
         }
+        if (params.bulletStyleSrc) {
+            this.bulletStyleSrc = params.bulletStyleSrc;
+        }
         if (params.fps) {
             this.fps = params.fps;
+            this.frameTime = 1000 / this.fps;
         }
-        this.planeDataList = [];
-        this.bulletDataList = [];
+        this.planeDataList = new Plane().list;
+        this.bulletDataList = new Bullet().list;
         this.isInit = false;
         this.player = null;
+        this.geh = null;
+        this.frameNum = 0;
+        this.totTime = 0;
     }
 
     PlaneGame.prototype = {
@@ -245,7 +382,7 @@
                 url: this.planeDataSrc,
                 cache: false,
                 async: false,
-                type: "POST",
+                type: "GET",
                 dataType: 'json',
                 success: function (data) {
                     console.log('获取成功：' + game.planeDataSrc);
@@ -260,12 +397,15 @@
         },
         getBulletData: function () {
             var game = this;
+            if(!game.bulletDataSrc) {
+                throw Error('PlaneGame: bulletDataSrc is not defined!');
+            }
             console.log('开始获取：' + game.bulletDataSrc);
             $.ajax({
                 url: game.bulletDataSrc,
                 cache: false,
                 async: false,
-                type: "POST",
+                type: "GET",
                 dataType: 'json',
                 success: function (data) {
                     console.log('获取成功：' + game.bulletDataSrc);
@@ -278,38 +418,82 @@
                 }
             })
         },
+        getBulletStyleData: function () {
+            var game = this;
+            if(!game.bulletStyleSrc){
+                throw Error('PlaneGame: bulletStyleDataSrc is not defined!');
+            }
+            console.log('开始获取：' + game.bulletStyleSrc);
+            $.ajax({
+                url: game.bulletStyleSrc,
+                async: false,
+                cache: false,
+                type: "GET",
+                dataType: 'json',
+                success: function (data) {
+                    console.log('获取成功：' + game.bulletStyleSrc);
+                    var bs = new BulletStyle();
+                    for(var i in data){
+                        bs.list.push(new BulletStyle(data[i]));
+                    }
+                },
+                error: function (error) {
+                    throw Error('获取失败:' + game.bulletStyleSrc);
+                }
+            })
+        },
         initBulletData: function () {
             var game = this;
             for(var i in game.bulletDataList){
                 game.bulletDataList[i].init();
             }
-            console.log(game.bulletDataList);
+        },
+        initBulletStyleData: function () {
+            var list = new BulletStyle().list;
+            for(var i in list){
+                list[i].init();
+            }
         },
         initPlaneData: function () {
             var game = this;
             for(var i in game.planeDataList){
                 game.planeDataList[i].init();
             }
-            console.log(game.planeDataList);
         },
         initPlayer: function () {
             var game = this;
             game.player = new Player();
-            game.player.plane = game.planeDataList[0];
+            game.geh = new GameEventHandler();
+
+            var player = game.player;
+            var geh = game.geh;
+
+            player.plane = game.planeDataList[0];
+
+            geh.mouseMove(function (e) {
+                player.plane.position.x = e.pageX;
+                player.plane.position.y = e.pageY;
+            });
         },
         start: function () {
             var game = this;
+            var time = 0;
             game.ifInit(function () {
                 window.setInterval(function () {
-                    game.draw();
-                }, 1000 / game.fps);
+                    time += game.frameTime;
+                    game.frameNum++;
+                    if(game.frameNum>=game.fps){
+                        game.frameNum = 0;
+                    }
+                    game.draw(time);
+                },game.frameTime);
             })
         },
-        draw: function () {
+        draw: function (time) {
             var game = this;
-            game.context.clearRect(0,0,1000,1000);
+            game.context.clearRect(0,0,game.width,game.height);
 
-            game.player.plane.draw(game.context);
+            game.player.plane.draw(game.context,time);
         },
         testAllModules: function () {
             var game = this;
@@ -318,7 +502,6 @@
                 var y = 0;
                 game.context.beginPath();
                 for(var i in game.planeDataList){
-                    console.log(game.planeDataList[i]);
                     game.planeDataList[i].position.x = x;
                     game.planeDataList[i].position.y = y;
                     game.drawImage(game.planeDataList[i]);
@@ -372,7 +555,6 @@
                         window.clearTimeout(interval);
                         callback();
                     } else{
-                        console.log("!");
                         game.isInit = game.checkInit();
                     }
                 },100,0);
@@ -407,7 +589,9 @@
             var game = this;
             game.getBulletData();
             game.getPlaneData();
+            game.getBulletStyleData();
             game.initBulletData();
+            game.initBulletStyleData();
             game.initPlaneData();
             game.initPlayer();
         }
@@ -422,12 +606,9 @@
         this.planeGame = null;
     }
     GameEventHandler.prototype = {
-        mouse:function () {
+        mouseMove:function (funcObj) {
             var gve = this;
-            document.addEventListener('mousemove',function (e) {
-                gve.planeGame.player.plane.position.x = e.pageX;
-                gve.planeGame.player.plane.position.y = e.pageY;
-            })
+            document.addEventListener('mousemove', funcObj, false);
         },
         constructor: GameEventHandler
     };
@@ -436,14 +617,15 @@
         canvasElement: $('#myCanvas')[0],
         planeDataSrc: 'plane.json',
         bulletDataSrc: 'bullet.json',
-        fps: '50'
+        bulletStyleSrc: 'bullet-style.json',
+        fps: '40'
     };
+
     var planeGame = new PlaneGame(config);
     var gve = new GameEventHandler();
     gve.planeGame = planeGame;
-    gve.mouse();
     planeGame.init();
-    // planeGame.testAllModules();
+     //planeGame.testAllModules();
     // planeGame.test();
     planeGame.start();
 }());
