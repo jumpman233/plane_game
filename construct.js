@@ -213,11 +213,11 @@
             plane.bulletList[i].move(ctx);
         }
     };
-    Plane.prototype.draw = function (ctx, time) {
+    Plane.prototype.draw = function (ctx, frameNum) {
         var plane = this;
         plane.drawPlane(ctx);
 
-        if(time % plane.shootRate <= 10){
+        if(frameNum % plane.shootRate == 0){
             var bulList = plane.bulletStyle.getBullets(1);
             for (var i = 0 ;i<bulList.length;i++){
                 bulList[i].position = $util.copy(plane.position);
@@ -482,18 +482,15 @@
                 window.setInterval(function () {
                     time += game.frameTime;
                     game.frameNum++;
-                    if(game.frameNum>=game.fps){
-                        game.frameNum = 0;
-                    }
-                    game.draw(time);
+                    game.draw(game.frameNum);
                 },game.frameTime);
             })
         },
-        draw: function (time) {
+        draw: function (frameNum) {
             var game = this;
             game.context.clearRect(0,0,game.width,game.height);
 
-            game.player.plane.draw(game.context,time);
+            game.player.plane.draw(game.context,frameNum);
         },
         testAllModules: function () {
             var game = this;
@@ -618,7 +615,7 @@
         planeDataSrc: 'plane.json',
         bulletDataSrc: 'bullet.json',
         bulletStyleSrc: 'bullet-style.json',
-        fps: '40'
+        fps: '5'
     };
 
     var planeGame = new PlaneGame(config);
