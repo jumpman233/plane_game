@@ -218,12 +218,6 @@
     Plane.prototype.constructor = Plane;
     Plane.prototype.className = 'plane';
     Plane.prototype.list = [];
-    Plane.prototype.init = function () {
-        var plane = this;
-        var bulletStyle = new BulletStyle();
-        plane.bulletStyle = bulletStyle.getByType(plane.bulletType);
-        this.loadImg();
-    };
     Plane.prototype.drawPlane = function (ctx) {
         this.drawImg(ctx);
     };
@@ -247,14 +241,6 @@
             }
         }
         plane.drawBullet(ctx);
-    };
-    Plane.prototype.getByType = function (type) {
-        var list = new Plane().list;
-        for(var i in list){
-            if(type == list[i].type){
-                return list[i];
-            }
-        }
     };
 
     /**
@@ -291,9 +277,6 @@
     Bullet.prototype.constructor = Bullet;
     Bullet.prototype.className = 'bullet';
     Bullet.prototype.list = [];
-    Bullet.prototype.init = function () {
-        this.loadImg();
-    };
     Bullet.prototype.draw = function (ctx) {
         this.drawImg(ctx);
     };
@@ -301,14 +284,6 @@
         var bullet = this;
         bullet.position.y -= bullet.speed * Math.cos(bullet.direction / 360 * Math.PI * 2);
         bullet.position.x += bullet.speed * Math.sin(bullet.direction / 360 * Math.PI * 2);
-    };
-    Bullet.prototype.getByType = function (type) {
-        var list = new Bullet().list;
-        for(var i in list){
-            if(list[i].type == type){
-                return list[i];
-            }
-        }
     };
 
     function BulletStyle(params){
@@ -324,30 +299,6 @@
     BulletStyle.prototype = {
         constructor: BulletStyle,
         list: [],
-        init: function () {
-            var bullet = new Bullet();
-            var bulletStyle = this;
-            for(var i in bulletStyle.list){
-                var styles = bulletStyle.list[i].style;
-                for(var j in styles){
-                    var style = styles[j];
-                    for(var k in style){
-                        style[k].bullet = $util.copy(bullet.getByType(style[k].type));
-                        style[k].bullet.direction = style[k].direction;
-                        style[k].bullet.speed = style[k].speed;
-                    }
-                }
-            }
-            console.log(bulletStyle);
-        },
-        getByType: function (type) {
-            var list = this.list
-            for(var i in list){
-                if(list[i].type == type){
-                    return list[i];
-                }
-            }
-        },
         getBullets: function (index) {
             var style = this.style[index];
             var list = [];
@@ -382,111 +333,30 @@
         if (params.fps) {
             this.fps = params.fps;
             this.frameTime = 1000 / this.fps;
+        } else{
+            this.fps = 50;
+            this.frameTime = 1000 / this.fps;
         }
-        this.planeDataList = new Plane().list;
-        this.bulletDataList = new Bullet().list;
+        this.planeDataList = [];
+        this.bulletDataList = [];
         this.isInit = false;
         this.player = null;
         this.geh = null;
         this.frameNum = 0;
-        this.totTime = 0;
+        this.warehouse = null;
     }
 
     PlaneGame.prototype = {
-        getPlaneData: function () {
-            var game = this;
-            console.log('开始获取：' + game.planeDataSrc);
-            $.ajax({
-                url: this.planeDataSrc,
-                cache: false,
-                async: false,
-                type: "GET",
-                dataType: 'json',
-                success: function (data) {
-                    console.log('获取成功：' + game.planeDataSrc);
-                    for(var i in data){
-                        game.planeDataList.push(new Plane(data[i]));
-                    }
-                },
-                error: function (response) {
-                    console.log('获取失败：' + game.planeDataSrc);
-                }
-            })
-        },
-        getBulletData: function () {
-            var game = this;
-            if(!game.bulletDataSrc) {
-                throw Error('PlaneGame: bulletDataSrc is not defined!');
-            }
-            console.log('开始获取：' + game.bulletDataSrc);
-            $.ajax({
-                url: game.bulletDataSrc,
-                cache: false,
-                async: false,
-                type: "GET",
-                dataType: 'json',
-                success: function (data) {
-                    console.log('获取成功：' + game.bulletDataSrc);
-                    for(var i in data){
-                        game.bulletDataList.push(new Bullet(data[i]));
-                    }
-                },
-                error: function () {
-                    console.log('获取失败：' + game.bulletDataSrc);
-                }
-            })
-        },
-        getBulletStyleData: function () {
-            var game = this;
-            if(!game.bulletStyleSrc){
-                throw Error('PlaneGame: bulletStyleDataSrc is not defined!');
-            }
-            console.log('开始获取：' + game.bulletStyleSrc);
-            $.ajax({
-                url: game.bulletStyleSrc,
-                async: false,
-                cache: false,
-                type: "GET",
-                dataType: 'json',
-                success: function (data) {
-                    console.log('获取成功：' + game.bulletStyleSrc);
-                    var bs = new BulletStyle();
-                    for(var i in data){
-                        bs.list.push(new BulletStyle(data[i]));
-                    }
-                },
-                error: function (error) {
-                    throw Error('获取失败:' + game.bulletStyleSrc);
-                }
-            })
-        },
-        initBulletData: function () {
-            var game = this;
-            for(var i in game.bulletDataList){
-                game.bulletDataList[i].init();
-            }
-        },
-        initBulletStyleData: function () {
-            var list = new BulletStyle().list;
-            for(var i in list){
-                list[i].init();
-            }
-        },
-        initPlaneData: function () {
-            var game = this;
-            for(var i in game.planeDataList){
-                game.planeDataList[i].init();
-            }
-        },
         initPlayer: function () {
             var game = this;
+            var warehouse = game.warehouse;
             game.player = new Player();
             game.geh = new GameEventHandler();
 
             var player = game.player;
             var geh = game.geh;
 
-            player.plane = $util.copy(new Plane().getByType(1));
+            player.plane = warehouse.getPlaneByType(1);
 
             geh.mouseMove(function (e) {
                 player.plane.position.x = e.pageX;
@@ -512,25 +382,28 @@
         },
         testAllModules: function () {
             var game = this;
+            var warehouse = game.warehouse;
+            var bulletList = warehouse.getBulletTypeList();
+            var planeList = warehouse.getPlaneTypeList();
             game.ifInit(function () {
                 var x = 0;
                 var y = 0;
                 game.context.beginPath();
-                for(var i in game.planeDataList){
-                    game.planeDataList[i].position.x = x;
-                    game.planeDataList[i].position.y = y;
-                    game.drawImage(game.planeDataList[i]);
-                    x += game.planeDataList[i].width / 2 + 30;
-                    if (y>=300){
+                for(var i in planeList){
+                    planeList[i].position.x = x;
+                    planeList[i].position.y = y;
+                    game.drawImage(planeList[i]);
+                    x += planeList[i].width / 2 + 30;
+                    if (x>=500){
                         y+=100;
                     }
                 }
-                for(var i in game.bulletDataList){
-                    game.bulletDataList[i].position.x = x;
-                    game.bulletDataList[i].position.y = y;
-                    game.drawImage(game.bulletDataList[i]);
-                    x += game.bulletDataList[i].width / 2 + 30;
-                    if (y>=300){
+                for(var i in bulletList){
+                    bulletList[i].position.x = x;
+                    bulletList[i].position.y = y;
+                    game.drawImage(bulletList[i]);
+                    x += bulletList[i].width / 2 + 30;
+                    if (x>=500){
                         y+=100;
                     }
                 }
@@ -539,6 +412,7 @@
         },
         test1: function () {
             var game = this;
+            var warehouse = game.warehouse;
             var time = 0;
             var planeList = [];
             game.ifInit(function () {
@@ -549,7 +423,7 @@
                     var x = Math.random()*200;
                     var y = Math.random()*200;
                     if(game.frameNum % 50 == 0){
-                        var plane = $util.copy(new Plane().getByType(1));
+                        var plane = warehouse.getPlaneByType(1);
                         plane.position.x = x;
                         plane.position.y = y;
                         planeList.push(plane);
@@ -629,16 +503,160 @@
         },
         init: function () {
             var game = this;
-            game.getBulletData();
-            game.getPlaneData();
-            game.getBulletStyleData();
-            game.initBulletData();
-            game.initBulletStyleData();
-            game.initPlaneData();
+
+            game.warehouse = new Warehouse();
+            game.warehouse.init({
+                bulletDataSrc: game.bulletDataSrc,
+                bulletStyleSrc: game.bulletStyleSrc,
+                planeDataSrc: game.planeDataSrc
+            });
+            console.log(game.warehouse);
+
             game.initPlayer();
         }
     };
 
+    function Warehouse() {
+        this.bulletTypeList = [];
+        this.planeTypeList = [];
+        this.bulletStyleList = [];
+        this.planeList = [];
+        this.bulletList = [];
+    }
+    Warehouse.prototype = {
+        constructor: Warehouse,
+        getBulletTypeList: function () {
+            return $util.copy(this.bulletTypeList);
+        },
+        getPlaneTypeList: function () {
+            return $util.copy(this.planeTypeList);
+        },
+        getBulletStyleList: function () {
+            return $util.copy(this.bulletStyleList);
+        },
+        getBulletByType: function (type) {
+            var warehouse = this;
+            var list = warehouse.bulletTypeList;
+            for(var i in list){
+                if(list[i].type == type){
+                    return $util.copy(list[i]);
+                }
+            }
+        },
+        getPlaneByType: function (type) {
+            var warehouse = this;
+            var list = warehouse.planeTypeList;
+            for(var i in list){
+                if(list[i].type == type){
+                    return $util.copy(list[i]);
+                }
+            }
+        },
+        getBulletStyleByType: function (type) {
+            var warehouse = this;
+            var list = warehouse.bulletStyleList;
+            for(var i in list){
+                if(list[i].type == type){
+                    return $util.copy(list[i]);
+                }
+            }
+        },
+        initBullet: function (bullet) {
+            bullet.loadImg();
+        },
+        initBulletStyle: function (bulletStyle) {
+            var warehouse = this;
+            for(var i in bulletStyle){
+                var styles = bulletStyle[i];
+                for(var j in styles){
+                    var style = styles[j];
+                    console.log(style);
+                    for(var k in style){
+                        style[k].bullet = warehouse.getBulletByType(style[k].type);
+                        style[k].bullet.direction = style[k].direction;
+                        style[k].bullet.speed = style[k].speed;
+                    }
+                }
+            }
+
+        },
+        initPlane: function (plane) {
+            var warehouse = this;
+            plane.bulletStyle = warehouse.getBulletStyleByType(plane.bulletType);
+            plane.loadImg();
+        },
+        initBulletData: function (src) {
+            var warehouse = this;
+
+            warehouse.getData(src,function (data) {
+               warehouse.bulletTypeList = [];
+               for(var i in data){
+                   warehouse.bulletTypeList.push(new Bullet(data[i]));
+               }
+            });
+
+            for(var i in warehouse.bulletTypeList){
+                warehouse.initBullet(warehouse.bulletTypeList[i]);
+            }
+        },
+        initBulletStyleData: function (src) {
+            var warehouse = this;
+
+            warehouse.getData(src,function (data) {
+                warehouse.bulletStyleList = [];
+                for(var i in data){
+                    warehouse.bulletStyleList.push(new BulletStyle(data[i]));
+                }
+            });
+
+            for(var i in warehouse.bulletStyleList){
+                warehouse.initBulletStyle(warehouse.bulletStyleList[i]);
+            }
+        },
+        initPlaneData: function (src) {
+            var warehouse = this;
+
+            warehouse.getData(src,function (data) {
+               warehouse.planeTypeList = [];
+               for (var i in data){
+                   warehouse.planeTypeList.push(new Plane(data[i]));
+               }
+            });
+
+            for(var i in warehouse.planeTypeList){
+                warehouse.initPlane(warehouse.planeTypeList[i]);
+            }
+        },
+        getData: function (src, callback) {
+            if(undefined == src){
+                throw Error('Warehouse getData: src is not defined!');
+            }
+            console.log('开始获取：' + src);
+            $.ajax({
+                url: src,
+                async: false,
+                cache: false,
+                type: "GET",
+                dataType: 'json',
+                success: function (data) {
+                    console.log('获取成功：' + src);
+                    callback(data);
+                },
+                error: function (error) {
+                    throw Error('获取失败:' + src);
+                }
+            });
+        },
+        init: function (params) {
+            if(!params.bulletDataSrc || !params.bulletStyleSrc || !params.planeDataSrc){
+                throw Error('warehouse init: the attribute are not right!');
+            }
+            this.initBulletData(params.bulletDataSrc);
+            this.initBulletStyleData(params.bulletStyleSrc);
+            this.initPlaneData(params.planeDataSrc);
+        }
+    };
+    
     function Player() {
         this.plane = null;
         this.lives = null;
@@ -667,8 +685,7 @@
     var gve = new GameEventHandler();
     gve.planeGame = planeGame;
     planeGame.init();
-    //planeGame.testAllModules();
-    //planeGame.test();
+    // planeGame.testAllModules();
     //planeGame.start();
     planeGame.test1();
 }());
