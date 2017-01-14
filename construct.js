@@ -337,8 +337,6 @@
             this.fps = 50;
             this.frameTime = 1000 / this.fps;
         }
-        this.planeDataList = [];
-        this.bulletDataList = [];
         this.isInit = false;
         this.player = null;
         this.geh = null;
@@ -446,16 +444,19 @@
         },
         checkInit: function () {
             var game = this;
+            var warehouse = game.warehouse;
+            var bulletDataList = warehouse.getBulletTypeList();
+            var planeDataList = warehouse.getPlaneTypeList();
             if(game.isInit) return true;
 
             var flag = true;
-            for(var i in game.bulletDataList){
-                if(!game.bulletDataList[i].isInit){
+            for(var i in bulletDataList){
+                if(!bulletDataList[i].isInit){
                     flag = false;
                 }
             }
-            for(var i in game.planeDataList){
-                if(!game.planeDataList[i].isInit){
+            for(var i in planeDataList){
+                if(!planeDataList[i].isInit){
                     flag = false;
                 }
             }
