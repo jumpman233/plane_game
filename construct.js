@@ -154,7 +154,7 @@
         if (params.src) {
             this.src = params.src;
         }
-        if (params.rotate) {
+        if (params.direction) {
             this.rotate = params.rotate;
         }
         this.isInit = false;
@@ -210,14 +210,18 @@
         if(params.bulletType){
             this.bulletType = params.bulletType;
         }
-
+        if(params.role){
+            this.role = params.role;
+        }
+        if(params.canShoot){
+            this.canShoot = params.canShoot;
+        }
         this.bulletList = [];
     }
 
     Plane.prototype = $util.copy(FlyObject.prototype);
     Plane.prototype.constructor = Plane;
     Plane.prototype.className = 'plane';
-    Plane.prototype.list = [];
     Plane.prototype.drawPlane = function (ctx) {
         this.drawImg(ctx);
     };
@@ -257,18 +261,12 @@
         if (params.damage) {
             this.damage = params.damage;
         }
-        if (params.direction){
-            this.direction = params.direction;
-        } else{
-            this.direction = 0;
-        }
         this.parent = null;
     }
 
     Bullet.prototype = $util.copy(FlyObject.prototype);
     Bullet.prototype.constructor = Bullet;
     Bullet.prototype.className = 'bullet';
-    Bullet.prototype.list = [];
     Bullet.prototype.draw = function (ctx) {
         this.drawImg(ctx);
     };
@@ -290,7 +288,6 @@
     }
     BulletStyle.prototype = {
         constructor: BulletStyle,
-        list: [],
         getBullets: function (index) {
             var style = this.style[index];
             var list = [];
@@ -349,6 +346,7 @@
             var geh = game.geh;
 
             player.plane = warehouse.getPlaneByType(1);
+            player.plane.role = 'player';
 
             geh.mouseMove(function (e) {
                 player.plane.position.x = e.pageX;
@@ -412,7 +410,7 @@
                 game.context.closePath();
             });
         },
-        dirtyTest: function (list) {
+        dirtyCheck: function (list) {
             var game = this;
             for(var i in list){
                 var obj  = list[i];
@@ -422,9 +420,6 @@
                 x + obj.width / 2 < 0 ||
                 y - obj.height / 2 - game.height > 0 ||
                 y + obj.height / 2 < 0){
-                    // console.log(obj);
-                    // console.log(game.width);
-                    // console.log(game.height);
                     list.splice(i,1);
                 }
             }
@@ -436,36 +431,38 @@
             var planeList = [];
             game.ifInit(function () {
                 window.setInterval(function () {
-                    if(!game.pause){
-                        time += game.frameTime;
-                        game.frameNum++;
+                    if(game.pause)
+                        return;
 
-                        game.draw(game.frameNum);
+                    time += game.frameTime;
+                    game.frameNum++;
 
-                        var x = Math.random()*200;
-                        var y = Math.random()*200;
-                        if(game.frameNum % 50 == 0){
-                            var plane = warehouse.getPlaneByType(1);
-                            plane.position.x = x;
-                            plane.position.y = y;
-                            planeList.push(plane);
-                        }
+                    game.draw(game.frameNum);
 
-                        for (var i in planeList){
-                            planeList[i].drawImg(game.context);
-                        }
+                    var x = Math.random()*200;
+                    var y = Math.random()*200;
+                    if(game.frameNum % 50 == 0){
+                        var plane = warehouse.getPlaneByType(1);
+                        plane.position.x = x;
+                        plane.position.y = y;
+                        plane.role = 'enemy';
+                        planeList.push(plane);
+                    }
 
-                        for(var i in planeList){
-                            for (var j in game.bulletList){
-                                if($util.collisionTest(planeList[i],game.bulletList[j])){
-                                    planeList[i].position.x = -100;
-                                    planeList[i].position.y = -100;
-                                }
+                    for (var i in planeList){
+                        planeList[i].drawImg(game.context);
+                    }
+
+                    for(var i in planeList){
+                        for (var j in game.bulletList){
+                            if($util.collisionTest(planeList[i],game.bulletList[j])){
+                                planeList.splice(i,1);
+                                break;
                             }
                         }
-                        game.dirtyTest(game.bulletList);
-                        console.log(game.bulletList);
                     }
+                    game.dirtyCheck(game.bulletList);
+                    console.log(game.bulletList);
                 },game.frameTime);
             })
         },

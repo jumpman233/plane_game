@@ -5,6 +5,8 @@
     "speed": 20,
     "src": "plane.png",
     "role": "player",
-  "shootRate": 10,
+  "direction": 0,
+    "canShoot": "false",
+    "shootRate": 10,
     "bulletType": 1
 }]
