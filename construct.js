@@ -221,6 +221,9 @@
         if(params.canShoot){
             this.canShoot = params.canShoot;
         }
+        if(params.curBullet){
+            this.curBullet = params.curBullet;
+        }
         this.bulletList = [];
     }
 
@@ -234,10 +237,12 @@
         var plane = this;
         plane.drawPlane(ctx);
 
-        if(frameNum % plane.shootRate == 0 && plane.canShoot){
-            var bulList = plane.bulletStyle.getBullets(1);
+        if(frameNum % plane.shootRate == 0 && plane.canShoot && plane.curBullet != undefined){
+            var bulList = plane.bulletStyle.getBullets(plane.curBullet);
             for (var i = 0 ;i<bulList.length;i++){
                 bulList[i].position = $util.copy(plane.position);
+                bulList[i].move(ctx);
+                bulList[i].move(ctx);
                 bulList[i].parent = plane;
                 $game.bulletList.push(bulList[i]);
             }
@@ -351,6 +356,7 @@
             var geh = game.geh;
 
             player.plane = warehouse.getPlaneByType(1);
+            player.plane.curBullet = 0;
             player.plane.role = 'player';
 
             geh.mouseMove(function (e) {
@@ -444,6 +450,7 @@
 
                     game.draw(game.frameNum);
 
+
                     var x = Math.random()*200;
                     if(game.frameNum % 50 == 0){
                         var plane = warehouse.getPlaneByType(1);
@@ -453,6 +460,7 @@
                         plane.role = 'enemy';
                         plane.canShoot = true;
                         plane.bulletStyle = warehouse.getBulletStyleByType(2);
+                        plane.curBullet = 0;
                         planeList.push(plane);
                     }
 
@@ -467,6 +475,21 @@
                                 planeList.splice(i,1);
                                 break;
                             }
+                        }
+                    }
+                    for(var i in game.bulletList){
+                        if($util.collisionTest(game.player.plane,game.bulletList[i])&&
+                        game.bulletList[i].parent != game.player.plane){
+                            game.bulletList.splice(0,game.bulletList.length);
+                            planeList.splice(0,planeList.length);
+                            game.context.clearRect(0,0,game.width,game.height);
+                            game.player.plane.position  = new Position(game.width/2,game.height-100);
+                            game.player.plane.drawImg(game.context);
+                            game.context.font = "30px Courier New";
+                            game.context.fillStyle = "#333";
+                            game.context.textAlign = 'center';
+                            game.context.fillText("Game Over",game.width/2,game.height/2);
+                            game.pause = true;
                         }
                     }
                     game.dirtyCheck(game.bulletList);
