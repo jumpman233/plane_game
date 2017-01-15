@@ -2,10 +2,10 @@
 	"type": "1",
 	"width": 30,
     "height": 30,
-    "speed": 20,
+    "speed": 5,
     "src": "plane.png",
     "role": "player",
-  "direction": 0,
+    "direction": 0,
     "canShoot": "false",
     "shootRate": 10,
     "bulletType": 1

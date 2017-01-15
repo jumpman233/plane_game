@@ -20,4 +20,17 @@
       "direction": -30
     }]
   ]
+},{
+  "type": 2,
+  "style": [
+    [{
+      "type": 1,
+      "speed": 10,
+      "direction": 180
+    }],[{
+      "type": 1,
+      "speed": 10,
+      "direction": 180
+    }]
+  ]
 }]

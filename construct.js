@@ -179,6 +179,11 @@
             ctx.beginPath();
             ctx.drawImage(this.img, this.position.x - this.width/2, this.position.y - this.height/2, this.width, this.height);
             ctx.closePath();
+        },
+        move: function (ctx) {
+            var obj = this;
+            obj.position.y -= obj.speed * Math.cos(obj.direction / 360 * Math.PI * 2);
+            obj.position.x += obj.speed * Math.sin(obj.direction / 360 * Math.PI * 2);
         }
     };
 
@@ -229,7 +234,7 @@
         var plane = this;
         plane.drawPlane(ctx);
 
-        if(frameNum % plane.shootRate == 0){
+        if(frameNum % plane.shootRate == 0 && plane.canShoot){
             var bulList = plane.bulletStyle.getBullets(1);
             for (var i = 0 ;i<bulList.length;i++){
                 bulList[i].position = $util.copy(plane.position);
@@ -440,31 +445,41 @@
                     game.draw(game.frameNum);
 
                     var x = Math.random()*200;
-                    var y = Math.random()*200;
                     if(game.frameNum % 50 == 0){
                         var plane = warehouse.getPlaneByType(1);
                         plane.position.x = x;
-                        plane.position.y = y;
+                        plane.position.y = 0;
+                        plane.direction = 180;
                         plane.role = 'enemy';
+                        plane.canShoot = true;
+                        plane.bulletStyle = warehouse.getBulletStyleByType(2);
                         planeList.push(plane);
                     }
 
                     for (var i in planeList){
-                        planeList[i].drawImg(game.context);
+                        planeList[i].draw(game.context, game.frameNum);
+                        planeList[i].move();
                     }
 
                     for(var i in planeList){
                         for (var j in game.bulletList){
-                            if($util.collisionTest(planeList[i],game.bulletList[j])){
+                            if(game.bulletList[j].parent != planeList[i] && $util.collisionTest(planeList[i],game.bulletList[j])){
                                 planeList.splice(i,1);
                                 break;
                             }
                         }
                     }
                     game.dirtyCheck(game.bulletList);
-                    console.log(game.bulletList);
+                    game.dirtyCheck(planeList);
                 },game.frameTime);
-            })
+            });
+        },
+        randomMode: function () {
+
+        },
+        createEnermy: function (type) {
+            var game = this;
+            return warehouse.getPlaneByType(type);
         },
         checkInit: function () {
             var game = this;
