@@ -160,6 +160,7 @@
         this.isInit = false;
     }
 
+    console.log("!!");
     FlyObject.prototype = {
         className: 'flyObject',
         constructor: FlyObject,
@@ -176,9 +177,12 @@
             });
         },
         drawImg: function (ctx) {
-            ctx.beginPath();
-            ctx.drawImage(this.img, this.position.x - this.width/2, this.position.y - this.height/2, this.width, this.height);
-            ctx.closePath();
+            var obj = this;
+            ctx.save();
+            ctx.translate(obj.position.x, obj.position.y);
+            ctx.rotate(obj.direction/180*Math.PI);
+            ctx.drawImage(obj.img, - this.width/2, - obj.height/2, obj.width, obj.height);
+            ctx.restore();
         },
         move: function (ctx) {
             var obj = this;
