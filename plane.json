@@ -8,5 +8,6 @@
     "direction": 0,
     "canShoot": "false",
     "shootRate": 50,
-    "bulletType": 1
+    "bulletType": 1,
+    "score": 5
 }]

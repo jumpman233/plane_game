@@ -224,6 +224,11 @@
         if(params.curBullet){
             this.curBullet = params.curBullet;
         }
+        if(undefined != params.score){
+            this.score = params.score;
+        } else{
+            this.score = 1;
+        }
         this.bulletList = [];
     }
 
@@ -767,7 +772,14 @@
     function Player() {
         this.plane = null;
         this.lives = null;
+        this.score = 0;
     }
+    Player.prototype.initPlayer = function (plane) {
+        if(plane instanceof Plane){
+            this.plane = plane;
+        }
+        this.score = 0;
+    };
 
     function GameEventHandler() {
         this.planeGame = null;
