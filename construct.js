@@ -376,13 +376,16 @@
         },
         start: function () {
             var game = this;
+            var context = game.context;
             var time = 0;
             game.ifInit(function () {
-                window.setInterval(function () {
-                    time += game.frameTime;
-                    game.frameNum++;
-                    game.draw(game.frameNum);
-                },game.frameTime);
+                context.font = "20px Georgia";
+                context.fillText("Fight In Sky",game.width/2,game.height/5);
+                context.font = "16px Georgia";
+                context.fillText("Start Game",game.width/2,game.height/5*2);
+                game.canvasElement.addEventListener('mousedown',function (event) {
+                    console.log(event);
+                })
             })
         },
         draw: function (frameNum) {
@@ -809,6 +812,7 @@
     $game.init();
     // planeGame.testAllModules();
     //planeGame.start();
+    // $game.start();
     $game.test1();
 }());
 //};
