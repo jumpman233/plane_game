@@ -64,6 +64,7 @@
             }
         },
         getEventPosition: function (e) {
+            console.log(e);
             if(undefined == e){
                 return;
             }
@@ -369,7 +370,9 @@
             var game = this;
             var warehouse = game.warehouse;
             game.player = new Player();
-            game.geh = new GameEventHandler();
+            game.geh = new GameEventHandler({
+                target: game.canvasElement
+            });
 
             var player = game.player;
             var geh = game.geh;
@@ -379,8 +382,7 @@
             player.plane.role = 'player';
 
             geh.mouseMove(function (e) {
-                player.plane.position.x = e.pageX;
-                player.plane.position.y = e.pageY;
+                player.plane.position = $util.getEventPosition(e);
             });
             geh.keydown(function (e) {
                 if(e.keyCode == 32){
@@ -397,7 +399,7 @@
             context.strokeRect(300,80,200,30);
             context.font = "16px Georgia";
             context.fillText("Start Game",400,100);
-            game.canvasElement.addEventListener('mousemove',function (event) {
+            var menuMouseMove = function (event) {
                 var pos = $util.getEventPosition(event);
                 // console.log($('#'+game.canvasElement.id));
                 if(pos.x >= 300 && pos.x <= 500 && pos.y >= 80 && pos.y <= 110){
@@ -405,7 +407,18 @@
                 } else{
                     $('#'+game.canvasElement.id).css('cursor','default');
                 }
-            });
+            };
+            game.canvasElement.addEventListener('mousemove',menuMouseMove,false);
+            game.canvasElement.addEventListener('mousedown',function (event) {
+                var pos = $util.getEventPosition(event);
+
+                if(pos.x >= 300 && pos.x <= 500 && pos.y >= 80 && pos.y <= 110){
+                    game.canvasElement.removeEventListener('mousemove',menuMouseMove);
+                    $('#'+game.canvasElement.id).css('cursor','none');
+                    game.test1();
+                } else{
+                }
+            })
         },
         start: function () {
             var game = this;
@@ -810,16 +823,19 @@
         this.score = 0;
     };
 
-    function GameEventHandler() {
-        this.planeGame = null;
+    function GameEventHandler(params) {
+        if(params && params.target){
+            this.target = params.target;
+        } else{
+            throw Error('GameEventHandler: constructor lack attribute target!');
+        }
     }
     GameEventHandler.prototype = {
         mouseMove:function (funcObj,f) {
-            var gve = this;
-            document.addEventListener('mousemove', funcObj, false);
+            this.target.addEventListener('mousemove', funcObj, false);
         },
         keydown: function (funcObj) {
-            document.addEventListener('keydown', funcObj, false);
+            this.target.addEventListener('keydown', funcObj, false);
         },
         constructor: GameEventHandler
     };
@@ -833,8 +849,6 @@
     };
 
     var $game = new PlaneGame(config);
-    var gve = new GameEventHandler();
-    gve.planeGame = $game;
     $game.init();
     // planeGame.testAllModules();
     //planeGame.start();
