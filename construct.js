@@ -63,6 +63,16 @@
                 throw Error('GameUtil collisionTest(): params is not right! ');
             }
         },
+        getEventPosition: function (e) {
+            if(undefined == e){
+                return;
+            }
+            if(e.layerX || e.layerX == 0){
+                return new Position(e.layerX,e.layerY);
+            }  else if(e.offsetX || e.offsetX == 0){
+                return new Position(e.offsetX,e.offsetY);
+            }
+        },
         sleep: function (duration) {
             var start = new Date();
             while(true){
@@ -378,18 +388,30 @@
                 }
             })
         },
-        start: function () {
+        menu:function () {
             var game = this;
             var context = game.context;
+            context.font = "20px Georgia";
+            context.textAlign = 'center';
+            context.fillText("Fight In Sky",400,30);
+            context.strokeRect(300,80,200,30);
+            context.font = "16px Georgia";
+            context.fillText("Start Game",400,100);
+            game.canvasElement.addEventListener('mousemove',function (event) {
+                var pos = $util.getEventPosition(event);
+                // console.log($('#'+game.canvasElement.id));
+                if(pos.x >= 300 && pos.x <= 500 && pos.y >= 80 && pos.y <= 110){
+                    $('#'+game.canvasElement.id).css('cursor','pointer');
+                } else{
+                    $('#'+game.canvasElement.id).css('cursor','default');
+                }
+            });
+        },
+        start: function () {
+            var game = this;
             var time = 0;
             game.ifInit(function () {
-                context.font = "20px Georgia";
-                context.fillText("Fight In Sky",game.width/2,game.height/5);
-                context.font = "16px Georgia";
-                context.fillText("Start Game",game.width/2,game.height/5*2);
-                game.canvasElement.addEventListener('mousedown',function (event) {
-                    console.log(event);
-                })
+                game.menu();
             })
         },
         draw: function (frameNum) {
@@ -816,7 +838,7 @@
     $game.init();
     // planeGame.testAllModules();
     //planeGame.start();
-    // $game.start();
-    $game.test1();
+    $game.start();
+    // $game.test1();
 }());
 //};
