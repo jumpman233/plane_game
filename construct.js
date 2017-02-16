@@ -64,7 +64,6 @@
             }
         },
         getEventPosition: function (e) {
-            console.log(e);
             if(undefined == e){
                 return;
             }
@@ -306,6 +305,43 @@
         bullet.position.x += bullet.speed * Math.sin(bullet.direction / 360 * Math.PI * 2);
     };
 
+    /**
+     * class Item
+     * @param params
+     * @constructor
+     */
+    function Item(params) {
+        if(!params) return;
+
+        if(params.width){
+            this.width = params.width;
+        }
+        if(params.height){
+            this.height = params.height;
+        }
+        if(params.src){
+            this.src = params.src;
+        }
+        if(params.name){
+            this.name = params.name;
+        }
+        this.img = null;
+        this.isInit = false;
+    }
+    Item.prototype = {
+        loadImg: function () {
+            var obj = this;
+            obj.img = $util.initImage({
+                width: obj.width,
+                height: obj.height,
+                src: obj.src,
+                onload: function () {
+                    obj.isInit = true;
+                }
+            });
+        }
+    };
+
     function BulletStyle(params){
         if(!params) return;
 
@@ -349,6 +385,9 @@
         if (params.bulletStyleSrc) {
             this.bulletStyleSrc = params.bulletStyleSrc;
         }
+        if (params.itemDataSrc){
+            this.itemDataSrc = params.itemDataSrc;
+        }
         if (params.fps) {
             this.fps = params.fps;
             this.frameTime = 1000 / this.fps;
@@ -370,6 +409,7 @@
             var game = this;
             var warehouse = game.warehouse;
             game.player = new Player();
+            game.player.lives = 3;
             game.geh = new GameEventHandler({
                 target: game.canvasElement
             });
@@ -384,8 +424,8 @@
             geh.mouseMove(function (e) {
                 player.plane.position = $util.getEventPosition(e);
             });
-            geh.keydown(function (e) {
-                if(e.keyCode == 32){
+            geh.mouseDown(function (e) {
+                if(e.button == 2){
                     game.pause = !game.pause;
                 }
             })
@@ -418,11 +458,10 @@
                     game.test1();
                 } else{
                 }
-            })
+            });
         },
         start: function () {
             var game = this;
-            var time = 0;
             game.ifInit(function () {
                 game.menu();
             })
@@ -432,6 +471,8 @@
             game.context.clearRect(0,0,game.width,game.height);
 
             game.player.plane.draw(game.context,frameNum);
+
+            game.drawLife(game.player.lives);
 
             for(var i in game.bulletList){
                 game.bulletList[i].draw(game.context);
@@ -497,7 +538,6 @@
 
                     game.draw(game.frameNum);
 
-
                     var x = Math.random()*200;
                     if(game.frameNum % 50 == 0){
                         var plane = warehouse.getPlaneByType(1);
@@ -520,29 +560,46 @@
                         for (var j in game.bulletList){
                             if(game.bulletList[j].parent != planeList[i] && $util.collisionTest(planeList[i],game.bulletList[j])){
                                 planeList.splice(i,1);
+                                game.bulletList.splice(j,1);
                                 break;
+                            }
+                        }
+                        if($util.collisionTest(planeList[i],game.player.plane)){
+                            planeList.splice(i,1);
+                            game.bulletList.splice(i,1);
+                            game.player.lives--;
+                            if(game.player.lives == 0){
+                                game.gameOver();
                             }
                         }
                     }
                     for(var i in game.bulletList){
                         if($util.collisionTest(game.player.plane,game.bulletList[i])&&
                         game.bulletList[i].parent != game.player.plane){
-                            game.bulletList.splice(0,game.bulletList.length);
-                            planeList.splice(0,planeList.length);
-                            game.context.clearRect(0,0,game.width,game.height);
-                            game.player.plane.position  = new Position(game.width/2,game.height-100);
-                            game.player.plane.drawImg(game.context);
-                            game.context.font = "30px Courier New";
-                            game.context.fillStyle = "#333";
-                            game.context.textAlign = 'center';
-                            game.context.fillText("Game Over",game.width/2,game.height/2);
-                            game.pause = true;
+                            game.bulletList.splice(i,1);
+                            game.player.lives--;
+                            if(game.player.lives == 0){
+                                game.gameOver();
+                            }
                         }
                     }
                     game.dirtyCheck(game.bulletList);
                     game.dirtyCheck(planeList);
                 },game.frameTime);
             });
+        },
+        gameOver: function () {
+            var game = this;
+
+            game.bulletList.splice(0,game.bulletList.length);
+            game.context.clearRect(0,0,game.width,game.height);
+            game.player.plane.position  = new Position(game.width/2,game.height-100);
+            game.player.plane.drawImg(game.context);
+            game.context.font = "30px Courier New";
+            game.context.fillStyle = "#333";
+            game.context.textAlign = 'center';
+            game.context.fillText("Game Over",game.width/2,game.height/2);
+            game.pause = true;
         },
         randomMode: function () {
 
@@ -601,15 +658,30 @@
             if(obj.height){
                 image.height = obj.height;
             }
-            if(obj.position.x){
+            if(obj.position && obj.position.x){
                 image.x = obj.position.x;
             }
-            if(obj.position.y){
+            if(obj.position && obj.position.y){
                 image.y = obj.position.y;
             }
             this.context.beginPath();
             this.context.drawImage(obj.img, image.x,image.y,image.width,image.height);
             this.context.closePath();
+        },
+        drawLife: function (num) {
+            var game = this;
+
+            var pos = new Position(0,370);
+            var lifeItem = game.warehouse.getItemByName("life");
+            for(var i = 0; i < num; i++){
+                game.drawImage({
+                    img: lifeItem.img,
+                    height: lifeItem.height,
+                    width: lifeItem.width,
+                    position: pos
+                });
+                pos.x += lifeItem.width;
+            }
         },
         init: function () {
             var game = this;
@@ -618,7 +690,8 @@
             game.warehouse.init({
                 bulletDataSrc: game.bulletDataSrc,
                 bulletStyleSrc: game.bulletStyleSrc,
-                planeDataSrc: game.planeDataSrc
+                planeDataSrc: game.planeDataSrc,
+                itemDataSrc: game.itemDataSrc
             });
             console.log(game.warehouse);
 
@@ -632,6 +705,7 @@
         this.bulletStyleList = [];
         this.planeList = [];
         this.bulletList = [];
+        this.itemList = [];
     }
     Warehouse.prototype = {
         constructor: Warehouse,
@@ -680,7 +754,6 @@
                 var styles = bulletStyle[i];
                 for(var j in styles){
                     var style = styles[j];
-                    console.log(style);
                     for(var k in style){
                         style[k].bullet = warehouse.getBulletByType(style[k].type);
                         style[k].bullet.direction = style[k].direction;
@@ -737,6 +810,27 @@
                 warehouse.initPlane(warehouse.planeTypeList[i]);
             }
         },
+        initItem: function(src){
+            var warehouse = this;
+
+            warehouse.getData(src,function (data) {
+                for(var i in data){
+                    warehouse.itemList.push(new Item(data[i]));
+                }
+            });
+
+            for(var i in warehouse.itemList){
+                warehouse.itemList[i].loadImg();
+            }
+        },
+        getItemByName: function (name) {
+            var list = this.itemList;
+            for(var i in list){
+                if(list[i].name==name){
+                    return $util.copy(list[i]);
+                }
+            }
+        },
         getData: function (src, callback) {
             if(undefined == src){
                 throw Error('Warehouse getData: src is not defined!');
@@ -758,12 +852,14 @@
             });
         },
         init: function (params) {
-            if(!params.bulletDataSrc || !params.bulletStyleSrc || !params.planeDataSrc){
+            console.log(params);
+            if(!params.bulletDataSrc || !params.bulletStyleSrc || !params.planeDataSrc || !params.itemDataSrc){
                 throw Error('warehouse init: the attribute are not right!');
             }
             this.initBulletData(params.bulletDataSrc);
             this.initBulletStyleData(params.bulletStyleSrc);
             this.initPlaneData(params.planeDataSrc);
+            this.initItem(params.itemDataSrc);
         }
     };
 
@@ -831,11 +927,15 @@
         }
     }
     GameEventHandler.prototype = {
-        mouseMove:function (funcObj,f) {
+        mouseMove:function (funcObj) {
             this.target.addEventListener('mousemove', funcObj, false);
         },
         keydown: function (funcObj) {
+            console.log(funcObj);
             this.target.addEventListener('keydown', funcObj, false);
+        },
+        mouseDown:function (funcObj) {
+            this.target.addEventListener('mousedown', funcObj, false);
         },
         constructor: GameEventHandler
     };
@@ -845,6 +945,7 @@
         planeDataSrc: 'plane.json',
         bulletDataSrc: 'bullet.json',
         bulletStyleSrc: 'bullet-style.json',
+        itemDataSrc: 'item.json',
         fps: '30'
     };
 
