@@ -252,11 +252,10 @@
     Plane.prototype.drawPlane = function (ctx) {
         this.drawImg(ctx);
     };
-    Plane.prototype.draw = function (ctx, frameNum) {
+    Plane.prototype.draw = function (ctx) {
         var plane = this;
         plane.drawPlane(ctx);
 
-        // if(frameNum % plane.shootRate == 0 && plane.canShoot && plane.curBullet != undefined){
         if(plane.shootTime-- == 0 && plane.canShoot && plane.curBullet != undefined){
             var bulList = plane.bulletStyle.getBullets(plane.curBullet);
             for (var i = 0 ;i<bulList.length;i++){
@@ -537,17 +536,26 @@
                 game.menu();
             })
         },
-        draw: function (frameNum) {
+        draw: function (planeList,toolList) {
             var game = this;
             game.context.clearRect(0,0,game.width,game.height);
 
-            game.player.plane.draw(game.context,frameNum);
+            game.player.plane.draw(game.context);
 
             game.drawLife(game.player.lives);
 
             for(var i in game.bulletList){
                 game.bulletList[i].draw(game.context);
                 game.bulletList[i].move(game.context);
+            }
+
+            for (var i in planeList){
+                planeList[i].draw(game.context, game.frameNum);
+                planeList[i].move();
+            }
+
+            for (var i in toolList){
+                toolList[i].draw(game.context);
             }
         },
         testAllModules: function () {
@@ -608,8 +616,6 @@
                     time += game.frameTime;
                     game.frameNum++;
 
-                    game.draw(game.frameNum);
-
                     var x = Math.random()*200;
                     if(game.frameNum % 50 == 0){
                         var plane = warehouse.getPlaneByType(2);
@@ -624,64 +630,74 @@
                         planeList.push(plane);
                     }
 
-                    for (var i in planeList){
-                        planeList[i].draw(game.context, game.frameNum);
-                        planeList[i].move();
-                    }
+                    game.draw(planeList,toolList);
 
-                    for (var i in toolList){
-                        toolList[i].draw(game.context);
-                    }
+                    game.judge(planeList,toolList);
 
-                    for(var i in planeList){
-                        for (var j in game.bulletList){
-                            if(game.bulletList[j].parent != planeList[i] &&
-                                game.bulletList[j].parent.role != planeList[i].role &&
-                                $util.collisionTest(planeList[i],game.bulletList[j])){
-
-                                var a = Math.random();
-                                if(a <= 0.5){
-                                    var newT = $util.copy(warehouse.toolList[0]);
-                                    newT.extraTime = game.fps * newT.existTime;
-                                    newT.position = $util.copy(planeList[i].position);
-                                    toolList.push(newT);
-                                }
-                                planeList.splice(i,1);
-                                game.bulletList.splice(j,1);
-                                break;
-                            }
-                        }
-                        if(planeList[i] && $util.collisionTest(planeList[i],game.player.plane)){
-                            planeList.splice(i,1);
-                            game.bulletList.splice(i,1);
-                            game.player.lives--;
-                            if(game.player.lives == 0){
-                                game.gameOver();
-                            }
-                        }
-                    }
-                    for(var i in game.bulletList){
-                        if($util.collisionTest(game.player.plane,game.bulletList[i])&&
-                        game.bulletList[i].parent != game.player.plane){
-                            game.bulletList.splice(i,1);
-                            game.player.lives--;
-                            if(game.player.lives == 0){
-                                game.gameOver();
-                            }
-                        }
-                    }
-
-                    for(var i in toolList){
-                        if($util.collisionTest(game.player.plane,toolList[i])){
-                            console.log("??");
-                            game.player.getTool(toolList[i]);
-                            toolList.splice(i,1);
-                        }
-                    }
                     game.dirtyCheck(game.bulletList);
                     game.dirtyCheck(planeList);
                 },game.frameTime);
             });
+        },
+        //do some check like collision test
+        judge: function (planeList,toolList) {
+            var game = this;
+            var warehouse = this.warehouse;
+
+            //check if player has collision with tools
+            for(var i in toolList){
+                var tool = toolList[i];
+                if($util.collisionTest(game.player.plane,tool)){
+                    game.player.getTool(tool);
+                    toolList.splice(i,1);
+                }
+            }
+
+            //check if player's bullets have collision with enemies
+            //if true, it's possible to appear a tool
+            //check if enemies have collision with player's plane
+            //if true, player's life will be reduced
+
+            for(var i in planeList){
+                var plane = planeList[i];
+                for (var j in game.bulletList){
+                    var bullet = game.bulletList[j];
+                    if(bullet.parent != plane &&
+                        bullet.parent.role != plane.role &&
+                        $util.collisionTest(plane,bullet)){
+
+                        var a = Math.random();
+                        if(a <= 0.5){
+                            var newT = $util.copy(warehouse.toolList[0]);
+                            newT.extraTime = game.fps * newT.existTime;
+                            newT.position = $util.copy(plane.position);
+                            toolList.push(newT);
+                        }
+                        planeList.splice(i,1);
+                        game.bulletList.splice(j,1);
+                        break;
+                    }
+                }
+                if(plane && $util.collisionTest(plane,game.player.plane)){
+                    planeList.splice(i,1);
+                    game.bulletList.splice(i,1);
+                    game.player.lives--;
+                    if(game.player.lives == 0){
+                        game.gameOver();
+                    }
+                }
+            }
+            //check if enemies' bullets have collision with player's plane
+            for(var i in game.bulletList){
+                if($util.collisionTest(game.player.plane,game.bulletList[i])&&
+                    game.bulletList[i].parent != game.player.plane){
+                    game.bulletList.splice(i,1);
+                    game.player.lives--;
+                    if(game.player.lives == 0){
+                        game.gameOver();
+                    }
+                }
+            }
         },
         gameOver: function () {
             var game = this;
