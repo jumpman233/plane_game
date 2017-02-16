@@ -496,6 +496,7 @@
             var game = this;
             var warehouse = game.warehouse;
             game.player = new Player();
+            game.player.score = 0;
             game.player.maxLife = 3;
             game.player.curLife = game.player.maxLife;
             game.geh = new GameEventHandler({
@@ -560,7 +561,8 @@
 
             game.player.plane.draw(game.context);
 
-            game.drawLife(game.player.curLife);
+            game.drawScore();
+            game.drawLife();
 
             for(var i in game.bulletList){
                 game.bulletList[i].draw(game.context);
@@ -686,6 +688,7 @@
 
                         var newTool = game.createTool(plane.position,game.fps);
                         toolList.push(newTool);
+                        game.player.score += plane.score;
                         planeList.splice(i,1);
                         game.bulletList.splice(j,1);
                         break;
@@ -814,12 +817,12 @@
             this.context.drawImage(obj.img, image.x,image.y,image.width,image.height);
             this.context.closePath();
         },
-        drawLife: function (num) {
+        drawLife: function () {
             var game = this;
 
-            var pos = new Position(0,370);
             var lifeItem = game.warehouse.getItemByName("life");
-            for(var i = 0; i < num; i++){
+            var pos = new Position(0,game.context.canvas.height - lifeItem.height);
+            for(var i = 0; i < game.player.curLife; i++){
                 game.drawImage({
                     img: lifeItem.img,
                     height: lifeItem.height,
@@ -828,6 +831,13 @@
                 });
                 pos.x += lifeItem.width;
             }
+        },
+        drawScore: function () {
+            var game = this;
+            var context = game.context;
+            context.font = "16px Georgia";
+            context.textAlign = 'left';
+            context.fillText("Score: " + game.player.score,10,20);
         },
         init: function () {
             var game = this;
