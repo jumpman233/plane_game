@@ -170,7 +170,6 @@
         this.isInit = false;
     }
 
-    console.log("!!");
     FlyObject.prototype = {
         className: 'flyObject',
         constructor: FlyObject,
@@ -310,6 +309,7 @@
 
     /**
      * class Item
+     * static image
      * @param params
      * @constructor
      */
@@ -342,6 +342,71 @@
                     obj.isInit = true;
                 }
             });
+        }
+    };
+
+    /**
+     * Tool
+     * the object can float in the screen
+     * @param params
+     * @constructor
+     */
+    function Tool(params) {
+
+        if(!params) return;
+
+        if(params.width){
+            this.width = params.width;
+        }
+        if(params.height){
+            this.height = params.height;
+        }
+        if(params.src){
+            this.src = params.src;
+        }
+        if(params.name){
+            this.name = params.name;
+        }
+        if(params.position){
+            this.position = params.position;
+        } else{
+            this.position = new Position(0,0);
+        }
+        this.img = null;
+        this.isInit = false;
+        this.xMove = 3;
+        this.yMove = 0.3;
+        this.existTime = 15;
+        this.extraTime = null;
+    }
+
+    Tool.prototype = {
+        loadImg: function () {
+            var obj = this;
+            obj.img = $util.initImage({
+                width: obj.width,
+                height: obj.height,
+                src: obj.src,
+                onload: function () {
+                    obj.isInit = true;
+                }
+            });
+        },
+        draw: function (ctx) {
+            var tool = this;
+            if(tool.extraTime<=0){
+                return;
+            }
+            ctx.drawImage(tool.img,tool.position.x,tool.position.y,tool.width,tool.height);
+            tool.position.x += tool.xMove;
+            tool.position.y += tool.yMove;
+            if((tool.position.x + tool.width >= ctx.canvas.width && tool.xMove > 0) ||
+                (tool.position.x <= 0 && tool.xMove < 0)){
+                tool.xMove = -tool.xMove;
+            }
+            if(tool.extraTime!=null){
+                tool.extraTime--;
+            }
         }
     };
 
@@ -391,6 +456,9 @@
         if (params.itemDataSrc){
             this.itemDataSrc = params.itemDataSrc;
         }
+        if (params.toolDataSrc){
+            this.toolDataSrc = params.toolDataSrc;
+        }
         if (params.fps) {
             this.fps = params.fps;
             this.frameTime = 1000 / this.fps;
@@ -421,7 +489,7 @@
             var geh = game.geh;
 
             player.plane = warehouse.getPlaneByType(1);
-            player.plane.curBullet = 1;
+            player.plane.curBullet = 0;
             player.plane.role = 'player';
 
             geh.mouseMove(function (e) {
@@ -531,6 +599,7 @@
             var warehouse = game.warehouse;
             var time = 0;
             var planeList = [];
+            var toolList = [];
             game.ifInit(function () {
                 window.setInterval(function () {
                     if(game.pause)
@@ -560,12 +629,23 @@
                         planeList[i].move();
                     }
 
+                    for (var i in toolList){
+                        toolList[i].draw(game.context);
+                    }
+
                     for(var i in planeList){
                         for (var j in game.bulletList){
                             if(game.bulletList[j].parent != planeList[i] &&
                                 game.bulletList[j].parent.role != planeList[i].role &&
                                 $util.collisionTest(planeList[i],game.bulletList[j])){
 
+                                var a = Math.random();
+                                if(a <= 0.5){
+                                    var newT = $util.copy(warehouse.toolList[0]);
+                                    newT.extraTime = game.fps * newT.existTime;
+                                    newT.position = $util.copy(planeList[i].position);
+                                    toolList.push(newT);
+                                }
                                 planeList.splice(i,1);
                                 game.bulletList.splice(j,1);
                                 break;
@@ -588,6 +668,14 @@
                             if(game.player.lives == 0){
                                 game.gameOver();
                             }
+                        }
+                    }
+
+                    for(var i in toolList){
+                        if($util.collisionTest(game.player.plane,toolList[i])){
+                            console.log("??");
+                            game.player.getTool(toolList[i]);
+                            toolList.splice(i,1);
                         }
                     }
                     game.dirtyCheck(game.bulletList);
@@ -698,7 +786,8 @@
                 bulletDataSrc: game.bulletDataSrc,
                 bulletStyleSrc: game.bulletStyleSrc,
                 planeDataSrc: game.planeDataSrc,
-                itemDataSrc: game.itemDataSrc
+                itemDataSrc: game.itemDataSrc,
+                toolDataSrc: game.toolDataSrc
             });
             console.log(game.warehouse);
 
@@ -712,6 +801,7 @@
         this.bulletStyleList = [];
         this.bulletList = [];
         this.itemList = [];
+        this.toolList = [];
     }
     Warehouse.prototype = {
         constructor: Warehouse,
@@ -829,6 +919,19 @@
                 warehouse.itemList[i].loadImg();
             }
         },
+        initTool: function (src) {
+            var warehouse = this;
+
+            warehouse.getData(src,function (data) {
+                for(var i in data){
+                    warehouse.toolList.push(new Tool(data[i]));
+                }
+            });
+
+            for(var i in warehouse.itemList){
+                warehouse.toolList[i].loadImg();
+            }
+        },
         getItemByName: function (name) {
             var list = this.itemList;
             for(var i in list){
@@ -858,14 +961,16 @@
             });
         },
         init: function (params) {
-            console.log(params);
+            var warehouse = this;
+
             if(!params.bulletDataSrc || !params.bulletStyleSrc || !params.planeDataSrc || !params.itemDataSrc){
                 throw Error('warehouse init: the attribute are not right!');
             }
-            this.initBulletData(params.bulletDataSrc);
-            this.initBulletStyleData(params.bulletStyleSrc);
-            this.initPlaneData(params.planeDataSrc);
-            this.initItem(params.itemDataSrc);
+            warehouse.initBulletData(params.bulletDataSrc);
+            warehouse.initBulletStyleData(params.bulletStyleSrc);
+            warehouse.initPlaneData(params.planeDataSrc);
+            warehouse.initItem(params.itemDataSrc);
+            warehouse.initTool(params.toolDataSrc);
         }
     };
 
@@ -918,11 +1023,13 @@
         this.lives = null;
         this.score = 0;
     }
-    Player.prototype.initPlayer = function (plane) {
-        if(plane instanceof Plane){
-            this.plane = plane;
+    Player.prototype = {
+        getTool: function (tool) {
+            var plane = this.plane;
+            if(tool.name == "upgrade" && plane.curBullet < plane.bulletStyle.style.length-1){
+                plane.curBullet++;
+            }
         }
-        this.score = 0;
     };
 
     function GameEventHandler(params) {
@@ -952,6 +1059,7 @@
         bulletDataSrc: 'bullet.json',
         bulletStyleSrc: 'bullet-style.json',
         itemDataSrc: 'item.json',
+        toolDataSrc: 'tool.json',
         fps: '30'
     };
 
