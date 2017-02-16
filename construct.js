@@ -225,6 +225,7 @@
         }
         if(params.shootRate){
             this.shootRate = params.shootRate;
+            this.shootTime = this.shootRate;
         }
         if(params.bulletType){
             this.bulletType = params.bulletType;
@@ -256,7 +257,8 @@
         var plane = this;
         plane.drawPlane(ctx);
 
-        if(frameNum % plane.shootRate == 0 && plane.canShoot && plane.curBullet != undefined){
+        // if(frameNum % plane.shootRate == 0 && plane.canShoot && plane.curBullet != undefined){
+        if(plane.shootTime-- == 0 && plane.canShoot && plane.curBullet != undefined){
             var bulList = plane.bulletStyle.getBullets(plane.curBullet);
             for (var i = 0 ;i<bulList.length;i++){
                 bulList[i].position = $util.copy(plane.position);
@@ -264,6 +266,7 @@
                 bulList[i].move(ctx);
                 bulList[i].parent = plane;
                 $game.bulletList.push(bulList[i]);
+                plane.shootTime = plane.shootRate;
             }
         }
     };
@@ -418,7 +421,7 @@
             var geh = game.geh;
 
             player.plane = warehouse.getPlaneByType(1);
-            player.plane.curBullet = 0;
+            player.plane.curBullet = 1;
             player.plane.role = 'player';
 
             geh.mouseMove(function (e) {
@@ -540,7 +543,8 @@
 
                     var x = Math.random()*200;
                     if(game.frameNum % 50 == 0){
-                        var plane = warehouse.getPlaneByType(1);
+                        var plane = warehouse.getPlaneByType(2);
+                        plane.shootTime = plane.shootRate;
                         plane.position.x = x;
                         plane.position.y = 0;
                         plane.direction = 180;
@@ -558,13 +562,16 @@
 
                     for(var i in planeList){
                         for (var j in game.bulletList){
-                            if(game.bulletList[j].parent != planeList[i] && $util.collisionTest(planeList[i],game.bulletList[j])){
+                            if(game.bulletList[j].parent != planeList[i] &&
+                                game.bulletList[j].parent.role != planeList[i].role &&
+                                $util.collisionTest(planeList[i],game.bulletList[j])){
+
                                 planeList.splice(i,1);
                                 game.bulletList.splice(j,1);
                                 break;
                             }
                         }
-                        if($util.collisionTest(planeList[i],game.player.plane)){
+                        if(planeList[i] && $util.collisionTest(planeList[i],game.player.plane)){
                             planeList.splice(i,1);
                             game.bulletList.splice(i,1);
                             game.player.lives--;
@@ -703,7 +710,6 @@
         this.bulletTypeList = [];
         this.planeTypeList = [];
         this.bulletStyleList = [];
-        this.planeList = [];
         this.bulletList = [];
         this.itemList = [];
     }

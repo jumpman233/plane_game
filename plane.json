@@ -7,7 +7,19 @@
     "role": "player",
     "direction": 0,
     "canShoot": "false",
-    "shootRate": 50,
+    "shootRate": 10,
     "bulletType": 1,
+    "score": 5
+},{
+    "type": "2",
+    "width": 50,
+    "height": 50,
+    "speed": 3,
+    "src": "LiPlane.png",
+    "role": "enemy",
+    "direction": 0,
+    "canShoot": "true",
+    "shootRate": 20,
+    "bulletType": 2,
     "score": 5
 }]
