@@ -55,10 +55,8 @@
         collisionTest: function (obj1, obj2) {
             if(obj1.position && obj1.width && obj1.height &&
                 obj2.position && obj2.width && obj2.height){
-                return (obj1.position.x + obj1.width > obj2.position.x) &&
-                    (obj1.position.y < obj2.position.y + obj2.height) &&
-                    (obj2.position.x + obj2.width > obj1.position.x) &&
-                    (obj2.position.y < obj1.position.y + obj1.height)
+                return Math.abs(obj2.position.x - obj1.position.x) < (obj1.width + obj2.width) / 2 &&
+                    Math.abs(obj2.position.y - obj1.position.y) < (obj1.height + obj2.height) / 2
             } else{
                 throw Error('GameUtil collisionTest(): params is not right! ');
             }
@@ -190,7 +188,7 @@
             ctx.save();
             ctx.translate(obj.position.x, obj.position.y);
             ctx.rotate(obj.direction/180*Math.PI);
-            ctx.drawImage(obj.img, - this.width/2, - obj.height/2, obj.width, obj.height);
+            ctx.drawImage(obj.img, - obj.width/2, - obj.height/2, obj.width, obj.height);
             ctx.restore();
         },
         move: function (ctx) {
@@ -356,9 +354,13 @@
 
         if(params.width){
             this.width = params.width;
+        } else{
+            this.width = 40;
         }
         if(params.height){
             this.height = params.height;
+        } else{
+            this.height = 30;
         }
         if(params.src){
             this.src = params.src;
@@ -371,6 +373,9 @@
         } else{
             this.position = new Position(0,0);
         }
+        if(params.weight){
+            this.weight = params.weight;
+        }
         this.img = null;
         this.isInit = false;
         this.xMove = 3;
@@ -382,6 +387,7 @@
     Tool.prototype = {
         loadImg: function () {
             var obj = this;
+
             obj.img = $util.initImage({
                 width: obj.width,
                 height: obj.height,
@@ -391,16 +397,27 @@
                 }
             });
         },
+        init: function () {
+            var tool = this;
+            if(Math.random()<=0.5){
+                tool.xMove = Math.abs(tool.xMove);
+            } else{
+                tool.xMove = - Math.abs(tool.xMove)
+            }
+        },
         draw: function (ctx) {
             var tool = this;
             if(tool.extraTime<=0){
                 return;
             }
-            ctx.drawImage(tool.img,tool.position.x,tool.position.y,tool.width,tool.height);
+            ctx.drawImage(
+                tool.img,
+                tool.position.x - tool.width / 2,tool.position.y - tool.height / 2,
+                tool.width,tool.height);
             tool.position.x += tool.xMove;
             tool.position.y += tool.yMove;
-            if((tool.position.x + tool.width >= ctx.canvas.width && tool.xMove > 0) ||
-                (tool.position.x <= 0 && tool.xMove < 0)){
+            if((tool.position.x + tool.width / 2 >= ctx.canvas.width && tool.xMove > 0) ||
+                (tool.position.x - tool.width / 2 <= 0 && tool.xMove < 0)){
                 tool.xMove = -tool.xMove;
             }
             if(tool.extraTime!=null){
@@ -479,7 +496,8 @@
             var game = this;
             var warehouse = game.warehouse;
             game.player = new Player();
-            game.player.lives = 3;
+            game.player.maxLife = 3;
+            game.player.curLife = game.player.maxLife;
             game.geh = new GameEventHandler({
                 target: game.canvasElement
             });
@@ -542,7 +560,7 @@
 
             game.player.plane.draw(game.context);
 
-            game.drawLife(game.player.lives);
+            game.drawLife(game.player.curLife);
 
             for(var i in game.bulletList){
                 game.bulletList[i].draw(game.context);
@@ -636,13 +654,13 @@
 
                     game.dirtyCheck(game.bulletList);
                     game.dirtyCheck(planeList);
+                    game.dirtyCheck(toolList);
                 },game.frameTime);
             });
         },
-        //do some check like collision test
+        //do some check just like collision test
         judge: function (planeList,toolList) {
             var game = this;
-            var warehouse = this.warehouse;
 
             //check if player has collision with tools
             for(var i in toolList){
@@ -666,13 +684,8 @@
                         bullet.parent.role != plane.role &&
                         $util.collisionTest(plane,bullet)){
 
-                        var a = Math.random();
-                        if(a <= 0.5){
-                            var newT = $util.copy(warehouse.toolList[0]);
-                            newT.extraTime = game.fps * newT.existTime;
-                            newT.position = $util.copy(plane.position);
-                            toolList.push(newT);
-                        }
+                        var newTool = game.createTool(plane.position,game.fps);
+                        toolList.push(newTool);
                         planeList.splice(i,1);
                         game.bulletList.splice(j,1);
                         break;
@@ -681,8 +694,8 @@
                 if(plane && $util.collisionTest(plane,game.player.plane)){
                     planeList.splice(i,1);
                     game.bulletList.splice(i,1);
-                    game.player.lives--;
-                    if(game.player.lives == 0){
+                    game.player.curLife--;
+                    if(game.player.curLife == 0){
                         game.gameOver();
                     }
                 }
@@ -692,10 +705,32 @@
                 if($util.collisionTest(game.player.plane,game.bulletList[i])&&
                     game.bulletList[i].parent != game.player.plane){
                     game.bulletList.splice(i,1);
-                    game.player.lives--;
-                    if(game.player.lives == 0){
+                    game.player.curLife--;
+                    if(game.player.curLife == 0){
                         game.gameOver();
                     }
+                }
+            }
+        },
+        createTool: function (position,fps) {
+            var game = this;
+            var warehouse = game.warehouse;
+            var allWeight = 0;
+
+            for(var i in warehouse.toolList){
+                var tool = warehouse.toolList[i];
+                allWeight += tool.weight;
+            }
+            var rand = Math.random() * allWeight;
+            for(var i in warehouse.toolList){
+                var tool = warehouse.toolList[i];
+                rand -= tool.weight;
+                if(rand<=0){
+                    var newTool = $util.copy(tool);
+                    newTool.init();
+                    newTool.extraTime = fps * newTool.existTime;
+                    newTool.position = $util.copy(position);
+                    return newTool;
                 }
             }
         },
@@ -944,7 +979,7 @@
                 }
             });
 
-            for(var i in warehouse.itemList){
+            for(var i in warehouse.toolList){
                 warehouse.toolList[i].loadImg();
             }
         },
@@ -988,7 +1023,7 @@
             warehouse.initItem(params.itemDataSrc);
             warehouse.initTool(params.toolDataSrc);
         }
-    };
+       };
 
     function Manager() {
         this.planeList = [];
@@ -1036,14 +1071,27 @@
 
     function Player() {
         this.plane = null;
-        this.lives = null;
+        this.maxLife = 0;
+        this.curLife = 0;
         this.score = 0;
     }
     Player.prototype = {
         getTool: function (tool) {
-            var plane = this.plane;
-            if(tool.name == "upgrade" && plane.curBullet < plane.bulletStyle.style.length-1){
-                plane.curBullet++;
+            var player = this;
+            var plane = player.plane;
+            switch (tool.name){
+                case "upgrade":
+                    if(plane.curBullet < plane.bulletStyle.style.length-1){
+                        plane.curBullet++;
+                    }
+                    break;
+                case "addLife":
+                    if(player.curLife < player.maxLife){
+                        player.curLife++;
+                    }
+                    break;
+                default:
+                    break;
             }
         }
     };
