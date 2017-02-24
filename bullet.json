@@ -4,5 +4,6 @@
 	"height": 20,
 	"width": 20,
     "speed": 20,
-    "direction": 1
+    "direction": 1,
+	"damage": 10
 }]

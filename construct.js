@@ -165,6 +165,12 @@
         if (params.direction) {
             this.rotate = params.rotate;
         }
+        if (params.deadImg){
+            this.deadImg = params.deadImg;
+        }
+        if (params.deadSrc) {
+            this.deadSrc = params.deadSrc;
+        }
         this.isInit = false;
     }
 
@@ -183,15 +189,22 @@
                 }
             });
         },
-        drawImg: function (ctx) {
+        // if img is null, the obj's img param will be used
+        drawImg: function (ctx,img) {
             var obj = this;
+            var drawImg = null;
+            if(img instanceof Image){
+                drawImg = img;
+            } else{
+                drawImg = obj.img;
+            }
             ctx.save();
             ctx.translate(obj.position.x, obj.position.y);
             ctx.rotate(obj.direction/180*Math.PI);
-            ctx.drawImage(obj.img, - obj.width/2, - obj.height/2, obj.width, obj.height);
+            ctx.drawImage(drawImg, - obj.width/2, - obj.height/2, obj.width, obj.height);
             ctx.restore();
         },
-        move: function (ctx) {
+        move: function () {
             var obj = this;
             obj.position.y -= obj.speed * Math.cos(obj.direction / 360 * Math.PI * 2);
             obj.position.x += obj.speed * Math.sin(obj.direction / 360 * Math.PI * 2);
@@ -217,9 +230,6 @@
         if (params.type) {
             this.type = params.type;
         }
-        if (params.maxHp) {
-            this.maxHp = params.maxHp;
-        }
         if(params.shootRate){
             this.shootRate = params.shootRate;
             this.shootTime = this.shootRate;
@@ -236,20 +246,75 @@
         if(params.curBullet){
             this.curBullet = params.curBullet;
         }
+        if(params.hp){
+            this.hp = params.hp;
+        }
         if(undefined != params.score){
             this.score = params.score;
         } else{
             this.score = 1;
         }
+        if(params.toolDrop){
+            this.toolDrop = params.toolDrop;
+        }
         this.bulletList = [];
+        this.isDead = false;
+        this.animateSave = 0;
+        this.canDestroy = false;
     }
 
     Plane.prototype = $util.copy(FlyObject.prototype);
     Plane.prototype.constructor = Plane;
     Plane.prototype.className = 'plane';
-    Plane.prototype.drawPlane = function (ctx) {
-        this.drawImg(ctx);
+    Plane.prototype.loadImg = function () {
+        var obj = this;
+        obj.img = $util.initImage({
+            width: obj.width,
+            height: obj.height,
+            src: obj.src,
+            onload: function () {
+                obj.isInit = true;
+            }
+        });
+        obj.deadImg = $util.initImage({
+            width: obj.width,
+            height: obj.height,
+            src: obj.deadSrc,
+            onload: function () {
+                obj.isInit = true;
+            }
+        });
     };
+    Plane.prototype.drawPlane = function (ctx) {
+        var plane = this;
+        if(!plane.isDead){
+            plane.drawImg(ctx,plane.img);
+        } else{
+            plane.animateSave--;
+            if(plane.animateSave <= 0){
+                plane.canDestroy = true;
+            }
+            plane.drawImg(ctx,plane.deadImg);
+        }
+    };
+    // if the plane's hp <= 0, func will return true, else return false
+    Plane.prototype.getShot = function (bullet) {
+        var plane = this;
+        if(plane.role == "enemy"){
+            plane.hp -= bullet.damage;
+            if(plane.hp<=0){
+                plane.isDead = true;
+                plane.animateSave = 5;
+            }
+        }
+    };
+    Plane.prototype.move = function () {
+        var plane = this;
+        if(!plane.isDead){
+            FlyObject.prototype.move.call(plane);
+        }
+    };
+
     Plane.prototype.draw = function (ctx) {
         var plane = this;
         plane.drawPlane(ctx);
@@ -516,6 +581,9 @@
             geh.mouseDown(function (e) {
                 if(e.button == 2){
                     game.pause = !game.pause;
+                    game.context.textAlign = 'center';
+                    game.context.font = '30px Courier New';
+                    game.context.fillText('pause', game.context.canvas.width/2, game.context.canvas.height/2);
                 }
             })
         },
@@ -608,6 +676,14 @@
                 game.context.closePath();
             });
         },
+        planeListCheck: function (list) {
+            for(var i in list){
+                var plane = list[i];
+                if(plane.canDestroy){
+                    list.splice(i,1);
+                }
+            }
+        },
         dirtyCheck: function (list) {
             var game = this;
             for(var i in list){
@@ -657,6 +733,8 @@
                     game.dirtyCheck(game.bulletList);
                     game.dirtyCheck(planeList);
                     game.dirtyCheck(toolList);
+
+                    game.planeListCheck(planeList);
                 },game.frameTime);
             });
         },
@@ -686,10 +764,13 @@
                         bullet.parent.role != plane.role &&
                         $util.collisionTest(plane,bullet)){
 
-                        var newTool = game.createTool(plane.position,game.fps);
-                        toolList.push(newTool);
+                        plane.getShot(bullet);
+                        var rand = Math.random();
+                        if(rand < plane.toolDrop){
+                            var newTool = game.createTool(plane.position,game.fps);
+                            toolList.push(newTool);
+                        }
                         game.player.score += plane.score;
-                        planeList.splice(i,1);
                         game.bulletList.splice(j,1);
                         break;
                     }
