@@ -1105,7 +1105,11 @@
         init: function (params) {
             var warehouse = this;
 
-            if(!params.bulletDataSrc || !params.bulletStyleSrc || !params.planeDataSrc || !params.itemDataSrc){
+            if(!params.bulletDataSrc    ||
+            !params.bulletStyleSrc      ||
+            !params.planeDataSrc        ||
+            !params.itemDataSrc         ||
+            !params.toolDataSrc){
                 throw Error('warehouse init: the attribute are not right!');
             }
             warehouse.initBulletData(params.bulletDataSrc);
@@ -1210,11 +1214,11 @@
 
     var config = {
         canvasElement: $('#myCanvas')[0],
-        planeDataSrc: 'plane.json',
-        bulletDataSrc: 'bullet.json',
-        bulletStyleSrc: 'bullet-style.json',
-        itemDataSrc: 'item.json',
-        toolDataSrc: 'tool.json',
+        planeDataSrc: 'json/plane.json',
+        bulletDataSrc: 'json/bullet.json',
+        bulletStyleSrc: 'json/bullet-style.json',
+        itemDataSrc: 'json/item.json',
+        toolDataSrc: 'json/tool.json',
         fps: '30'
     };
 
