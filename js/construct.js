@@ -765,12 +765,13 @@
                         $util.collisionTest(plane,bullet)){
 
                         plane.getShot(bullet);
-                        var rand = Math.random();
-                        if(rand < plane.toolDrop){
-                            var newTool = game.createTool(plane.position,game.fps);
-                            toolList.push(newTool);
+                        if(plane.isDead){
+                            var newTool = game.createTool(plane,game.fps);
+                            if(newTool){
+                                toolList.push(newTool);
+                            }
+                            game.player.score += plane.score;
                         }
-                        game.player.score += plane.score;
                         game.bulletList.splice(j,1);
                         break;
                     }
@@ -796,16 +797,22 @@
                 }
             }
         },
-        createTool: function (position,fps) {
+        createTool: function (plane,fps) {
             var game = this;
             var warehouse = game.warehouse;
             var allWeight = 0;
+            var position = plane.position;
+
+            var rand = Math.random();
+            if(rand>plane.toolDrop){
+                return;
+            }
 
             for(var i in warehouse.toolList){
                 var tool = warehouse.toolList[i];
                 allWeight += tool.weight;
             }
-            var rand = Math.random() * allWeight;
+            rand = Math.random() * allWeight;
             for(var i in warehouse.toolList){
                 var tool = warehouse.toolList[i];
                 rand -= tool.weight;
