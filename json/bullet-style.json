@@ -1,5 +1,6 @@
 [{
   "type" : 1,
+  "audioSrc": "audio/bullet.mp3",
   "style": [
     [{
       "type": 1,
@@ -22,6 +23,7 @@
   ]
 },{
   "type": 2,
+  "audioSrc": "audio/bullet.mp3",
   "style": [
     [{
       "type": 1,

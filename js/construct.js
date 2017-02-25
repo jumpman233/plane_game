@@ -82,6 +82,16 @@
         },
         then: function(){
 
+        },
+        playAudio: function (params) {
+            if(!params.src){
+                throw Error("playAudio lack of param src!");
+            }
+            var audio = new Audio(params.src);
+            if(params.loop){
+                audio.loop = true;
+            }
+            audio.play();
         }
     };
     var $util = new GameUtil();
@@ -97,7 +107,6 @@
     GameTime.prototype = {
         constructor: GameTime
     };
-
 
     /**
      * Position
@@ -257,6 +266,9 @@
         if(params.toolDrop){
             this.toolDrop = params.toolDrop;
         }
+        if(params.deadAudioSrc){
+            this.deadAudioSrc = params.deadAudioSrc;
+        }
         this.bulletList = [];
         this.isDead = false;
         this.animateSave = 0;
@@ -305,6 +317,9 @@
             if(plane.hp<=0){
                 plane.isDead = true;
                 plane.animateSave = 5;
+                $util.playAudio({
+                    src: plane.deadAudioSrc
+                });
             }
         }
     };
@@ -328,6 +343,11 @@
                 bulList[i].parent = plane;
                 $game.bulletList.push(bulList[i]);
                 plane.shootTime = plane.shootRate;
+            }
+            if(plane.bulletStyle.audioSrc){
+                $util.playAudio({
+                    src: plane.bulletStyle.audioSrc
+                })
             }
         }
     };
@@ -500,6 +520,9 @@
         if(params.style){
             this.style = params.style;
         }
+        if (params.audioSrc){
+            this.audioSrc = params.audioSrc;
+        }
     }
     BulletStyle.prototype = {
         constructor: BulletStyle,
@@ -629,7 +652,7 @@
             var game = this;
             game.context.clearRect(0,0,game.width,game.height);
 
-            game.drawBattelBk();
+            game.drawFightBk();
             game.drawScore();
             game.drawLife();
 
@@ -708,6 +731,10 @@
             var planeList = [];
             var toolList = [];
             game.position = 0;
+            $util.playAudio({
+                src: "audio/game_music.mp3",
+                loop: true
+            });
             game.backgoundImg = warehouse.getItemByName("background");
             game.ifInit(function () {
                 window.setInterval(function () {
@@ -743,7 +770,7 @@
                 },game.frameTime);
             });
         },
-        drawBattelBk: function () {
+        drawFightBk: function () {
             var game = this;
             var ctx = game.context;
             ctx.drawImage(game.backgoundImg.img,0, -ctx.canvas.height*2+game.position,ctx.canvas.width,ctx.canvas.height*2);
@@ -1012,15 +1039,13 @@
         },
         initBulletStyle: function (bulletStyle) {
             var warehouse = this;
-            for(var i in bulletStyle){
-                var styles = bulletStyle[i];
+            for(var i in bulletStyle.style){
+                var styles = bulletStyle.style[i];
                 for(var j in styles){
                     var style = styles[j];
-                    for(var k in style){
-                        style[k].bullet = warehouse.getBulletByType(style[k].type);
-                        style[k].bullet.direction = style[k].direction;
-                        style[k].bullet.speed = style[k].speed;
-                    }
+                    style.bullet = warehouse.getBulletByType(style.type);
+                    style.bullet.direction = style.direction;
+                    style.bullet.speed = style.speed;
                 }
             }
 
@@ -1243,7 +1268,7 @@
         bulletStyleSrc: 'json/bullet-style.json',
         itemDataSrc: 'json/item.json',
         toolDataSrc: 'json/tool.json',
-        fps: '30'
+        fps: '50'
     };
 
     var $game = new PlaneGame(config);
