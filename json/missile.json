@@ -1,0 +1,12 @@
+[{
+  "type": 1,
+  "src": "img/missile.png",
+  "maxFollow": 5,
+  "maxRotate": 5,
+  "width": 20,
+  "height": 40,
+  "speed": 5,
+  "direction": 0,
+  "damage": 20,
+  "hp": 10
+}]

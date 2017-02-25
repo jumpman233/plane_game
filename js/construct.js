@@ -8,9 +8,11 @@
  *
  */
 
+
 (function () {
     'use strict';
 
+    var fps = 50;
     /**
      * GameUtil
      */
@@ -121,12 +123,62 @@
     }
 
     Position.prototype = {
+        className: "position",
         constructor: Position,
-        toString: function () {
-            return '(' + this.x + ',' + this.y + ')';
+        calDis: function (sta,des) {
+            if(undefined === sta.x  && undefined === sta.y){
+                throw Error("calDis(): sta is not Position type!");
+            }
+            if(undefined !== des && undefined === des.x && undefined === des.y){
+                throw Error("calDis(): des is not Position type!");
+            }
+            if(undefined === des){
+                des = this.position;
+            }
+            var dp = this.calDif(sta, des);
+            return Math.sqrt(Math.pow(dp.x, 2) + Math.pow(dp.y, 2));
+        },
+        calDif: function (sta,des) {
+            if(undefined === sta.x  && undefined === sta.y){
+                throw Error("calDis(): sta is not Position type!");
+            }
+            if(undefined !== des && undefined === des.x && undefined === des.y){
+                throw Error("calDis(): des is not Position type!");
+            }
+            if(undefined === des){
+                des = this.position;
+            }
+            return new Position(des.x - sta.x, des.y - sta.y);
+        },
+        includeAng: function (sta, des, dir) {
+            if(undefined === sta.x  && undefined === sta.y){
+                throw Error("calDis(): sta is not Position type!");
+            }
+            if(undefined !== des && undefined === des.x && undefined === des.y){
+                throw Error("calDis(): des is not Position type!");
+            }
+            if(undefined === des){
+                des = this.position;
+            }
+            var dp = this.calDif(sta, des);
+            var dis = this.calDis(sta, des);
+            var inAng = 0;
+            if(sta.y >= des.y && sta.x <= des.x){
+                var sin = Math.abs(dp.x / dis);
+                inAng = Math.asin(sin) * 180 / Math.PI;
+            } else if(sta.y < des.y && sta.x <= des.x){
+                var sin = Math.abs(dp.y / dis);
+                inAng = Math.asin(sin) / Math.PI * 180 + 90;
+            } else if(sta.y <= des.y && sta.x >= des.x){
+                var sin = Math.abs(dp.x / dis);
+                inAng = Math.asin(sin) / Math.PI * 180 + 180;
+            } else if(sta.y >= des.y && sta.x >= des.x){
+                var sin = Math.abs(dp.y / dis);
+                inAng = Math.asin(sin) / Math.PI * 180 + 270;
+            }
+            return inAng-dir;
         }
     };
-
 
     /**
      * FlyObject
@@ -183,6 +235,14 @@
         if (params.deadSrc) {
             this.deadSrc = params.deadSrc;
         }
+        if (params.target) {
+            this.target = params.target;
+        }
+        if (params.maxRotate) {
+            this.maxRotate = params.maxRotate;
+        } else{
+            this.maxRotate = 5;
+        }
         this.isInit = false;
     }
 
@@ -220,22 +280,75 @@
             var obj = this;
             obj.position.y -= obj.speed * Math.cos(obj.direction / 360 * Math.PI * 2);
             obj.position.x += obj.speed * Math.sin(obj.direction / 360 * Math.PI * 2);
+        },
+        moveToTarget: function () {
+            var obj = this;
+            if(obj.hasOwnProperty("target") && obj.target.hasOwnProperty("position")){
+                var targetPos = obj.target.position;
+                var pos = obj.position;
+                var includeAng = Position.prototype.includeAng(pos, targetPos, obj.direction);
+                if(Math.abs(includeAng) <= obj.maxRotate){
+                    obj.direction += includeAng;
+                } else{
+                    if((includeAng < 0 && includeAng > -180) || includeAng>180){
+                        obj.direction -= obj.maxRotate;
+                        if(obj.direction < 0){
+                            obj.direction = 360 + obj.direction;
+                        }
+                    } else{
+                        obj.direction += obj.maxRotate;
+                        if(obj.direction >= 360){
+                            obj.direction -= 360;
+                        }
+                    }
+                }
+
+                obj.position.y -= obj.speed * Math.cos(obj.direction / 180 * Math.PI);
+                obj.position.x += obj.speed * Math.sin(obj.direction / 180 * Math.PI);
+            }
         }
     };
 
-    /** Missile
-     * a fly object which has a target
-     * it will follow the target until guiding time reduce to 0
+    /**
+     * Missile
+     * a object which can follow a target
+     * params:
+     * maxFollow: the seconds of following time
+     * restFollow: rest time of time
      */
     function Missile(params) {
-        if (!params) return;
+        if(!params) return;
 
         FlyObject.apply(this, arguments);
-        if(params.target && params.target instanceof Plane){
-            this.target = params.target;
+        if(params.maxFollow){
+            this.maxFollow = params.maxFollow;
         }
+        if(params.type){
+            this.type = params.type;
+        }
+        // if there is no global variable called fps, it will create a default fps to build variable restFollow
+        if(undefined !== fps){
+            fps = 50;
+        }
+        this.restFollow = this.maxFollow ? this.maxFollow * fps : 5 * fps;
+        console.log(this.restFollow);
     }
-    
+    Missile.prototype = $util.copy(FlyObject.prototype);
+    Missile.prototype.className = "missile";
+    Missile.prototype.constructor = Missile;
+    Missile.prototype.draw = function (ctx) {
+        this.drawImg(ctx,this.img);
+    };
+    Missile.prototype.move = function () {
+        var missile = this;
+        if(missile.restFollow <= 0){
+            FlyObject.prototype.move.call(missile);
+        } else{
+            FlyObject.prototype.moveToTarget.call(missile);
+        }
+        missile.restFollow--;
+    };
+
     /**
      * plane
      * object can shoot
@@ -341,7 +454,9 @@
     };
     Plane.prototype.move = function () {
         var plane = this;
-        if(!plane.isDead){
+        if(!plane.isDead && plane.target && plane.target.hasOwnProperty("position")){
+            FlyObject.prototype.moveToTarget.call(plane);
+        } else if(!plane.isDead){
             FlyObject.prototype.move.call(plane);
         }
     };
@@ -355,6 +470,7 @@
             for (var i = 0 ;i<bulList.length;i++){
                 bulList[i].position = $util.copy(plane.position);
                 bulList[i].parent = plane;
+                bulList[i].direction = bulList[i].direction + bulList[i].parent.direction;
                 bulList[i].move(ctx);
                 bulList[i].move(ctx);
                 $game.bulletList.push(bulList[i]);
@@ -401,8 +517,8 @@
     };
     Bullet.prototype.move = function () {
         var bullet = this;
-        bullet.position.y -= bullet.speed * Math.cos((bullet.direction + bullet.parent.direction) / 360 * Math.PI * 2);
-        bullet.position.x += bullet.speed * Math.sin((bullet.direction + bullet.parent.direction) / 360 * Math.PI * 2);
+        bullet.position.y -= bullet.speed * Math.cos((bullet.direction) / 360 * Math.PI * 2);
+        bullet.position.x += bullet.speed * Math.sin((bullet.direction) / 360 * Math.PI * 2);
     };
 
     /**
@@ -564,20 +680,8 @@
             this.height = this.canvasElement.getAttribute('height');
             this.context = this.canvasElement.getContext('2d');
         }
-        if (params.planeDataSrc) {
-            this.planeDataSrc = params.planeDataSrc;
-        }
-        if (params.bulletDataSrc) {
-            this.bulletDataSrc = params.bulletDataSrc;
-        }
-        if (params.bulletStyleSrc) {
-            this.bulletStyleSrc = params.bulletStyleSrc;
-        }
-        if (params.itemDataSrc){
-            this.itemDataSrc = params.itemDataSrc;
-        }
-        if (params.toolDataSrc){
-            this.toolDataSrc = params.toolDataSrc;
+        if(params.src){
+            this.src = params.src;
         }
         if (params.fps) {
             this.fps = params.fps;
@@ -664,7 +768,7 @@
                 game.menu();
             })
         },
-        draw: function (planeList,toolList) {
+        draw: function (planeList,toolList,missileList) {
             var game = this;
             game.context.clearRect(0,0,game.width,game.height);
 
@@ -686,6 +790,11 @@
 
             for (var i in toolList){
                 toolList[i].draw(game.context);
+            }
+
+            for(var i in missileList){
+                missileList[i].draw(game.context);
+                missileList[i].move();
             }
         },
         testAllModules: function () {
@@ -728,24 +837,41 @@
         },
         dirtyCheck: function (list) {
             var game = this;
-            for(var i in list){
-                var obj  = list[i];
-                var x = list[i].position.x + list[i].width / 2;
-                var y = list[i].position.y + list[i].height / 2;
-                if(x - obj.width / 2 - game.width > 0 ||
-                x + obj.width / 2 < 0 ||
-                y - obj.height / 2 - game.height > 0 ||
-                y + obj.height / 2 < 0){
-                    list.splice(i,1);
+            if(list[0] && list[0].className == 'missile'){
+                for(var i in list){
+                    var obj  = list[i];
+                    var x = list[i].position.x + list[i].width / 2;
+                    var y = list[i].position.y + list[i].height / 2;
+                    if((x - obj.width / 2 - game.width > 0       ||
+                    x + obj.width / 2 < 0                   ||
+                    y - obj.height / 2 - game.height > 0    ||
+                    y + obj.height / 2 < 0                  )&&
+                    obj.restFollow<=0){
+                        list.splice(i,1);
+                    }
+                }
+            } else{
+                for(var i in list){
+                    var obj  = list[i];
+                    var x = list[i].position.x + list[i].width / 2;
+                    var y = list[i].position.y + list[i].height / 2;
+                    if(x - obj.width / 2 - game.width > 0       ||
+                        x + obj.width / 2 < 0                   ||
+                        y - obj.height / 2 - game.height > 0    ||
+                        y + obj.height / 2 < 0){
+                        list.splice(i,1);
+                    }
                 }
             }
         },
         test1: function () {
             var game = this;
             var warehouse = game.warehouse;
+            var context = game.context;
             var time = 0;
             var planeList = [];
             var toolList = [];
+            var missileList = [];
             game.position = 0;
             $util.playAudio({
                 src: "audio/game_music.mp3",
@@ -760,8 +886,8 @@
                     time += game.frameTime;
                     game.frameNum++;
 
-                    var x = Math.random()*200;
-                    if(game.frameNum % 50 == 0){
+                    var x = Math.random()*game.context.canvas.width;
+                    if(Math.random() < 1 / fps / 2){
                         var plane = warehouse.getPlaneByType(2);
                         plane.shootTime = plane.shootRate;
                         plane.position.x = x;
@@ -773,14 +899,23 @@
                         plane.curBullet = 0;
                         planeList.push(plane);
                     }
+                    if(Math.random() < 1 / fps / 10){
+                        var missile = warehouse.getMissileByType(1);
+                        missile.position.x = x;
+                        missile.position.y = 0;
+                        missile.position.direction = 180;
+                        missile.target = game.player.plane;
+                        missileList.push(missile);
+                    }
 
-                    game.draw(planeList,toolList);
+                    game.draw(planeList,toolList,missileList);
 
-                    game.judge(planeList,toolList);
+                    game.judge(planeList,toolList,missileList);
 
                     game.dirtyCheck(game.bulletList);
                     game.dirtyCheck(planeList);
                     game.dirtyCheck(toolList);
+                    game.dirtyCheck(missileList);
 
                     game.planeListCheck(planeList);
                 },game.frameTime);
@@ -799,7 +934,7 @@
             }
         },
         //do some check just like collision test
-        judge: function (planeList,toolList) {
+        judge: function (planeList,toolList,missileList) {
             var game = this;
 
             //check if player has collision with tools
@@ -840,9 +975,6 @@
                     planeList.splice(i,1);
                     game.bulletList.splice(i,1);
                     game.player.curLife--;
-                    if(game.player.curLife == 0){
-                        game.gameOver();
-                    }
                 }
             }
             //check if enemies' bullets have collision with player's plane
@@ -851,10 +983,16 @@
                     game.bulletList[i].parent != game.player.plane){
                     game.bulletList.splice(i,1);
                     game.player.curLife--;
-                    if(game.player.curLife == 0){
-                        game.gameOver();
-                    }
                 }
+            }
+            for(var i in missileList){
+                if($util.collisionTest(game.player.plane,missileList[i])){
+                    missileList.splice(i,1);
+                    game.player.curLife--;
+                }
+            }
+            if(game.player.curLife == 0){
+                game.gameOver();
             }
         },
         createTool: function (plane,fps) {
@@ -991,13 +1129,7 @@
             var game = this;
 
             game.warehouse = new Warehouse();
-            game.warehouse.init({
-                bulletDataSrc: game.bulletDataSrc,
-                bulletStyleSrc: game.bulletStyleSrc,
-                planeDataSrc: game.planeDataSrc,
-                itemDataSrc: game.itemDataSrc,
-                toolDataSrc: game.toolDataSrc
-            });
+            game.warehouse.init(game.src);
             console.log(game.warehouse);
 
             game.initPlayer();
@@ -1011,6 +1143,7 @@
         this.bulletList = [];
         this.itemList = [];
         this.toolList = [];
+        this.missileList = [];
     }
     Warehouse.prototype = {
         constructor: Warehouse,
@@ -1026,6 +1159,15 @@
         getBulletByType: function (type) {
             var warehouse = this;
             var list = warehouse.bulletTypeList;
+            for(var i in list){
+                if(list[i].type == type){
+                    return $util.copy(list[i]);
+                }
+            }
+        },
+        getMissileByType: function (type) {
+            var warehouse = this;
+            var list = warehouse.missileList;
             for(var i in list){
                 if(list[i].type == type){
                     return $util.copy(list[i]);
@@ -1139,6 +1281,19 @@
                 warehouse.toolList[i].loadImg();
             }
         },
+        initMissile: function (src) {
+            var warehouse = this;
+
+            warehouse.getData(src,function (data) {
+                for(var i in data){
+                    warehouse.missileList.push(new Missile(data[i]));
+                }
+            });
+
+            for(var i in warehouse.missileList){
+                warehouse.missileList[i].loadImg();
+            }
+        },
         getItemByName: function (name) {
             var list = this.itemList;
             for(var i in list){
@@ -1174,7 +1329,8 @@
             !params.bulletStyleSrc      ||
             !params.planeDataSrc        ||
             !params.itemDataSrc         ||
-            !params.toolDataSrc){
+            !params.toolDataSrc         ||
+            !params.missileDataSrc){
                 throw Error('warehouse init: the attribute are not right!');
             }
             warehouse.initBulletData(params.bulletDataSrc);
@@ -1182,6 +1338,7 @@
             warehouse.initPlaneData(params.planeDataSrc);
             warehouse.initItem(params.itemDataSrc);
             warehouse.initTool(params.toolDataSrc);
+            warehouse.initMissile(params.missileDataSrc);
         }
        };
 
@@ -1279,12 +1436,15 @@
 
     var config = {
         canvasElement: $('#myCanvas')[0],
-        planeDataSrc: 'json/plane.json',
-        bulletDataSrc: 'json/bullet.json',
-        bulletStyleSrc: 'json/bullet-style.json',
-        itemDataSrc: 'json/item.json',
-        toolDataSrc: 'json/tool.json',
-        fps: '50'
+        src:{
+            planeDataSrc: 'json/plane.json',
+            bulletDataSrc: 'json/bullet.json',
+            bulletStyleSrc: 'json/bullet-style.json',
+            itemDataSrc: 'json/item.json',
+            toolDataSrc: 'json/tool.json',
+            missileDataSrc: 'json/missile.json'
+        },
+        fps: fps
     };
 
     var $game = new PlaneGame(config);
