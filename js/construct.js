@@ -554,6 +554,8 @@
         this.frameNum = 0;
         this.warehouse = null;
         this.pause = false;
+        this.position = 0;
+        this.backgoundImg = null;
     }
 
     PlaneGame.prototype = {
@@ -627,10 +629,11 @@
             var game = this;
             game.context.clearRect(0,0,game.width,game.height);
 
-            game.player.plane.draw(game.context);
-
+            game.drawBattelBk();
             game.drawScore();
             game.drawLife();
+
+            game.player.plane.draw(game.context);
 
             for(var i in game.bulletList){
                 game.bulletList[i].draw(game.context);
@@ -704,6 +707,8 @@
             var time = 0;
             var planeList = [];
             var toolList = [];
+            game.position = 0;
+            game.backgoundImg = warehouse.getItemByName("background");
             game.ifInit(function () {
                 window.setInterval(function () {
                     if(game.pause)
@@ -737,6 +742,18 @@
                     game.planeListCheck(planeList);
                 },game.frameTime);
             });
+        },
+        drawBattelBk: function () {
+            var game = this;
+            var ctx = game.context;
+            ctx.drawImage(game.backgoundImg.img,0, -ctx.canvas.height*2+game.position,ctx.canvas.width,ctx.canvas.height*2);
+            ctx.drawImage(game.backgoundImg.img,0, -ctx.canvas.height*4+game.position,ctx.canvas.width,ctx.canvas.height*2);
+            ctx.drawImage(game.backgoundImg.img,0, game.position,ctx.canvas.width,ctx.canvas.height*2);
+
+            game.position++;
+            if(game.position>=ctx.canvas.height*2){
+                game.position = 0;
+            }
         },
         //do some check just like collision test
         judge: function (planeList,toolList) {

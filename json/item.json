@@ -3,4 +3,7 @@
   "src": "img/heart.png",
   "height": 30,
   "width": 30
+},{
+  "name": "background",
+  "src": "img/background1.jpg"
 }]
