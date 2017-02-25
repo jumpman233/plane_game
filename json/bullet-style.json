@@ -28,7 +28,7 @@
     [{
       "type": 1,
       "speed": 10,
-      "direction": 180
+      "direction": 0
     }]
   ]
 }]

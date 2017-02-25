@@ -153,6 +153,9 @@
         }
 
 
+        if(this instanceof Plane){
+            console.log(params);
+        }
         if (params.x && params.y) {
             this.position = new Position(
                 params.x + this.width / 2,
@@ -171,8 +174,8 @@
         if (params.src) {
             this.src = params.src;
         }
-        if (params.direction) {
-            this.rotate = params.rotate;
+        if (params.direction!=null) {
+            this.direction = params.direction;
         }
         if (params.deadImg){
             this.deadImg = params.deadImg;
@@ -220,6 +223,19 @@
         }
     };
 
+    /** Missile
+     * a fly object which has a target
+     * it will follow the target until guiding time reduce to 0
+     */
+    function Missile(params) {
+        if (!params) return;
+
+        FlyObject.apply(this, arguments);
+        if(params.target && params.target instanceof Plane){
+            this.target = params.target;
+        }
+    }
+    
     /**
      * plane
      * object can shoot
@@ -338,9 +354,9 @@
             var bulList = plane.bulletStyle.getBullets(plane.curBullet);
             for (var i = 0 ;i<bulList.length;i++){
                 bulList[i].position = $util.copy(plane.position);
-                bulList[i].move(ctx);
-                bulList[i].move(ctx);
                 bulList[i].parent = plane;
+                bulList[i].move(ctx);
+                bulList[i].move(ctx);
                 $game.bulletList.push(bulList[i]);
                 plane.shootTime = plane.shootRate;
             }
@@ -385,8 +401,8 @@
     };
     Bullet.prototype.move = function () {
         var bullet = this;
-        bullet.position.y -= bullet.speed * Math.cos(bullet.direction / 360 * Math.PI * 2);
-        bullet.position.x += bullet.speed * Math.sin(bullet.direction / 360 * Math.PI * 2);
+        bullet.position.y -= bullet.speed * Math.cos((bullet.direction + bullet.parent.direction) / 360 * Math.PI * 2);
+        bullet.position.x += bullet.speed * Math.sin((bullet.direction + bullet.parent.direction) / 360 * Math.PI * 2);
     };
 
     /**
