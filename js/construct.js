@@ -73,6 +73,10 @@
                 return new Position(e.offsetX,e.offsetY);
             }
         },
+        checkInRect: function ( pos, rectX, rectY, rectW, rectH ) {
+            return pos.x <= rectX+ rectW && pos.x >= rectX &&
+                    pos.y >= rectY && pos.y <= rectY + rectH;
+        },
         sleep: function (duration) {
             var start = new Date();
             while(true){
@@ -93,7 +97,9 @@
             if(params.loop){
                 audio.loop = true;
             }
+            audio.volume = getCurSound();
             audio.play();
+            return audio;
         }
     };
     var $util = new GameUtil();
@@ -697,8 +703,13 @@
         this.frameNum = 0;
         this.warehouse = null;
         this.pause = false;
+        this.playing = false;
         this.position = 0;
         this.backgoundImg = null;
+        this.backgroundAudio = null;
+        this.optWidth = 200;
+        this.optHeight = 30;
+        this.optFont = 16;
     }
 
     PlaneGame.prototype = {
@@ -723,49 +734,86 @@
             geh.mouseMove(function (e) {
                 player.plane.position = $util.getEventPosition(e);
             });
-            geh.mouseDown(function (e) {
-                if(e.button == 2){
-                    game.pause = !game.pause;
-                    game.context.textAlign = 'center';
-                    game.context.font = '30px Courier New';
-                    game.context.fillText('pause', game.context.canvas.width/2, game.context.canvas.height/2);
+            geh.keydown(function ( e ) {
+                if(e.keyCode == 27 && game.playing){
+                    if(!game.pause){
+                        game.pause = true;
+                        game.pauseMenu();
+                    } else{
+                        game.resume();
+                    }
                 }
-            })
+            });
         },
-        menu:function () {
+        drawMenuOption: function ( name, x, y, callback ) {
             var game = this;
             var context = game.context;
-            context.font = "20px Georgia";
-            context.textAlign = 'center';
-            context.fillText("Fight In Sky",400,30);
-            context.strokeRect(300,80,200,30);
-            context.font = "16px Georgia";
-            context.fillText("Start Game",400,100);
+            var rectX = x - game.optWidth/2;
+            var rectY = y - game.optHeight/2-5;
+            context.strokeRect(rectX, rectY, game.optWidth, game.optHeight);
+            context.font = game.optFont + "px Georgia";
+            context.fillText(name, x, y);
             var menuMouseMove = function (event) {
                 var pos = $util.getEventPosition(event);
                 // console.log($('#'+game.canvasElement.id));
-                if(pos.x >= 300 && pos.x <= 500 && pos.y >= 80 && pos.y <= 110){
+                if($util.checkInRect(pos, rectX, rectY, game.optWidth, game.optHeight)){
                     $('#'+game.canvasElement.id).css('cursor','pointer');
                 } else{
                     $('#'+game.canvasElement.id).css('cursor','default');
                 }
             };
-            game.canvasElement.addEventListener('mousemove',menuMouseMove,false);
-            game.canvasElement.addEventListener('mousedown',function (event) {
+            var menuMouseDown = function ( event ) {
                 var pos = $util.getEventPosition(event);
-
-                if(pos.x >= 300 && pos.x <= 500 && pos.y >= 80 && pos.y <= 110){
+                if($util.checkInRect(pos, rectX, rectY, game.optWidth, game.optHeight)){
                     game.canvasElement.removeEventListener('mousemove',menuMouseMove);
-                    $('#'+game.canvasElement.id).css('cursor','none');
-                    game.test1();
-                } else{
+                    game.canvasElement.removeEventListener('mousedown',menuMouseDown);
+                    callback();
                 }
-            });
+            };
+            game.canvasElement.addEventListener('mousemove',menuMouseMove,false);
+            game.canvasElement.addEventListener('mousedown', menuMouseDown, false);
+        },
+        mainMenu:function () {
+            var game = this;
+            var context = game.context;
+            var width = context.canvas.width;
+            var height = context.canvas.height;
+
+            var startGameFunc = function (  ) {
+                $('#'+game.canvasElement.id).css('cursor','none');
+                game.test1();
+            };
+
+            context.font = "20px Georgia";
+            context.textAlign = 'center';
+            context.fillText("Fight In Sky",width/2,height/2-100);
+            game.drawMenuOption('Start Game', width/2,height/2,startGameFunc);
+        },
+        pauseMenu: function (  ) {
+            var game = this;
+            var context = game.context;
+            var width = context.canvas.width;
+            var height = context.canvas.height;
+            context.fillStyle = 'rgba(102,102,102,0.4)';
+            context.fillRect(0,0,width,height);
+            context.font = "20px Georgia";
+            context.fillStyle = '#000';
+            context.textAlign = 'center';
+            context.fillText("Pause",width/2,height/2-100);
+            var resumeFunc = function (  ) {
+                game.resume.call(game);
+            };
+            game.drawMenuOption('Resume', width/2, height/2, resumeFunc);
+        },
+        resume: function (  ) {
+            var game = this;
+            game.pause = false;
+            $('#'+game.canvasElement.id).css('cursor','none');
         },
         start: function () {
             var game = this;
             game.ifInit(function () {
-                game.menu();
+                game.mainMenu();
             })
         },
         draw: function (planeList,toolList,missileList) {
@@ -873,15 +921,17 @@
             var toolList = [];
             var missileList = [];
             game.position = 0;
-            $util.playAudio({
+            game.playing = true;
+            game.backgroundAudio = $util.playAudio({
                 src: "audio/game_music.mp3",
                 loop: true
             });
             game.backgoundImg = warehouse.getItemByName("background");
             game.ifInit(function () {
                 window.setInterval(function () {
-                    if(game.pause)
+                    if(game.pause){
                         return;
+                    }
 
                     time += game.frameTime;
                     game.frameNum++;
@@ -918,6 +968,7 @@
                     game.dirtyCheck(missileList);
 
                     game.planeListCheck(planeList);
+
                 },game.frameTime);
             });
         },
@@ -1026,6 +1077,7 @@
         gameOver: function () {
             var game = this;
 
+            game.backgroundAudio.pause();
             game.bulletList.splice(0,game.bulletList.length);
             game.context.clearRect(0,0,game.width,game.height);
             game.player.plane.position  = new Position(game.width/2,game.height-100);
@@ -1127,6 +1179,12 @@
         },
         init: function () {
             var game = this;
+
+            addSoundChangeEvent(function (  ) {
+                if(game.backgroundAudio){
+                    game.backgroundAudio.volume = getCurSound();
+                }
+            });
 
             game.warehouse = new Warehouse();
             game.warehouse.init(game.src);
@@ -1425,14 +1483,34 @@
             this.target.addEventListener('mousemove', funcObj, false);
         },
         keydown: function (funcObj) {
-            console.log(funcObj);
-            this.target.addEventListener('keydown', funcObj, false);
+            $(document)[0].addEventListener('keydown', funcObj, false);
         },
         mouseDown:function (funcObj) {
             this.target.addEventListener('mousedown', funcObj, false);
         },
         constructor: GameEventHandler
     };
+
+    $('#soundImg').click(function () {
+        if($('#soundSlider').attr('display') == 'false'){
+            $('#soundSlider').attr('display', 'true');
+            $('#soundSlider').css('display','inline-block');
+            $('#sound').css('left','780px');
+        } else{
+            $('#soundSlider').attr('display', 'false');
+            $('#soundSlider').css('display','none');
+            $('#sound').css('left','884px');
+        }
+    });
+
+    function addSoundChangeEvent(func) {
+        if(typeof func == 'function'){
+            $('#soundSlider').change(func);
+        }
+    }
+    function getCurSound(  ) {
+        return $('#soundSlider')[0].valueAsNumber;
+    }
 
     var config = {
         canvasElement: $('#myCanvas')[0],
@@ -1446,7 +1524,6 @@
         },
         fps: fps
     };
-
     var $game = new PlaneGame(config);
     $game.init();
     // planeGame.testAllModules();
