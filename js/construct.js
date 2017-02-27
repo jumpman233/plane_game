@@ -86,9 +86,6 @@
                 }
             }
         },
-        then: function(){
-
-        },
         playAudio: function (params) {
             if(!params.src){
                 throw Error("playAudio lack of param src!");
@@ -764,7 +761,6 @@
             context.fillText(name, x, y);
             var menuMouseMove = function (event) {
                 var pos = $util.getEventPosition(event);
-                // console.log($('#'+game.canvasElement.id));
                 if($util.checkInRect(pos, rectX, rectY, game.optWidth, game.optHeight)){
                     $('#'+game.canvasElement.id).css('cursor','pointer');
                 } else{
@@ -994,9 +990,11 @@
         drawFightBk: function () {
             var game = this;
             var ctx = game.context;
+            ctx.globalAlpha = 0.8;
             ctx.drawImage(game.backgoundImg.img,0, -ctx.canvas.height*2+game.position,ctx.canvas.width,ctx.canvas.height*2);
             ctx.drawImage(game.backgoundImg.img,0, -ctx.canvas.height*4+game.position,ctx.canvas.width,ctx.canvas.height*2);
             ctx.drawImage(game.backgoundImg.img,0, game.position,ctx.canvas.width,ctx.canvas.height*2);
+            ctx.globalAlpha = 1;
 
             game.position++;
             if(game.position>=ctx.canvas.height*2){
