@@ -710,6 +710,7 @@
         this.optWidth = 200;
         this.optHeight = 30;
         this.optFont = 16;
+        this.optionsFunc = []; //use to remove elements
     }
 
     PlaneGame.prototype = {
@@ -741,9 +742,17 @@
                         game.pauseMenu();
                     } else{
                         game.resume();
+                        game.removeAllOptions();
                     }
                 }
             });
+        },
+        removeAllOptions: function (  ) {
+            var game = this;
+            for(var i in game.optionsFunc){
+                var func = game.optionsFunc[i];
+                game.canvasElement.removeEventListener(func.type,func);
+            }
         },
         drawMenuOption: function ( name, x, y, callback ) {
             var game = this;
@@ -767,9 +776,19 @@
                 if($util.checkInRect(pos, rectX, rectY, game.optWidth, game.optHeight)){
                     game.canvasElement.removeEventListener('mousemove',menuMouseMove);
                     game.canvasElement.removeEventListener('mousedown',menuMouseDown);
+                    for(var i in game.optionsFunc){
+                        var func = game.optionsFunc[i];
+                        if(func == menuMouseDown || func == menuMouseMove){
+                            game.optionsFunc.splice(i,1);
+                        }
+                    }
                     callback();
                 }
             };
+            menuMouseDown.type = 'mousedown';
+            menuMouseMove.type = 'mousemove';
+            game.optionsFunc.push(menuMouseDown);
+            game.optionsFunc.push(menuMouseMove);
             game.canvasElement.addEventListener('mousemove',menuMouseMove,false);
             game.canvasElement.addEventListener('mousedown', menuMouseDown, false);
         },
