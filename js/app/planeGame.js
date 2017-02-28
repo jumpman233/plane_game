@@ -5,9 +5,10 @@
 define(['jquery',
     'util',
     'position',
+    'screen',
     'warehouse',
     'player',
-    'gameEventHandler'], function ( jquery, util, Position, Warehouse, Player, GameEventHandler ) {
+    'gameEventHandler'], function ( jquery, util, Position,Screen, Warehouse, Player, GameEventHandler ) {
     'use strict';
 
     function PlaneGame(params) {
@@ -22,11 +23,6 @@ define(['jquery',
         this.position = 0;
         this.backgoundImg = null;
         this.backgroundAudio = null;
-        this.optWidth = 200;
-        this.optHeight = 30;
-        this.optFont = 16;
-        this.optionsFunc = []; //use to remove elements
-        this.options = [];
 
         if (!params) return;
 
@@ -109,67 +105,6 @@ define(['jquery',
                 this.frameTime = 1000 / this.fps;
             }
         },
-        removeAllOptions: function (  ) {
-            var game = this;
-            for(var i in game.optionsFunc){
-                var func = game.optionsFunc[i];
-                if(func.name == 'menuMouseMove'){
-                    game.canvasElement.removeEventListener('mousemove',func);
-                } else if(func.name == 'menuMouseDown'){
-                    game.canvasElement.removeEventListener('mousedown',func);
-                }
-            }
-            game.optionsFunc = [];
-            game.options = [];
-            console.log(game.optionsFunc);
-        },
-        drawMenuOption: function ( name, x, y, callback ) {
-            var game = this;
-            var context = game.context;
-            var rectX = x - game.optWidth/2;
-            var rectY = y - game.optHeight/2-5;
-            context.strokeRect(rectX, rectY, game.optWidth, game.optHeight);
-            context.font = game.optFont + "px Georgia";
-            context.fillText(name, x, y);
-            game.options.push({
-                rectX: rectX,
-                rectY: rectY,
-                width: game.optWidth,
-                height: game.optHeight
-            });
-            function menuMouseMove (event) {
-                var pos = util.getEventPosition(event);
-                var flag = false;
-                for(var i in game.options){
-                    var opt = game.options[i];
-                    if(util.checkInRect(pos, opt.rectX, opt.rectY, opt.width, opt.height)){
-                        $('#'+game.canvasElement.id).css('cursor','pointer');
-                        flag = true;
-                        break;
-                    }
-                }
-                if(!flag){
-                    $('#'+game.canvasElement.id).css('cursor','default');
-                }
-            }
-            function menuMouseDown ( event ) {
-                var pos = util.getEventPosition(event);
-                if(util.checkInRect(pos, rectX, rectY, game.optWidth, game.optHeight)){
-                    game.removeAllOptions();
-                    for(var i in game.optionsFunc){
-                        var func = game.optionsFunc[i];
-                        if(func == menuMouseDown || func == menuMouseMove){
-                            game.optionsFunc.splice(i,1);
-                        }
-                    }
-                    callback();
-                }
-            }
-            game.optionsFunc.push(menuMouseMove);
-            game.optionsFunc.push(menuMouseDown);
-            game.canvasElement.addEventListener('mousemove',menuMouseMove,false);
-            game.canvasElement.addEventListener('mousedown', menuMouseDown, false);
-        },
         mainMenu:function () {
             var game = this;
             var context = game.context;
@@ -186,7 +121,7 @@ define(['jquery',
             context.font = "20px Georgia";
             context.textAlign = 'center';
             context.fillText("Fight In Sky",width/2,height/2-100);
-            game.drawMenuOption('Start Game', width/2,height/2,startGameFunc);
+            Screen.drawMenuOption('Start Game', width/2,height/2,startGameFunc);
         },
         pauseMenu: function (  ) {
             var game = this;
@@ -208,8 +143,8 @@ define(['jquery',
                 window.clearInterval(game.gaming);
                 game.mainMenu.call(game);
             };
-            game.drawMenuOption('Resume', width/2, height/2, resumeFunc);
-            game.drawMenuOption('Exit', width/2, height/2 + 50, exitFunc);
+            Screen.drawMenuOption('Resume', width/2, height/2, resumeFunc);
+            Screen.drawMenuOption('Exit', width/2, height/2 + 50, exitFunc);
         },
         resume: function (  ) {
             var game = this;
@@ -227,8 +162,8 @@ define(['jquery',
             game.context.clearRect(0,0,game.width,game.height);
 
             game.drawFightBk();
-            game.drawScore();
-            game.drawLife();
+            Screen.drawScore(game.player.score);
+            Screen.drawLife(game.player.curLife);
 
             game.player.plane.draw(game.context);
 
@@ -535,55 +470,13 @@ define(['jquery',
                 },100,0);
             }
         },
-        drawImage: function (obj) {
-            if(!obj.img) return;
-
-            var image = {
-                width: 10,
-                height: 10,
-                x: 0,
-                y: 0
-            };
-            if(obj.width){
-                image.width = obj.width;
-            }
-            if(obj.height){
-                image.height = obj.height;
-            }
-            if(obj.position && obj.position.x){
-                image.x = obj.position.x;
-            }
-            if(obj.position && obj.position.y){
-                image.y = obj.position.y;
-            }
-            this.context.beginPath();
-            this.context.drawImage(obj.img, image.x,image.y,image.width,image.height);
-            this.context.closePath();
-        },
-        drawLife: function () {
-            var game = this;
-
-            var lifeItem = game.warehouse.getItemByName("life");
-            var pos = new Position(0,game.context.canvas.height - lifeItem.height);
-            for(var i = 0; i < game.player.curLife; i++){
-                game.drawImage({
-                    img: lifeItem.img,
-                    height: lifeItem.height,
-                    width: lifeItem.width,
-                    position: pos
-                });
-                pos.x += lifeItem.width;
-            }
-        },
-        drawScore: function () {
-            var game = this;
-            var context = game.context;
-            context.font = "16px Georgia";
-            context.textAlign = 'left';
-            context.fillText("Score: " + game.player.score,10,20);
-        },
         init: function () {
             var game = this;
+
+            Screen.init({
+                canvasElement: game.canvasElement,
+                context: game.context
+            });
 
             addSoundChangeEvent(function (  ) {
                 if(game.backgroundAudio){
@@ -591,7 +484,7 @@ define(['jquery',
                 }
             });
 
-            game.warehouse = new Warehouse();
+            game.warehouse = Warehouse;
             game.warehouse.init(game.src);
             console.log(game.warehouse);
 

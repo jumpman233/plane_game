@@ -89,8 +89,8 @@ define(['position'],function ( Position ) {
             return audio;
         },
         getCurSound: function(  ) {
-        return $('#soundSlider')[0].valueAsNumber;
-    }
+            return $('#soundSlider')[0].valueAsNumber;
+        }
     };
     return new GameUtil();
 });

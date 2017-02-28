@@ -10,7 +10,7 @@ define(['util',
     'bullet',
     'item',
     'tool',
-'bulletStyle'],function ( util, Plane, FlyObject, Position, Missile, Bullet, Item, Tool , BulletStyle) {
+    'bulletStyle'],function ( util, Plane, FlyObject, Position, Missile, Bullet, Item, Tool , BulletStyle) {
     function Warehouse() {
         this.bulletTypeList = [];
         this.planeTypeList = [];
@@ -217,5 +217,5 @@ define(['util',
         }
     };
 
-    return Warehouse;
+    return new Warehouse();
 });

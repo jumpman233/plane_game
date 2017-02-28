@@ -3,8 +3,8 @@
  */
 
 define(['util',
-'flyObject',
-'planeGame'],function ( util, FlyObject, planeGame ) {
+'flyObject'
+],function ( util, FlyObject) {
     /**
      * plane
      * object can shoot
