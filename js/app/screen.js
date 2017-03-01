@@ -4,7 +4,9 @@
 
 define(['util',
 'warehouse',
-'position'],function ( util, Warehouse, Position ) {
+'position',
+'dataManager',
+'player'],function ( util, Warehouse, Position, dataManager, player ) {
     function Screen(  ) {
         this.optWidth = 200;
         this.optHeight = 30;
@@ -148,7 +150,45 @@ define(['util',
             if(game.position>=ctx.canvas.height*2){
                 game.position = 0;
             }
-        }
+        },
+
+        draw: function () {
+            var screen = this;
+            screen.context.clearRect(0,0,screen.width,screen.height);
+
+            screen.drawFightBk();
+            // screen.drawScore(screen.player.score);
+            // screen.drawLife(screen.player.curLife);
+
+            player.plane.draw(screen.context);
+
+            for(var i in dataManager.enemy_bullets){
+                var bullet = dataManager.enemy_bullets[i];
+                bullet.draw(screen.context);
+                bullet.move(screen.context);
+            }
+            for(var i in dataManager.player_bullets){
+                var bullet = dataManager.player_bullets[i];
+                bullet.draw(screen.context);
+                bullet.move(screen.context);
+            }
+
+            for (var i in dataManager.enemy_planes){
+                var plane = dataManager.enemy_planes[i];
+                plane.draw(screen.context, screen.frameNum);
+                plane.move();
+            }
+
+            // for (var i in toolList){
+            //     toolList[i].draw(screen.context);
+            // }
+
+            for(var i in dataManager.missiles){
+                var missile = dataManager.missiles[i];
+                missile.draw(screen.context);
+                missile.move();
+            }
+        },
     };
     return new Screen();
 });

@@ -4,8 +4,8 @@
 
 define(['util',
     'flyObject',
-    'global'
-],function ( util, FlyObject, global) {
+    'dataManager'
+],function ( util, FlyObject, dataManager) {
     /**
      * plane
      * object can shoot
@@ -125,7 +125,8 @@ define(['util',
                 bulList[i].direction = bulList[i].direction + bulList[i].parent.direction;
                 bulList[i].move(ctx);
                 bulList[i].move(ctx);
-                planeGame.bulletList.push(bulList[i]);
+                // planeGame.bulletList.push(bulList[i]);
+                dataManager.resolveBullet(bulList[i]);
                 plane.shootTime = plane.shootRate;
             }
             if(plane.bulletStyle.audioSrc){

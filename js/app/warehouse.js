@@ -241,22 +241,22 @@ define(['util',
             return warehouse
                 .getConfig(params)
                 .then( function(){
-                    warehouse.initBulletData();
+                    return warehouse.initBulletData();
                 } )
                 .then( function (  ) {
-                    warehouse.initBulletStyleData();
+                    return warehouse.initBulletStyleData();
                 })
                 .then( function (  ) {
-                    warehouse.initPlaneData();
+                    return warehouse.initPlaneData();
                 })
                 .then( function (  ) {
-                    warehouse.initItem();
+                    return warehouse.initItem();
                 })
                 .then( function (  ) {
-                    warehouse.initTool();
+                    return warehouse.initTool();
                 })
                 .then( function (  ) {
-                    warehouse.initMissile();
+                    return warehouse.initMissile();
                 })
                 .then(function (  ) {
                     console.log(warehouse);

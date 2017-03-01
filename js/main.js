@@ -17,18 +17,20 @@ require.config({
         'tool': 'app/tool',
         'warehouse': 'app/warehouse',
         'bulletStyle': 'app/bulletStyle',
-        'player': 'app/player',
         'gameEventHandler': 'app/gameEventHandler',
         'planeGame': 'app/planeGame',
         'screen': 'app/screen',
         'sound': 'app/sound',
-        'global': 'app/global'
+        'global': 'app/global',
+        'dataManager': 'app/dataManager',
+        'player': 'app/player'
     }
 });
 
 require(['planeGame'],function ( PlaneGame ) {
     var config = {
         canvasElement: $('#myCanvas')[0],
+        canvasId: 'myCanvas',
         src:{
             planeDataSrc: 'json/plane.json',
             bulletDataSrc: 'json/bullet.json',

@@ -31,7 +31,7 @@ define(['util',
 
     Bullet.prototype = util.copy(FlyObject.prototype);
     Bullet.prototype.constructor = Bullet;
-    Bullet.prototype.className = 'bullet';
+    Bullet.prototype.className = 'Bullet';
     Bullet.prototype.draw = function (ctx) {
         this.drawImg(ctx);
     };

@@ -2,7 +2,10 @@
  * Created by lzh on 2017/2/28.
  */
 
-define(['util'],function ( util ) {
+define(['gameEventHandler',
+    'util',
+    'global'
+    ],function (GameEventHandler, util, global ) {
     'use strict';
     function Player() {
         this.plane = null;
@@ -28,7 +31,38 @@ define(['util'],function ( util ) {
                 default:
                     break;
             }
+        },
+        init: function ( params ) {
+
+            var player = this;
+
+            player.score = 0;
+            player.maxLife = 3;
+            player.curLife = player.maxLife;
+
+            player.geh = new GameEventHandler({
+                target: global.canvasElement
+            });
+
+            player.plane = params.plane;
+            player.plane.curBullet = 0;
+            player.plane.role = 'player';
+
+            player.geh.mouseMove(function (e) {
+                player.plane.position = util.getEventPosition(e);
+            });
+            // player.geh.keydown(function ( e ) {
+            //     if(e.keyCode == 27 && player.playing){
+            //         if(!player.pause){
+            //             player.pause = true;
+            //             player.pauseMenu();
+            //         } else{
+            //             player.resume();
+            //             player.removeAllOptions();
+            //         }
+            //     }
+            // });
         }
     };
-    return Player;
+    return new Player();
 });

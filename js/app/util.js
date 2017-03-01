@@ -113,7 +113,36 @@ define(['position','global'],function ( Position, global ) {
         },
         getCurSound: function(  ) {
             return $('#soundSlider')[0].valueAsNumber;
-        }
+        },
+        dirtyCheck: function (list) {
+            var game = this;
+            if(list[0] && list[0].className == 'missile'){
+                for(var i in list){
+                    var obj  = list[i];
+                    var x = list[i].position.x + list[i].width / 2;
+                    var y = list[i].position.y + list[i].height / 2;
+                    if((x - obj.width / 2 - game.width > 0       ||
+                        x + obj.width / 2 < 0                   ||
+                        y - obj.height / 2 - game.height > 0    ||
+                        y + obj.height / 2 < 0                  )&&
+                        obj.restFollow<=0){
+                        list.splice(i,1);
+                    }
+                }
+            } else{
+                for(var i in list){
+                    var obj  = list[i];
+                    var x = list[i].position.x + list[i].width / 2;
+                    var y = list[i].position.y + list[i].height / 2;
+                    if(x - obj.width / 2 - game.width > 0       ||
+                        x + obj.width / 2 < 0                   ||
+                        y - obj.height / 2 - game.height > 0    ||
+                        y + obj.height / 2 < 0){
+                        list.splice(i,1);
+                    }
+                }
+            }
+        },
     };
     return new GameUtil();
 });
