@@ -15,10 +15,11 @@ define(['util',
         this.bulletTypeList = [];
         this.planeTypeList = [];
         this.bulletStyleList = [];
-        this.bulletList = [];
         this.itemList = [];
         this.toolList = [];
         this.missileList = [];
+        this.src = {};
+        this.warehouse = this;
     }
     Warehouse.prototype = {
         constructor: Warehouse,
@@ -67,6 +68,29 @@ define(['util',
                 }
             }
         },
+        getConfig: function ( params ) {
+            var defer = $.Deferred();
+            if(!params.bulletDataSrc    ||
+                !params.bulletStyleSrc      ||
+                !params.planeDataSrc        ||
+                !params.itemDataSrc         ||
+                !params.toolDataSrc         ||
+                !params.missileDataSrc){
+                throw Error('warehouse init: the attribute are not right!');
+            }
+            var warehouse = this;
+
+            warehouse.src = {
+                bulletDataSrc: params.bulletDataSrc,
+                bulletStyleSrc: params.bulletStyleSrc,
+                planeDataSrc: params.planeDataSrc,
+                itemDataSrc: params.itemDataSrc,
+                toolDataSrc: params.toolDataSrc,
+                missileDataSrc: params.missileDataSrc
+            };
+            defer.resolve(this);
+            return defer;
+        },
         initBullet: function (bullet) {
             bullet.loadImg();
         },
@@ -88,86 +112,87 @@ define(['util',
             plane.bulletStyle = warehouse.getBulletStyleByType(plane.bulletType);
             plane.loadImg();
         },
-        initBulletData: function (src) {
+        initBulletData: function () {
             var warehouse = this;
-
-            warehouse.getData(src,function (data) {
+            return warehouse.getData(warehouse.src.bulletDataSrc).then(function (data) {
                 warehouse.bulletTypeList = [];
+
                 for(var i in data){
                     warehouse.bulletTypeList.push(new Bullet(data[i]));
                 }
-            });
 
-            for(var i in warehouse.bulletTypeList){
-                warehouse.initBullet(warehouse.bulletTypeList[i]);
-            }
+                for(var i in warehouse.bulletTypeList){
+                    warehouse.initBullet(warehouse.bulletTypeList[i]);
+                }
+            });
         },
-        initBulletStyleData: function (src) {
+        initBulletStyleData: function () {
             var warehouse = this;
 
-            warehouse.getData(src,function (data) {
+            var resFunc = function (data) {
                 warehouse.bulletStyleList = [];
                 for(var i in data){
                     warehouse.bulletStyleList.push(new BulletStyle(data[i]));
                 }
-            });
 
-            for(var i in warehouse.bulletStyleList){
-                warehouse.initBulletStyle(warehouse.bulletStyleList[i]);
-            }
+                for(var i in warehouse.bulletStyleList){
+                    warehouse.initBulletStyle(warehouse.bulletStyleList[i]);
+                }
+            };
+            return warehouse.getData(warehouse.src.bulletStyleSrc).then(resFunc);
         },
-        initPlaneData: function (src) {
+        initPlaneData: function () {
             var warehouse = this;
-
-            warehouse.getData(src,function (data) {
+            var resFunc = function (data) {
                 warehouse.planeTypeList = [];
                 for (var i in data){
                     warehouse.planeTypeList.push(new Plane(data[i]));
                 }
-            });
 
-            for(var i in warehouse.planeTypeList){
-                warehouse.initPlane(warehouse.planeTypeList[i]);
-            }
+                for(var i in warehouse.planeTypeList){
+                    warehouse.initPlane(warehouse.planeTypeList[i]);
+                }
+            };
+            return warehouse.getData(warehouse.src.planeDataSrc).then(resFunc);
         },
-        initItem: function(src){
+        initItem: function(){
             var warehouse = this;
 
-            warehouse.getData(src,function (data) {
+            var resFunc = function (data) {
                 for(var i in data){
                     warehouse.itemList.push(new Item(data[i]));
                 }
-            });
+                for(var i in warehouse.itemList){
+                    warehouse.itemList[i].loadImg();
+                }
+            };
+            return warehouse.getData(warehouse.src.itemDataSrc).then(resFunc);
 
-            for(var i in warehouse.itemList){
-                warehouse.itemList[i].loadImg();
-            }
         },
-        initTool: function (src) {
+        initTool: function () {
             var warehouse = this;
-
-            warehouse.getData(src,function (data) {
+            var resFunc = function (data) {
                 for(var i in data){
                     warehouse.toolList.push(new Tool(data[i]));
                 }
-            });
-
-            for(var i in warehouse.toolList){
-                warehouse.toolList[i].loadImg();
-            }
+                for(var i in warehouse.toolList){
+                    warehouse.toolList[i].loadImg();
+                }
+            };
+            return warehouse.getData(warehouse.src.toolDataSrc).then(resFunc);
         },
-        initMissile: function (src) {
+        initMissile: function () {
             var warehouse = this;
 
-            warehouse.getData(src,function (data) {
+            var resFunc = function (data) {
                 for(var i in data){
                     warehouse.missileList.push(new Missile(data[i]));
                 }
-            });
-
-            for(var i in warehouse.missileList){
-                warehouse.missileList[i].loadImg();
-            }
+                for(var i in warehouse.missileList){
+                    warehouse.missileList[i].loadImg();
+                }
+            };
+            return warehouse.getData(warehouse.src.missileDataSrc).then(resFunc);
         },
         getItemByName: function (name) {
             var list = this.itemList;
@@ -178,6 +203,8 @@ define(['util',
             }
         },
         getData: function (src, callback) {
+            console.log(src);
+            var defer = $.Deferred();
             if(undefined == src){
                 throw Error('Warehouse getData: src is not defined!');
             }
@@ -190,12 +217,16 @@ define(['util',
                 dataType: 'json',
                 success: function (data) {
                     console.log('获取成功：' + src);
-                    callback(data);
+                    defer.resolve(data);
+                    if(typeof callback =='function'){
+                        callback(data);
+                    }
                 },
                 error: function (error) {
                     throw Error('获取失败:' + src);
                 }
             });
+            return defer;
         },
         init: function (params) {
             var warehouse = this;
@@ -208,14 +239,30 @@ define(['util',
                 !params.missileDataSrc){
                 throw Error('warehouse init: the attribute are not right!');
             }
-            warehouse.initBulletData(params.bulletDataSrc);
-            warehouse.initBulletStyleData(params.bulletStyleSrc);
-            warehouse.initPlaneData(params.planeDataSrc);
-            warehouse.initItem(params.itemDataSrc);
-            warehouse.initTool(params.toolDataSrc);
-            warehouse.initMissile(params.missileDataSrc);
+            return warehouse
+                .getConfig(params)
+                .then( function(){
+                    warehouse.initBulletData();
+                } )
+                .then( function (  ) {
+                    warehouse.initBulletStyleData();
+                })
+                .then( function (  ) {
+                    warehouse.initPlaneData();
+                })
+                .then( function (  ) {
+                    warehouse.initItem();
+                })
+                .then( function (  ) {
+                    warehouse.initTool();
+                })
+                .then( function (  ) {
+                    warehouse.initMissile();
+                })
+                .then(function (  ) {
+                    console.log(warehouse);
+                });
         }
     };
-
     return new Warehouse();
 });

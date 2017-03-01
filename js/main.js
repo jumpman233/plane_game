@@ -20,7 +20,8 @@ require.config({
         'player': 'app/player',
         'gameEventHandler': 'app/gameEventHandler',
         'planeGame': 'app/planeGame',
-        'screen': 'app/screen'
+        'screen': 'app/screen',
+        'sound': 'app/sound'
     }
 });
 
@@ -38,9 +39,9 @@ require(['planeGame'],function ( PlaneGame ) {
         fps: fps
     };
     PlaneGame.getConfig(config);
-    PlaneGame.init();
+    PlaneGame.init(config).then(function (  ) {
+        PlaneGame.start();
+    });
 
     // planeGame.testAllModules();
-
-    PlaneGame.start();
 });

@@ -83,6 +83,7 @@ define(['jquery',
         },
         constructor : PlaneGame,
         getConfig: function ( params ) {
+            var defer = $.Deferred();
             if (!params) return;
 
             if (params.backgroundSrc) {
@@ -104,6 +105,8 @@ define(['jquery',
                 this.fps = 50;
                 this.frameTime = 1000 / this.fps;
             }
+            defer.resolve();
+            return defer;
         },
         mainMenu:function () {
             var game = this;
@@ -161,7 +164,7 @@ define(['jquery',
             var game = this;
             game.context.clearRect(0,0,game.width,game.height);
 
-            game.drawFightBk();
+            Screen.drawFightBk();
             Screen.drawScore(game.player.score);
             Screen.drawLife(game.player.curLife);
 
@@ -271,7 +274,6 @@ define(['jquery',
                 src: "audio/game_music.mp3",
                 loop: true
             });
-            game.backgoundImg = warehouse.getItemByName("background");
             game.ifInit(function () {
                 game.gaming = window.setInterval(function () {
                     if(game.pause){
@@ -470,25 +472,29 @@ define(['jquery',
                 },100,0);
             }
         },
-        init: function () {
+        init: function (config) {
             var game = this;
-
-            Screen.init({
-                canvasElement: game.canvasElement,
-                context: game.context
-            });
 
             addSoundChangeEvent(function (  ) {
                 if(game.backgroundAudio){
-                    game.backgroundAudio.volume = getCurSound();
+                    game.backgroundAudio.volume = util.getCurSound();
                 }
             });
 
             game.warehouse = Warehouse;
-            game.warehouse.init(game.src);
-            console.log(game.warehouse);
 
-            game.initPlayer();
+            game.getConfig(config);
+            return Warehouse
+                .init(game.src)
+                .then(function (  ) {
+                    Screen.init({
+                        canvasElement: game.canvasElement,
+                        context: game.context
+                    });
+                })
+                .then(function (  ) {
+                    game.initPlayer();
+                });
         }
     };
 

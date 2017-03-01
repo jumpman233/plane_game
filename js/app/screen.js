@@ -11,6 +11,9 @@ define(['util',
         this.optFont = 16;
         this.optionsFunc = []; //use to remove elements
         this.options = [];
+        this.backgroundSrc = '';
+        this.backgoundImg = null;
+        this.position = 0;
     }
     Screen.prototype = {
         constructor: Screen,
@@ -19,6 +22,10 @@ define(['util',
                 this.canvasElement = params.canvasElement;
                 this.context = params.context;
             }
+            if (params.backgroundSrc) {
+                this.backgroundSrc = params.backgroundSrc;
+            }
+            this.backgoundImg = Warehouse.getItemByName("background");
         },
         removeAllOptions: function (  ) {
             var screen = this;
@@ -127,6 +134,20 @@ define(['util',
             this.context.beginPath();
             this.context.drawImage(obj.img, image.x,image.y,image.width,image.height);
             this.context.closePath();
+        },
+        drawFightBk: function () {
+            var game = this;
+            var ctx = game.context;
+            ctx.globalAlpha = 0.8;
+            ctx.drawImage(game.backgoundImg.img,0, -ctx.canvas.height*2+game.position,ctx.canvas.width,ctx.canvas.height*2);
+            ctx.drawImage(game.backgoundImg.img,0, -ctx.canvas.height*4+game.position,ctx.canvas.width,ctx.canvas.height*2);
+            ctx.drawImage(game.backgoundImg.img,0, game.position,ctx.canvas.width,ctx.canvas.height*2);
+            ctx.globalAlpha = 1;
+
+            game.position++;
+            if(game.position>=ctx.canvas.height*2){
+                game.position = 0;
+            }
         }
     };
     return new Screen();
