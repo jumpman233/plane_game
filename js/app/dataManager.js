@@ -75,7 +75,7 @@ define(['util',
                             // player.score += plane.score;
                             planeDead(plane);
                         }
-                        dm.enemy_bullets.splice(j,1);
+                        dm.player_bullets.splice(j,1);
                         break;
                     }
                 }

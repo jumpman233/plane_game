@@ -19,6 +19,7 @@ define(['util',
         this.toolList = [];
         this.missileList = [];
         this.src = {};
+        this.audioList = [];
         this.warehouse = this;
     }
     Warehouse.prototype = {
@@ -31,6 +32,14 @@ define(['util',
         },
         getBulletStyleList: function () {
             return util.copy(this.bulletStyleList);
+        },
+        getAudioByName: function ( name ) {
+            var warehouse = this;
+            for(var i in warehouse.audioList){
+                if(warehouse.audioList[i].name == name){
+                    return warehouse.audioList[i];
+                }
+            }
         },
         getBulletByType: function (type) {
             var warehouse = this;
@@ -75,7 +84,8 @@ define(['util',
                 !params.planeDataSrc        ||
                 !params.itemDataSrc         ||
                 !params.toolDataSrc         ||
-                !params.missileDataSrc){
+                !params.missileDataSrc  ||
+                !params.audioDataSrc ){
                 throw Error('warehouse init: the attribute are not right!');
             }
             var warehouse = this;
@@ -86,7 +96,8 @@ define(['util',
                 planeDataSrc: params.planeDataSrc,
                 itemDataSrc: params.itemDataSrc,
                 toolDataSrc: params.toolDataSrc,
-                missileDataSrc: params.missileDataSrc
+                missileDataSrc: params.missileDataSrc,
+                audioDataSrc: params.audioDataSrc
             };
             defer.resolve(this);
             return defer;
@@ -96,6 +107,7 @@ define(['util',
         },
         initBulletStyle: function (bulletStyle) {
             var warehouse = this;
+            bulletStyle.audio = warehouse.getAudioByName(bulletStyle.audioName);
             for(var i in bulletStyle.style){
                 var styles = bulletStyle.style[i];
                 for(var j in styles){
@@ -110,6 +122,7 @@ define(['util',
         initPlane: function (plane) {
             var warehouse = this;
             plane.bulletStyle = warehouse.getBulletStyleByType(plane.bulletType);
+            plane.deadAudio = warehouse.getAudioByName(plane.deadAudioName);
             plane.loadImg();
         },
         initBulletData: function () {
@@ -194,6 +207,18 @@ define(['util',
             };
             return warehouse.getData(warehouse.src.missileDataSrc).then(resFunc);
         },
+        initAudio: function (  ) {
+            var warehouse = this;
+            return warehouse.getData(warehouse.src.audioDataSrc).then(function (data) {
+                warehouse.bulletTypeList = [];
+
+                for(var i in data){
+                    var audio = util.initAudio(data[i]);
+                    audio.name = data[i].name;
+                    warehouse.audioList.push(audio);
+                }
+            });
+        },
         getItemByName: function (name) {
             var list = this.itemList;
             for(var i in list){
@@ -230,16 +255,11 @@ define(['util',
         init: function (params) {
             var warehouse = this;
 
-            if(!params.bulletDataSrc    ||
-                !params.bulletStyleSrc      ||
-                !params.planeDataSrc        ||
-                !params.itemDataSrc         ||
-                !params.toolDataSrc         ||
-                !params.missileDataSrc){
-                throw Error('warehouse init: the attribute are not right!');
-            }
             return warehouse
                 .getConfig(params)
+                .then(function (  ) {
+                    return warehouse.initAudio();
+                })
                 .then( function(){
                     return warehouse.initBulletData();
                 } )

@@ -98,22 +98,6 @@ define(['position','global'],function ( Position, global ) {
                 }
             }
         },
-        playAudio: function (params) {
-            if(!params.src){
-                throw Error("playAudio lack of param src!");
-            }
-            var audio = new Audio(params.src);
-            if(params.loop){
-                audio.loop = true;
-            }
-            audio.volume = this.getCurSound();
-            audio.play();
-
-            return audio;
-        },
-        getCurSound: function(  ) {
-            return $('#soundSlider')[0].valueAsNumber;
-        },
         dirtyCheck: function (list) {
             var game = this;
             if(list[0] && list[0].className == 'missile'){
@@ -142,7 +126,7 @@ define(['position','global'],function ( Position, global ) {
                     }
                 }
             }
-        },
+        }
     };
     return new GameUtil();
 });

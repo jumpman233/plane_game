@@ -2,7 +2,7 @@
  * Created by lzh on 2017/2/28.
  */
 
-fps = 50;
+fps = 30;
 
 require.config({
     paths: {
@@ -23,7 +23,8 @@ require.config({
         'sound': 'app/sound',
         'global': 'app/global',
         'dataManager': 'app/dataManager',
-        'player': 'app/player'
+        'player': 'app/player',
+        'randomBuild': 'app/randomBuild'
     }
 });
 
@@ -37,7 +38,8 @@ require(['planeGame'],function ( PlaneGame ) {
             bulletStyleSrc: 'json/bullet-style.json',
             itemDataSrc: 'json/item.json',
             toolDataSrc: 'json/tool.json',
-            missileDataSrc: 'json/missile.json'
+            missileDataSrc: 'json/missile.json',
+            audioDataSrc: 'json/audio.json'
         },
         fps: fps
     };

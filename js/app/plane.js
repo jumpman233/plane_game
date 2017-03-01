@@ -4,8 +4,9 @@
 
 define(['util',
     'flyObject',
-    'dataManager'
-],function ( util, FlyObject, dataManager) {
+    'dataManager',
+    'sound'
+],function ( util, FlyObject, dataManager, sound) {
     /**
      * plane
      * object can shoot
@@ -52,12 +53,10 @@ define(['util',
         if(params.toolDrop){
             this.toolDrop = params.toolDrop;
         }
-        if(params.deadAudioSrc){
-            this.deadAudioSrc = params.deadAudioSrc;
-            this.deadAudio = util.initAudio({
-                src: this.deadAudioSrc
-            });
+        if(params.deadAudioName){
+            this.deadAudioName = params.deadAudioName;
         }
+        this.deadAudio = null;
         this.bulletList = [];
         this.isDead = false;
         this.animateSave = 0;
@@ -79,16 +78,16 @@ define(['util',
             src: plane.deadSrc
         });
     };
-    Plane.prototype.drawPlane = function (ctx) {
+    Plane.prototype.drawPlane = function () {
         var plane = this;
         if(!plane.isDead){
-            plane.drawImg(ctx,plane.img);
+            plane.drawImg(plane.img);
         } else{
             plane.animateSave--;
             if(plane.animateSave <= 0){
                 plane.canDestroy = true;
             }
-            plane.drawImg(ctx,plane.deadImg);
+            plane.drawImg(plane.deadImg);
         }
     };
     // if the plane's hp <= 0, func will return true, else return false
@@ -99,9 +98,7 @@ define(['util',
             if(plane.hp<=0){
                 plane.isDead = true;
                 plane.animateSave = 5;
-                util.playAudio({
-                    src: plane.deadAudioSrc
-                });
+                sound.playAudio(plane.deadAudio);
             }
         }
     };
@@ -113,9 +110,9 @@ define(['util',
             FlyObject.prototype.move.call(plane);
         }
     };
-    Plane.prototype.draw = function (ctx) {
+    Plane.prototype.draw = function () {
         var plane = this;
-        plane.drawPlane(ctx);
+        plane.drawPlane();
 
         if(plane.shootTime-- == 0 && plane.canShoot && plane.curBullet != undefined){
             var bulList = plane.bulletStyle.getBullets(plane.curBullet);
@@ -123,17 +120,13 @@ define(['util',
                 bulList[i].position = util.copy(plane.position);
                 bulList[i].parent = plane;
                 bulList[i].direction = bulList[i].direction + bulList[i].parent.direction;
-                bulList[i].move(ctx);
-                bulList[i].move(ctx);
+                bulList[i].move();
+                bulList[i].move();
                 // planeGame.bulletList.push(bulList[i]);
                 dataManager.resolveBullet(bulList[i]);
                 plane.shootTime = plane.shootRate;
             }
-            if(plane.bulletStyle.audioSrc){
-                util.playAudio({
-                    src: plane.bulletStyle.audioSrc
-                })
-            }
+            sound.playAudio(plane.bulletStyle.audio);
         }
     };
 

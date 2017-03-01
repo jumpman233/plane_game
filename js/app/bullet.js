@@ -32,8 +32,8 @@ define(['util',
     Bullet.prototype = util.copy(FlyObject.prototype);
     Bullet.prototype.constructor = Bullet;
     Bullet.prototype.className = 'Bullet';
-    Bullet.prototype.draw = function (ctx) {
-        this.drawImg(ctx);
+    Bullet.prototype.draw = function () {
+        this.drawImg();
     };
     Bullet.prototype.move = function () {
         var bullet = this;

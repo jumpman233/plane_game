@@ -24,7 +24,7 @@ define(['util',
         }
         // if there is no global variable called fps, it will create a default fps to build variable restFollow
         if(undefined !== fps){
-            fps = 50;
+            fps = 30;
         }
         this.restFollow = this.maxFollow ? this.maxFollow * fps : 5 * fps;
         console.log(this.restFollow);
@@ -32,8 +32,8 @@ define(['util',
     Missile.prototype = util.copy(FlyObject.prototype);
     Missile.prototype.className = "missile";
     Missile.prototype.constructor = Missile;
-    Missile.prototype.draw = function (ctx) {
-        this.drawImg(ctx,this.img);
+    Missile.prototype.draw = function () {
+        this.drawImg(this.img);
     };
     Missile.prototype.move = function () {
         var missile = this;

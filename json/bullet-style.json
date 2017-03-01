@@ -1,6 +1,6 @@
 [{
   "type" : 1,
-  "audioSrc": "audio/bullet.mp3",
+  "audioName": "shoot1",
   "style": [
     [{
       "type": 1,
@@ -23,7 +23,7 @@
   ]
 },{
   "type": 2,
-  "audioSrc": "audio/bullet.mp3",
+  "audioName": "shoot1",
   "style": [
     [{
       "type": 1,

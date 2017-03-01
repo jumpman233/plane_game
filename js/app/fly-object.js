@@ -3,7 +3,8 @@
  */
 
 define(['util',
-'position'], function ( util, Position ) {
+'position',
+'global'], function ( util, Position, global ) {
     /**
      * FlyObject
      * a basic class of fly object
@@ -78,9 +79,10 @@ define(['util',
             });
         },
         // if img is null, the obj's img param will be used
-        drawImg: function (ctx,img) {
+        drawImg: function (img) {
             var obj = this;
             var drawImg = null;
+            var ctx = global.context;
             if(img instanceof Image){
                 drawImg = img;
             } else{

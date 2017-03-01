@@ -11,14 +11,14 @@ define(['jquery',
     'gameEventHandler',
     'global',
     'dataManager',
-'sound'], function ( jquery, util, Position,Screen, Warehouse, Player, GameEventHandler, global, dataManager ,sound) {
+'sound',
+    'randomBuild'], function ( jquery, util, Position,Screen, Warehouse, Player, GameEventHandler, global, dataManager ,sound, randomBuild) {
     'use strict';
 
     function PlaneGame(params) {
         this.bulletList = [];
         this.player = null;
         this.geh = null;
-        this.frameNum = 0;
         this.warehouse = null;
         this.pause = false;
         this.playing = false;
@@ -41,10 +41,8 @@ define(['jquery',
         }
         if (params.fps) {
             this.fps = params.fps;
-            this.frameTime = 1000 / this.fps;
         } else{
-            this.fps = 50;
-            this.frameTime = 1000 / this.fps;
+            this.fps = 30;
         }
     }
 
@@ -68,10 +66,8 @@ define(['jquery',
             }
             if (params.fps) {
                 this.fps = params.fps;
-                this.frameTime = 1000 / this.fps;
             } else{
-                this.fps = 50;
-                this.frameTime = 1000 / this.fps;
+                this.fps = 20;
             }
             defer.resolve();
             return defer;
@@ -129,44 +125,21 @@ define(['jquery',
         },
         test1: function () {
             var game = this;
-            var warehouse = game.warehouse;
-            var time = 0;
             game.playing = true;
             game.pause = false;
-            if(game.backgroundAudio){
-                game.backgroundAudio.pause();
-            }
-            game.backgroundAudio = util.playAudio({
-                src: "audio/game_music.mp3",
-                loop: true
-            });
+            sound.playBackgoundMusic();
+            var fps = 50;
             game.gaming = window.setInterval(function () {
                 if(game.pause){
                     return;
                 }
 
-                time += game.frameTime;
-                game.frameNum++;
-
-                var x = Math.random()*game.context.canvas.width;
-                if(Math.random() < 1 / fps / 2){
-                    var plane = warehouse.getPlaneByType(2);
-                    plane.shootTime = plane.shootRate;
-                    plane.position.x = x;
-                    plane.position.y = 0;
-                    plane.direction = 180;
-                    plane.role = 'enemy';
-                    plane.canShoot = true;
-                    plane.bulletStyle = warehouse.getBulletStyleByType(2);
-                    plane.curBullet = 0;
+                var plane = randomBuild.createEnemyPlane(1/fps/2);
+                var missile = randomBuild.createMissile(1/fps/10);
+                if(plane){
                     dataManager.resolvePlane(plane);
                 }
-                if(Math.random() < 1 / fps / 10){
-                    var missile = warehouse.getMissileByType(1);
-                    missile.position.x = x;
-                    missile.position.y = 0;
-                    missile.position.direction = 180;
-                    missile.target = Player.plane;
+                if(missile){
                     dataManager.resolveMissile(missile);
                 }
 
@@ -178,11 +151,9 @@ define(['jquery',
                 },function (  ) {
                     game.gameOver();
                 });
-            },game.frameTime);
+            }, 1000 / fps);
         },
         createTool: function (plane,fps) {
-            var game = this;
-            var warehouse = game.warehouse;
             var allWeight = 0;
             var position = plane.position;
 
@@ -191,13 +162,13 @@ define(['jquery',
                 return;
             }
 
-            for(var i in warehouse.toolList){
-                var tool = warehouse.toolList[i];
+            for(var i in Warehouse.toolList){
+                var tool = Warehouse.toolList[i];
                 allWeight += tool.weight;
             }
             rand = Math.random() * allWeight;
-            for(var i in warehouse.toolList){
-                var tool = warehouse.toolList[i];
+            for(var i in Warehouse.toolList){
+                var tool = Warehouse.toolList[i];
                 rand -= tool.weight;
                 if(rand<=0){
                     var newTool = util.copy(tool);
@@ -226,11 +197,6 @@ define(['jquery',
             var game = this;
 
             var defer = $.Deferred();
-            sound.addSoundChangeEvent(function (  ) {
-                if(game.backgroundAudio){
-                    game.backgroundAudio.volume = util.getCurSound();
-                }
-            });
 
             game.warehouse = Warehouse;
 
@@ -254,6 +220,14 @@ define(['jquery',
                     });
                 })
                 .then(function (  ) {
+                    sound.init({
+                        backgroundAudio: Warehouse.getAudioByName('backgroundMusic')
+                    });
+                    sound.addSoundChangeEvent(function (  ) {
+                        if(game.backgroundAudio){
+                            game.backgroundAudio.volume = sound.getCurSound();
+                        }
+                    });
                 })
                 .then(function (  ) {
                     //if all the image and audio load is done ,the game's init is completed

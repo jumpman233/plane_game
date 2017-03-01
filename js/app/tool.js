@@ -3,7 +3,8 @@
  */
 
 define(['util',
-'position'],function ( util, Position ) {
+'position' ,
+    'global'],function ( util, Position, global ) {
 
     /**
      * Tool
@@ -64,12 +65,12 @@ define(['util',
                 tool.xMove = - Math.abs(tool.xMove)
             }
         },
-        draw: function (ctx) {
+        draw: function () {
             var tool = this;
             if(tool.extraTime<=0){
                 return;
             }
-            ctx.drawImage(
+            global.context.drawImage(
                 tool.img,
                 tool.position.x - tool.width / 2,tool.position.y - tool.height / 2,
                 tool.width,tool.height);

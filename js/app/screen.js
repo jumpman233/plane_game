@@ -6,7 +6,8 @@ define(['util',
 'warehouse',
 'position',
 'dataManager',
-'player'],function ( util, Warehouse, Position, dataManager, player ) {
+'player',
+'global'],function ( util, Warehouse, Position, dataManager, player, global ) {
     function Screen(  ) {
         this.optWidth = 200;
         this.optHeight = 30;
@@ -20,10 +21,8 @@ define(['util',
     Screen.prototype = {
         constructor: Screen,
         init: function ( params ) {
-            if(params.canvasElement){
-                this.canvasElement = params.canvasElement;
-                this.context = params.context;
-            }
+            this.canvasElement = global.canvasElement;
+            this.context = global.context;
             if (params.backgroundSrc) {
                 this.backgroundSrc = params.backgroundSrc;
             }
@@ -34,9 +33,9 @@ define(['util',
             for(var i in screen.optionsFunc){
                 var func = screen.optionsFunc[i];
                 if(func.name == 'menuMouseMove'){
-                    screen.canvasElement.removeEventListener('mousemove',func);
+                    global.canvasElement.removeEventListener('mousemove',func);
                 } else if(func.name == 'menuMouseDown'){
-                    screen.canvasElement.removeEventListener('mousedown',func);
+                    global.canvasElement.removeEventListener('mousedown',func);
                 }
             }
             screen.optionsFunc = [];
@@ -63,13 +62,13 @@ define(['util',
                 for(var i in screen.options){
                     var opt = screen.options[i];
                     if(util.checkInRect(pos, opt.rectX, opt.rectY, opt.width, opt.height)){
-                        $('#'+screen.canvasElement.id).css('cursor','pointer');
+                        $('#'+global.canvasElement.id).css('cursor','pointer');
                         flag = true;
                         break;
                     }
                 }
                 if(!flag){
-                    $('#'+screen.canvasElement.id).css('cursor','default');
+                    $('#'+global.canvasElement.id).css('cursor','default');
                 }
             }
             function menuMouseDown ( event ) {
@@ -87,22 +86,22 @@ define(['util',
             }
             screen.optionsFunc.push(menuMouseMove);
             screen.optionsFunc.push(menuMouseDown);
-            screen.canvasElement.addEventListener('mousemove',menuMouseMove,false);
-            screen.canvasElement.addEventListener('mousedown', menuMouseDown, false);
+            global.canvasElement.addEventListener('mousemove',menuMouseMove,false);
+            global.canvasElement.addEventListener('mousedown', menuMouseDown, false);
         },
-        drawScore: function (value) {
+        drawScore: function () {
             var screen = this;
-            var context = screen.context;
+            var context = global.context;
             context.font = "16px Georgia";
             context.textAlign = 'left';
-            context.fillText("Score: " + value,10,20);
+            context.fillText("Score: " + player.score,10,20);
         },
-        drawLife: function (value) {
+        drawLife: function () {
             var screen = this;
 
             var lifeItem = Warehouse.getItemByName("life");
-            var pos = new Position(0,screen.context.canvas.height - lifeItem.height);
-            for(var i = 0; i < value; i++){
+            var pos = new Position(0,global.context.canvas.height - lifeItem.height);
+            for(var i = 0; i < player.curLife; i++){
                 screen.drawImage({
                     img: lifeItem.img,
                     height: lifeItem.height,
@@ -139,7 +138,7 @@ define(['util',
         },
         drawFightBk: function () {
             var game = this;
-            var ctx = game.context;
+            var ctx = global.context;
             ctx.globalAlpha = 0.8;
             ctx.drawImage(game.backgoundImg.img,0, -ctx.canvas.height*2+game.position,ctx.canvas.width,ctx.canvas.height*2);
             ctx.drawImage(game.backgoundImg.img,0, -ctx.canvas.height*4+game.position,ctx.canvas.width,ctx.canvas.height*2);
@@ -154,41 +153,41 @@ define(['util',
 
         draw: function () {
             var screen = this;
-            screen.context.clearRect(0,0,screen.width,screen.height);
+            global.context.clearRect(0,0,screen.width,screen.height);
 
             screen.drawFightBk();
-            // screen.drawScore(screen.player.score);
-            // screen.drawLife(screen.player.curLife);
+            screen.drawScore();
+            screen.drawLife();
 
-            player.plane.draw(screen.context);
+            player.plane.draw(global.context);
 
             for(var i in dataManager.enemy_bullets){
                 var bullet = dataManager.enemy_bullets[i];
-                bullet.draw(screen.context);
-                bullet.move(screen.context);
+                bullet.draw(global.context);
+                bullet.move(global.context);
             }
             for(var i in dataManager.player_bullets){
                 var bullet = dataManager.player_bullets[i];
-                bullet.draw(screen.context);
-                bullet.move(screen.context);
+                bullet.draw(global.context);
+                bullet.move(global.context);
             }
 
             for (var i in dataManager.enemy_planes){
                 var plane = dataManager.enemy_planes[i];
-                plane.draw(screen.context, screen.frameNum);
+                plane.draw(global.context, screen.frameNum);
                 plane.move();
             }
 
             // for (var i in toolList){
-            //     toolList[i].draw(screen.context);
+            //     toolList[i].draw(global.context);
             // }
 
             for(var i in dataManager.missiles){
                 var missile = dataManager.missiles[i];
-                missile.draw(screen.context);
+                missile.draw(global.context);
                 missile.move();
             }
-        },
+        }
     };
     return new Screen();
 });

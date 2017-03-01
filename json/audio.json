@@ -1,0 +1,10 @@
+[{
+  "name": "backgroundMusic",
+  "src": "audio/game_music.mp3"
+},{
+  "name": "dead1",
+  "src": "audio/enemy1_down.mp3"
+},{
+  "name": "shoot1",
+  "src": "audio/bullet.mp3"
+}]

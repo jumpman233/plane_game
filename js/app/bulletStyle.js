@@ -13,12 +13,10 @@ define(['util'], function ( util ) {
         if(params.style){
             this.style = params.style;
         }
-        if (params.audioSrc){
-            this.audioSrc = params.audioSrc;
-            this.audio = util.initAudio({
-                src: this.audioSrc
-            });
+        if (params.audioName){
+            this.audioName = params.audioName;
         }
+        this.audio = null;
     }
     BulletStyle.prototype = {
         constructor: BulletStyle,

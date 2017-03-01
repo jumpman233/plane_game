@@ -4,10 +4,11 @@
 
 define([],function (  ) {
     function Sound(  ) {
+        this.backgroundAudio = null;
     }
     Sound.prototype = {
         constructor: Sound,
-        init: function (  ) {
+        init: function ( params ) {
             $('#soundImg').click(function () {
                 if($('#soundSlider').attr('display') == 'false'){
                     $('#soundSlider').attr('display', 'true');
@@ -19,11 +20,43 @@ define([],function (  ) {
                     $('#sound').css('left','884px');
                 }
             });
+            if(params.backgroundAudio){
+                this.backgroundAudio = params.backgroundAudio;
+                this.backgroundAudio.loop = true;
+            }
+            console.log(this);
+        },
+        playBackgoundMusic: function (  ) {
+            var sound = this;
+            if(sound.backgroundAudio.paused){
+                sound.backgroundAudio.play();
+            } else{
+                sound.backgroundAudio.pause();
+                sound.backgroundAudio.currentTime = 0;
+                sound.backgroundAudio.play();
+            }
         },
         addSoundChangeEvent: function (func) {
             if(typeof func == 'function'){
                 $('#soundSlider').change(func);
             }
+        },
+        getCurSound: function(  ) {
+            return $('#soundSlider')[0].valueAsNumber;
+        },
+        playAudio: function (params) {
+            if(!params.src || !params.currentSrc){
+                throw Error("playAudio lack of param src!");
+            }
+            var path = params.src|| params.currentSrc;
+            var audio = new Audio(path);
+            if(params.loop){
+                audio.loop = true;
+            }
+            audio.volume = this.getCurSound();
+            audio.play();
+
+            return audio;
         }
     };
     return new Sound();
