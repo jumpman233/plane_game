@@ -15,6 +15,9 @@ define(['util'], function ( util ) {
         }
         if (params.audioSrc){
             this.audioSrc = params.audioSrc;
+            this.audio = util.initAudio({
+                src: this.audioSrc
+            });
         }
     }
     BulletStyle.prototype = {

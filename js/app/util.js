@@ -2,7 +2,7 @@
  * Created by lzh on 2017/2/28.
  */
 
-define(['position'],function ( Position ) {
+define(['position','global'],function ( Position, global ) {
     /**
      * GameUtil
      */
@@ -15,8 +15,30 @@ define(['position'],function ( Position ) {
             image.height = params.height;
             image.width = params.width;
             image.src = params.src;
-            image.onload = params.onload;
+            global.notLoadedImgCount++;
+            image.onload = function (  ) {
+                global.notLoadedImgCount--;
+                console.log(image.src+'加载完成!');
+            };
             return image;
+        },
+        initAudio: function ( params ) {
+            if(!params.src){
+                throw Error('util initAudio: need param src!')
+            }
+            console.log('start to init '+params.src);
+            var audio = new Audio(params.src);
+            audio.loop = params.loop;
+            audio.load();
+            global.notLoadedAudioCount++;
+            var interval = window.setInterval(function (  ) {
+                if(audio.readyState){
+                    console.log(params.src+'已加载！');
+                    global.notLoadedAudioCount --;
+                    window.clearInterval(interval);
+                }
+            },100);
+            return audio;
         },
         copy: function (obj) {
             var util = this;
@@ -31,7 +53,7 @@ define(['position'],function ( Position ) {
             } else if(typeof obj == 'object'){
                 var newObj = new Object();
                 for(var i in obj){
-                    if(obj[i] instanceof Image || obj[i] == Object.getPrototypeOf(obj)[i]){
+                    if(obj[i] instanceof Audio || obj[i] instanceof Image || obj[i] == Object.getPrototypeOf(obj)[i]){
                         newObj[i] = obj[i];
                     } else{
                         newObj[i] = util.copy(obj[i]);
@@ -86,6 +108,7 @@ define(['position'],function ( Position ) {
             }
             audio.volume = this.getCurSound();
             audio.play();
+
             return audio;
         },
         getCurSound: function(  ) {

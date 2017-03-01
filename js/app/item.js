@@ -25,18 +25,14 @@ define(['util'], function ( util ) {
             this.name = params.name;
         }
         this.img = null;
-        this.isInit = false;
     }
     Item.prototype = {
         loadImg: function () {
-            var obj = this;
-            obj.img = util.initImage({
-                width: obj.width,
-                height: obj.height,
-                src: obj.src,
-                onload: function () {
-                    obj.isInit = true;
-                }
+            var item = this;
+            item.img = util.initImage({
+                width: item.width,
+                height: item.height,
+                src: item.src
             });
         }
     };

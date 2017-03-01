@@ -3,8 +3,9 @@
  */
 
 define(['util',
-'flyObject'
-],function ( util, FlyObject) {
+    'flyObject',
+    'global'
+],function ( util, FlyObject, global) {
     /**
      * plane
      * object can shoot
@@ -53,6 +54,9 @@ define(['util',
         }
         if(params.deadAudioSrc){
             this.deadAudioSrc = params.deadAudioSrc;
+            this.deadAudio = util.initAudio({
+                src: this.deadAudioSrc
+            });
         }
         this.bulletList = [];
         this.isDead = false;
@@ -63,22 +67,16 @@ define(['util',
     Plane.prototype.constructor = Plane;
     Plane.prototype.className = 'plane';
     Plane.prototype.loadImg = function () {
-        var obj = this;
-        obj.img = util.initImage({
-            width: obj.width,
-            height: obj.height,
-            src: obj.src,
-            onload: function () {
-                obj.isInit = true;
-            }
+        var plane = this;
+        plane.img = util.initImage({
+            width: plane.width,
+            height: plane.height,
+            src: plane.src
         });
-        obj.deadImg = util.initImage({
-            width: obj.width,
-            height: obj.height,
-            src: obj.deadSrc,
-            onload: function () {
-                obj.isInit = true;
-            }
+        plane.deadImg = util.initImage({
+            width: plane.width,
+            height: plane.height,
+            src: plane.deadSrc
         });
     };
     Plane.prototype.drawPlane = function (ctx) {

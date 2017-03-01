@@ -2,14 +2,13 @@
 	created by lzh at 2017/1/11
 */
 
-
 (function () {
 		var img = new Image();
 		img.src = 'plane.png';
 		img.width = '10px';
 		img.height = '10px';
 		img.onload = function () {
-		ctx.drawImage(img,x-15,y+15,30,30);	
+		ctx.drawImage(img,x-15,y+15,30,30);
 	};
 	function Bullet(x,y) {
 		this.x = x;
@@ -75,7 +74,7 @@
 	}
 
 	function drawBall() {
-		ctx.drawImage(img,x-15,y+15,30,30);	
+		ctx.drawImage(img,x-15,y+15,30,30);
 	}
 
 	window.setInterval(function () {

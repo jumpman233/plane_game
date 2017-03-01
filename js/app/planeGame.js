@@ -8,12 +8,12 @@ define(['jquery',
     'screen',
     'warehouse',
     'player',
-    'gameEventHandler'], function ( jquery, util, Position,Screen, Warehouse, Player, GameEventHandler ) {
+    'gameEventHandler',
+'global'], function ( jquery, util, Position,Screen, Warehouse, Player, GameEventHandler, global ) {
     'use strict';
 
     function PlaneGame(params) {
         this.bulletList = [];
-        this.isInit = false;
         this.player = null;
         this.geh = null;
         this.frameNum = 0;
@@ -156,9 +156,7 @@ define(['jquery',
         },
         start: function () {
             var game = this;
-            game.ifInit(function () {
-                game.mainMenu();
-            })
+            game.mainMenu();
         },
         draw: function (planeList,toolList,missileList) {
             var game = this;
@@ -437,44 +435,10 @@ define(['jquery',
             game.context.fillText("Game Over",game.width/2,game.height/2);
             game.pause = true;
         },
-        checkInit: function () {
-            var game = this;
-            var warehouse = game.warehouse;
-            var bulletDataList = warehouse.getBulletTypeList();
-            var planeDataList = warehouse.getPlaneTypeList();
-            if(game.isInit) return true;
-
-            var flag = true;
-            for(var i in bulletDataList){
-                if(!bulletDataList[i].isInit){
-                    flag = false;
-                }
-            }
-            for(var i in planeDataList){
-                if(!planeDataList[i].isInit){
-                    flag = false;
-                }
-            }
-            return flag;
-        },
-        ifInit: function (callback) {
-            var game = this;
-            if(game.isInit){
-                callback();
-            } else{
-                var interval = window.setInterval(function () {
-                    if(game.isInit){
-                        window.clearTimeout(interval);
-                        callback();
-                    } else{
-                        game.isInit = game.checkInit();
-                    }
-                },100,0);
-            }
-        },
         init: function (config) {
             var game = this;
 
+            var defer = $.Deferred();
             addSoundChangeEvent(function (  ) {
                 if(game.backgroundAudio){
                     game.backgroundAudio.volume = util.getCurSound();
@@ -484,7 +448,7 @@ define(['jquery',
             game.warehouse = Warehouse;
 
             game.getConfig(config);
-            return Warehouse
+            Warehouse
                 .init(game.src)
                 .then(function (  ) {
                     Screen.init({
@@ -494,10 +458,21 @@ define(['jquery',
                 })
                 .then(function (  ) {
                     game.initPlayer();
+                })
+                .then(function (  ) {
+                    //if all the image and audio load is done ,the game's init is completed
+                    var interval = window.setInterval(function (  ) {
+                        if(global.notLoadedImgCount == 0
+                        && global.notLoadedAudioCount == 0){
+                            window.clearInterval(interval);
+                            defer.resolve();
+                        }
+                    }, 200);
                 });
+
+            return defer;
         }
     };
-
 
     $('#soundImg').click(function () {
         if($('#soundSlider').attr('display') == 'false'){

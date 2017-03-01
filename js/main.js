@@ -21,7 +21,8 @@ require.config({
         'gameEventHandler': 'app/gameEventHandler',
         'planeGame': 'app/planeGame',
         'screen': 'app/screen',
-        'sound': 'app/sound'
+        'sound': 'app/sound',
+        'global': 'app/global'
     }
 });
 

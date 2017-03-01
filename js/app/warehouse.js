@@ -203,7 +203,6 @@ define(['util',
             }
         },
         getData: function (src, callback) {
-            console.log(src);
             var defer = $.Deferred();
             if(undefined == src){
                 throw Error('Warehouse getData: src is not defined!');
@@ -211,7 +210,7 @@ define(['util',
             console.log('开始获取：' + src);
             $.ajax({
                 url: src,
-                async: false,
+                async: true,
                 cache: false,
                 type: "GET",
                 dataType: 'json',

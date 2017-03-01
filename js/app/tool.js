@@ -40,7 +40,6 @@ define(['util',
             this.weight = params.weight;
         }
         this.img = null;
-        this.isInit = false;
         this.xMove = 3;
         this.yMove = 0.3;
         this.existTime = 15;
@@ -54,10 +53,7 @@ define(['util',
             obj.img = util.initImage({
                 width: obj.width,
                 height: obj.height,
-                src: obj.src,
-                onload: function () {
-                    obj.isInit = true;
-                }
+                src: obj.src
             });
         },
         init: function () {

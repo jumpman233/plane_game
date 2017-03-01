@@ -63,7 +63,6 @@ define(['util',
         } else{
             this.maxRotate = 5;
         }
-        this.isInit = false;
     }
 
     FlyObject.prototype = {
@@ -75,10 +74,7 @@ define(['util',
             obj.img = util.initImage({
                 width: obj.width,
                 height: obj.height,
-                src: obj.src,
-                onload: function () {
-                    obj.isInit = true;
-                }
+                src: obj.src
             });
         },
         // if img is null, the obj's img param will be used
