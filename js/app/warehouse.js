@@ -20,7 +20,6 @@ define(['util',
         this.missileList = [];
         this.src = {};
         this.audioList = [];
-        this.warehouse = this;
     }
     Warehouse.prototype = {
         constructor: Warehouse,

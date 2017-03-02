@@ -5,7 +5,8 @@
 
 define(['warehouse',
 'global',
-'player'],function ( warehouse, global, player ) {
+'player',
+'util'],function ( warehouse, global, player, util ) {
     function RandomBuild(  ) {
 
     }
@@ -26,9 +27,6 @@ define(['warehouse',
             console.log(plane);
             return plane;
         },
-        createTool: function (  ) {
-
-        },
         createMissile: function ( probability ) {
             if(Math.random() < probability){
                 var missile = warehouse.getMissileByType(1);
@@ -39,6 +37,30 @@ define(['warehouse',
                 missile.target = player.plane;
             }
             return missile;
+        },
+        createTool : function ( probability ) {
+            var allWeight = 0;
+
+            var rand = Math.random();
+            if(rand>probability){
+                return;
+            }
+
+            for(var i in warehouse.toolList){
+                var tool = warehouse.toolList[i];
+                allWeight += tool.weight;
+            }
+            rand = Math.random() * allWeight;
+            for(var i in warehouse.toolList){
+                var tool = warehouse.toolList[i];
+                rand -= tool.weight;
+                if(rand<=0){
+                    var newTool = util.copy(tool);
+                    newTool.init();
+                    newTool.extraTime = fps * newTool.existTime;
+                    return newTool;
+                }
+            }
         }
     };
     return new RandomBuild();

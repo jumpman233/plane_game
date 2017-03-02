@@ -14,18 +14,14 @@ define(['util',
         this.optFont = 16;
         this.optionsFunc = []; //use to remove elements
         this.options = [];
-        this.backgroundSrc = '';
         this.backgoundImg = null;
         this.position = 0;
     }
     Screen.prototype = {
         constructor: Screen,
-        init: function ( params ) {
+        init: function (  ) {
             this.canvasElement = global.canvasElement;
             this.context = global.context;
-            if (params.backgroundSrc) {
-                this.backgroundSrc = params.backgroundSrc;
-            }
             this.backgoundImg = Warehouse.getItemByName("background");
         },
         removeAllOptions: function (  ) {
@@ -178,9 +174,9 @@ define(['util',
                 plane.move();
             }
 
-            // for (var i in toolList){
-            //     toolList[i].draw(global.context);
-            // }
+            for (var i in dataManager.tools){
+                dataManager.tools[i].draw(global.context);
+            }
 
             for(var i in dataManager.missiles){
                 var missile = dataManager.missiles[i];

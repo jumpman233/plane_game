@@ -10,7 +10,6 @@ var http = require('http'),
     fs = require('fs');
 
 http.createServer(function ( req, res ) {
-    console.log(req.url);
     var pathName = __dirname + url.parse(req.url).pathname;
 
     if(pathName == __dirname + '/'){
@@ -46,6 +45,9 @@ http.createServer(function ( req, res ) {
                 'Content-Type': 'image/jpeg'
             });
             break;
+        case 'ico':
+            fileCode = 'binary';
+            break;
         case 'mp3':
             fileCode = 'binary';
             res.writeHead(200,{
@@ -64,3 +66,5 @@ http.createServer(function ( req, res ) {
         }
     })
 }).listen(3000);
+
+console.log(http);

@@ -19,7 +19,6 @@ define(['jquery',
         this.bulletList = [];
         this.player = null;
         this.geh = null;
-        this.warehouse = null;
         this.pause = false;
         this.playing = false;
         this.backgoundImg = null;
@@ -55,12 +54,6 @@ define(['jquery',
             if (params.backgroundSrc) {
                 this.backgroundSrc = params.backgroundSrc;
             }
-            if (params.canvasElement) {
-                this.canvasElement = params.canvasElement;
-                this.width = this.canvasElement.getAttribute('width');
-                this.height = this.canvasElement.getAttribute('height');
-                this.context = this.canvasElement.getContext('2d');
-            }
             if(params.src){
                 this.src = params.src;
             }
@@ -74,14 +67,14 @@ define(['jquery',
         },
         mainMenu:function () {
             var game = this;
-            var context = game.context;
-            var width = context.canvas.width;
-            var height = context.canvas.height;
+            var context = global.context;
+            var width = global.width;
+            var height = global.height;
             game.playing = false;
 
             var startGameFunc = function (  ) {
                 game.playing = true;
-                $('#'+game.canvasElement.id).css('cursor','none');
+                $('#'+global.canvasElement.id).css('cursor','none');
                 game.test1();
             };
 
@@ -116,7 +109,7 @@ define(['jquery',
         resume: function (  ) {
             var game = this;
             game.pause = false;
-            $('#'+game.canvasElement.id).css('cursor','none');
+            $('#'+global.canvasElement.id).css('cursor','none');
         },
         start: function () {
             var game = this;
@@ -145,45 +138,21 @@ define(['jquery',
 
                 Screen.draw();
 
-                dataManager.judge(function ( dea ) {
-                    console.log("dead!");
-                    console.log(dea);
+                dataManager.judge(function ( plane ) {
+                    var tool = randomBuild.createTool(plane.toolDrop);
+                    if(tool){
+                        tool.position = plane.position;
+                        dataManager.resolveTool(tool);
+                    }
                 },function (  ) {
                     game.gameOver();
                 });
             }, 1000 / fps);
         },
-        createTool: function (plane,fps) {
-            var allWeight = 0;
-            var position = plane.position;
-
-            var rand = Math.random();
-            if(rand>plane.toolDrop){
-                return;
-            }
-
-            for(var i in Warehouse.toolList){
-                var tool = Warehouse.toolList[i];
-                allWeight += tool.weight;
-            }
-            rand = Math.random() * allWeight;
-            for(var i in Warehouse.toolList){
-                var tool = Warehouse.toolList[i];
-                rand -= tool.weight;
-                if(rand<=0){
-                    var newTool = util.copy(tool);
-                    newTool.init();
-                    newTool.extraTime = fps * newTool.existTime;
-                    newTool.position = util.copy(position);
-                    return newTool;
-                }
-            }
-        },
         gameOver: function () {
             var game = this;
 
-            game.backgroundAudio.pause();
-            game.bulletList.splice(0,game.bulletList.length);
+            sound.backgroundAudio.pause();
             game.context.clearRect(0,0,game.width,game.height);
             Player.plane.position  = new Position(game.width/2,game.height-100);
             Player.plane.drawImg(game.context);
@@ -195,6 +164,8 @@ define(['jquery',
         },
         init: function (config) {
             var game = this;
+
+            var startTime = new Date().getTime();
 
             var defer = $.Deferred();
 
@@ -209,10 +180,7 @@ define(['jquery',
             Warehouse
                 .init(game.src)
                 .then(function (  ) {
-                    Screen.init({
-                        canvasElement: game.canvasElement,
-                        context: game.context
-                    });
+                    Screen.init();
                 })
                 .then(function (  ) {
                     Player.init({
@@ -223,11 +191,6 @@ define(['jquery',
                     sound.init({
                         backgroundAudio: Warehouse.getAudioByName('backgroundMusic')
                     });
-                    sound.addSoundChangeEvent(function (  ) {
-                        if(game.backgroundAudio){
-                            game.backgroundAudio.volume = sound.getCurSound();
-                        }
-                    });
                 })
                 .then(function (  ) {
                     //if all the image and audio load is done ,the game's init is completed
@@ -235,6 +198,7 @@ define(['jquery',
                         if(global.notLoadedImgCount == 0
                         && global.notLoadedAudioCount == 0){
                             window.clearInterval(interval);
+                            console.log('all resource is loaded! cost '+(new Date().getTime()-startTime)+' ms');
                             defer.resolve();
                         }
                     }, 200);

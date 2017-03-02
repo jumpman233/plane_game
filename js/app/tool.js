@@ -76,7 +76,7 @@ define(['util',
                 tool.width,tool.height);
             tool.position.x += tool.xMove;
             tool.position.y += tool.yMove;
-            if((tool.position.x + tool.width / 2 >= ctx.canvas.width && tool.xMove > 0) ||
+            if((tool.position.x + tool.width / 2 >= global.width && tool.xMove > 0) ||
                 (tool.position.x - tool.width / 2 <= 0 && tool.xMove < 0)){
                 tool.xMove = -tool.xMove;
             }

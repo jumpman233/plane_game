@@ -9,6 +9,7 @@ define([],function (  ) {
     Sound.prototype = {
         constructor: Sound,
         init: function ( params ) {
+            var sound = this;
             $('#soundImg').click(function () {
                 if($('#soundSlider').attr('display') == 'false'){
                     $('#soundSlider').attr('display', 'true');
@@ -21,10 +22,12 @@ define([],function (  ) {
                 }
             });
             if(params.backgroundAudio){
-                this.backgroundAudio = params.backgroundAudio;
-                this.backgroundAudio.loop = true;
+                sound.backgroundAudio = params.backgroundAudio;
+                sound.backgroundAudio.loop = sound;
             }
-            console.log(this);
+            this.addSoundChangeEvent(function (  ) {
+                sound.backgroundAudio.volume = sound.getCurSound();
+            });
         },
         playBackgoundMusic: function (  ) {
             var sound = this;
