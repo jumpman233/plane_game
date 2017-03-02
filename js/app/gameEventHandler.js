@@ -2,26 +2,22 @@
  * Created by lzh on 2017/2/28.
  */
 
-define([''],function (  ) {
+define(['global'],function ( global ) {
     'use strict';
-    function GameEventHandler(params) {
-        if(params && params.target){
-            this.target = params.target;
-        } else{
-            throw Error('GameEventHandler: constructor lack attribute target!');
-        }
+    function GameEventHandler() {
+
     }
     GameEventHandler.prototype = {
+        constructor: GameEventHandler,
         mouseMove:function (funcObj) {
-            this.target.addEventListener('mousemove', funcObj, false);
+            global.context.canvas.addEventListener('mousemove', funcObj, false);
         },
         keydown: function (funcObj) {
             $(document)[0].addEventListener('keydown', funcObj, false);
         },
         mouseDown:function (funcObj) {
-            this.target.addEventListener('mousedown', funcObj, false);
-        },
-        constructor: GameEventHandler
+            global.context.canvas.addEventListener('mousedown', funcObj, false);
+        }
     };
-    return GameEventHandler;
-})
+    return new GameEventHandler();
+});

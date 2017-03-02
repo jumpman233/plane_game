@@ -85,6 +85,9 @@ define(['position','global'],function ( Position, global ) {
                 return new Position(e.offsetX, e.offsetX);
             }
         },
+        setCursor: function ( str ) {
+            $('#'+global.canvasElement.id).css('cursor', str);
+        },
         checkInRect: function ( pos, rectX, rectY, rectW, rectH ) {
             return pos.x <= rectX+ rectW && pos.x >= rectX &&
                 pos.y >= rectY && pos.y <= rectY + rectH;

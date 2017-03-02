@@ -16,10 +16,9 @@ define(['jquery',
     'use strict';
 
     function PlaneGame(params) {
-        this.bulletList = [];
         this.player = null;
         this.geh = null;
-        this.pause = false;
+        this.isPause = false;
         this.playing = false;
         this.backgoundImg = null;
         this.backgroundAudio = null;
@@ -28,12 +27,6 @@ define(['jquery',
 
         if (params.backgroundSrc) {
             this.backgroundSrc = params.backgroundSrc;
-        }
-        if (params.canvasElement) {
-            this.canvasElement = params.canvasElement;
-            this.width = this.canvasElement.getAttribute('width');
-            this.height = this.canvasElement.getAttribute('height');
-            this.context = this.canvasElement.getContext('2d');
         }
         if(params.src){
             this.src = params.src;
@@ -74,7 +67,7 @@ define(['jquery',
 
             var startGameFunc = function (  ) {
                 game.playing = true;
-                $('#'+global.canvasElement.id).css('cursor','none');
+                util.setCursor('none');
                 game.test1();
             };
 
@@ -85,45 +78,49 @@ define(['jquery',
         },
         pauseMenu: function (  ) {
             var game = this;
-            var context = game.context;
-            var width = context.canvas.width;
-            var height = context.canvas.height;
-            context.fillStyle = 'rgba(102,102,102,0.4)';
-            context.fillRect(0,0,width,height);
-            context.font = "20px Georgia";
-            context.fillStyle = '#000';
-            context.textAlign = 'center';
-            context.fillText("Pause",width/2,height/2-100);
+            game.isPause = true;
+
             var resumeFunc = function (  ) {
                 console.log("!");
                 game.resume.call(game);
             };
             var exitFunc = function (  ) {
-                game.context.clearRect(0,0,game.context.canvas.width,game.context.canvas.height);
+                global.context.clearRect(0,0,global.width,global.height);
                 window.clearInterval(game.gaming);
+                sound.stopBackgroundMusic();
                 game.mainMenu.call(game);
             };
-            Screen.drawMenuOption('Resume', width/2, height/2, resumeFunc);
-            Screen.drawMenuOption('Exit', width/2, height/2 + 50, exitFunc);
+
+            Screen.pauseMenu(resumeFunc,exitFunc);
         },
         resume: function (  ) {
             var game = this;
-            game.pause = false;
-            $('#'+global.canvasElement.id).css('cursor','none');
+            game.isPause = false;
+            util.setCursor('none');
         },
         start: function () {
             var game = this;
 
             game.mainMenu();
         },
+        pause: function (  ) {
+            var game = this;
+            game.isPause = true;
+
+        },
         test1: function () {
             var game = this;
             game.playing = true;
-            game.pause = false;
-            sound.playBackgoundMusic();
+            game.isPause = false;
+            sound.playBackgroundMusic();
+            GameEventHandler.keydown(function ( e ) {
+                if(e.keyCode == 27 && !game.isPause){
+                    game.pauseMenu();
+                }
+            });
             var fps = 50;
             game.gaming = window.setInterval(function () {
-                if(game.pause){
+                if(game.isPause){
                     return;
                 }
 
@@ -153,14 +150,14 @@ define(['jquery',
             var game = this;
 
             sound.backgroundAudio.pause();
-            game.context.clearRect(0,0,game.width,game.height);
-            Player.plane.position  = new Position(game.width/2,game.height-100);
-            Player.plane.drawImg(game.context);
-            game.context.font = "30px Courier New";
-            game.context.fillStyle = "#333";
-            game.context.textAlign = 'center';
-            game.context.fillText("Game Over",game.width/2,game.height/2);
-            game.pause = true;
+            global.context.clearRect(0,0,global.width,global.height);
+            Player.plane.position  = new Position(global.width/2,global.height-100);
+            Player.plane.drawImg();
+            global.context.font = "30px Courier New";
+            global.context.fillStyle = "#333";
+            global.context.textAlign = 'center';
+            global.context.fillText("Game Over",global.width/2,global.height/2);
+            game.isPause = true;
         },
         init: function (config) {
             var game = this;

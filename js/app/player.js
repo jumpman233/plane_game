@@ -40,9 +40,7 @@ define(['gameEventHandler',
             player.maxLife = 3;
             player.curLife = player.maxLife;
 
-            player.geh = new GameEventHandler({
-                target: global.canvasElement
-            });
+            player.geh = GameEventHandler;
 
             player.plane = params.plane;
             player.plane.curBullet = 0;

@@ -97,7 +97,7 @@ define(['util',
                     player.curLife--;
                 }
             }
-            if(player.curLife == 0){
+            if(player.curLife <= 0){
                 gameOver();
             }
 

@@ -21,6 +21,15 @@ define([],function (  ) {
                     $('#sound').css('left','884px');
                 }
             });
+            $(document).click(function ( e ) {
+                if(e.target != $('#soundImg')[0] &&
+                    e.target != $('#soundSlider')[0] &&
+                    $('#soundSlider').attr('display') == 'true'){
+                    $('#soundSlider').attr('display', 'false');
+                    $('#soundSlider').css('display','none');
+                    $('#sound').css('left','884px');
+                }
+            });
             if(params.backgroundAudio){
                 sound.backgroundAudio = params.backgroundAudio;
                 sound.backgroundAudio.loop = sound;
@@ -29,15 +38,19 @@ define([],function (  ) {
                 sound.backgroundAudio.volume = sound.getCurSound();
             });
         },
-        playBackgoundMusic: function (  ) {
+        playBackgroundMusic: function (  ) {
             var sound = this;
             if(sound.backgroundAudio.paused){
                 sound.backgroundAudio.play();
             } else{
-                sound.backgroundAudio.pause();
-                sound.backgroundAudio.currentTime = 0;
+                sound.stopBackgroundMusic();
                 sound.backgroundAudio.play();
             }
+        },
+        stopBackgroundMusic: function (  ) {
+            var sound = this;
+            sound.backgroundAudio.pause();
+            sound.backgroundAudio.currentTime = 0;
         },
         addSoundChangeEvent: function (func) {
             if(typeof func == 'function'){

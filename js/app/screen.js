@@ -38,6 +38,23 @@ define(['util',
             screen.options = [];
             console.log(screen.optionsFunc);
         },
+        pauseMenu: function ( resumeFunc, exitFunc ) {
+            var screen = this;
+            var context = global.context;
+            var width = global.width;
+            var height = global.height;
+            context.fillStyle = 'rgba(102,102,102,0.4)';
+            context.fillRect(0,0,width,height);
+            context.font = "20px Georgia";
+            context.fillStyle = '#000';
+            context.textAlign = 'center';
+            context.fillText("Pause",width/2,height/2-100);
+            screen.drawMenuOption('Resume', width/2, height/2, resumeFunc);
+            screen.drawMenuOption('Exit', width/2, height/2 + 50, exitFunc);
+        },
+        mainMenu: function (  ) {
+            
+        },
         drawMenuOption: function ( name, x, y, callback ) {
             var screen = this;
             var context = screen.context;
@@ -58,13 +75,13 @@ define(['util',
                 for(var i in screen.options){
                     var opt = screen.options[i];
                     if(util.checkInRect(pos, opt.rectX, opt.rectY, opt.width, opt.height)){
-                        $('#'+global.canvasElement.id).css('cursor','pointer');
+                        util.setCursor('pointer');
                         flag = true;
                         break;
                     }
                 }
                 if(!flag){
-                    $('#'+global.canvasElement.id).css('cursor','default');
+                    util.setCursor('default');
                 }
             }
             function menuMouseDown ( event ) {
