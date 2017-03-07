@@ -102,32 +102,33 @@ define(['position','global'],function ( Position, global ) {
             }
         },
         dirtyCheck: function (list) {
-            var game = this;
+            var util = this;
             if(list[0] && list[0].className == 'missile'){
                 for(var i in list){
                     var obj  = list[i];
-                    var x = list[i].position.x + list[i].width / 2;
-                    var y = list[i].position.y + list[i].height / 2;
-                    if((x - obj.width / 2 - game.width > 0       ||
-                        x + obj.width / 2 < 0                   ||
-                        y - obj.height / 2 - game.height > 0    ||
-                        y + obj.height / 2 < 0                  )&&
+                    if(!util.isInCanvas(obj)&&
                         obj.restFollow<=0){
                         list.splice(i,1);
                     }
                 }
             } else{
                 for(var i in list){
-                    var obj  = list[i];
-                    var x = list[i].position.x + list[i].width / 2;
-                    var y = list[i].position.y + list[i].height / 2;
-                    if(x - obj.width / 2 - game.width > 0       ||
-                        x + obj.width / 2 < 0                   ||
-                        y - obj.height / 2 - game.height > 0    ||
-                        y + obj.height / 2 < 0){
+                    if(!util.isInCanvas(list[i])){
                         list.splice(i,1);
                     }
                 }
+            }
+        },
+        isInCanvas: function ( obj ) {
+            if(obj && obj.position && obj.position.x != null && obj.position.y != null){
+                var x = obj.position.x + obj.width / 2,
+                    y = obj.position.y + obj.height / 2;
+                return !(x - obj.width / 2 - global.width > 0       ||
+                x + obj.width / 2 < 0                           ||
+                y - obj.height / 2 - global.height > 0          ||
+                y + obj.height / 2 < 0);
+            } else{
+                throw TypeError('util isInCanvas: param is not right!');
             }
         },
         inherit: function ( obj ) {

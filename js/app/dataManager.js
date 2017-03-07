@@ -9,7 +9,7 @@ define(['util',
         this.player_bullets = [];
         this.tools = [];
         this.player = null;
-        this.enemy_planes = [];
+        this.enemies = [];
         this.missiles = [];
     }
 
@@ -26,12 +26,12 @@ define(['util',
                 manager.enemy_bullets.push(bullet);
             }
         },
-        resolvePlane: function ( plane ) {
+        resolveEnemy: function ( plane ) {
             var manager = this;
             // if(!plane || !plane.role){
-            //     throw TypeError('DataManager resolveBullet: param type error!')
+            //     throw TypeError('DataManager resolveEnemy: param type error!')
             // }
-            manager.enemy_planes.push(plane);
+            manager.enemies.push(plane);
         },
         resolveTool: function ( tool ) {
             this.tools.push(tool);
@@ -52,34 +52,18 @@ define(['util',
                 }
             }
 
-            //check if player's bullets have collision with enemies
-            //if true, it's possible to appear a tool
-            //check if enemies have collision with player's plane
-            //if true, player's life will be reduced
 
-            for(var i in dm.enemy_planes){
-                var plane = dm.enemy_planes[i];
-                for (var j in dm.player_bullets){
-                    var bullet = dm.player_bullets[j];
-                    if(util.collisionTest(plane,bullet)){
-                        plane.getShot(bullet);
-                        if(plane.isDead){
-                            // var newTool = game.createTool(plane,game.fps);
-                            // if(newTool){
-                            //     toolList.push(newTool);
-                            // }
-                            // player.score += plane.score;
-                            planeDead(plane);
-                        }
-                        dm.player_bullets.splice(j,1);
-                        break;
-                    }
-                }
-                if(plane && util.collisionTest(plane,player.plane)){
-                    dm.enemy_planes.splice(i,1);
-                    player.curLife--;
-                }
-            }
+            /**
+             * TODO
+             */
+            // for(var i in dm.enemies){
+            //     var plane = dm.enemies[i];
+            //     if(plane && util.collisionTest(plane, player.plane)){
+            //         dm.enemies.splice(i,1);
+            //         player.curLife--;
+            //     }
+            // }
+
             //check if enemies' bullets have collision with player's plane
             for(var i in dm.enemy_bullets){
                 if(util.collisionTest(player.plane,dm.enemy_bullets[i])){
@@ -98,20 +82,21 @@ define(['util',
             }
 
             dm.dirtyCheck();
-            dm.planeListCheck(dm.enemy_planes);
         },
         dirtyCheck: function (  ) {
             var dm = this;
             util.dirtyCheck(dm.enemy_bullets);
-            util.dirtyCheck(dm.enemy_planes);
             util.dirtyCheck(dm.player_bullets);
             util.dirtyCheck(dm.tools);
             util.dirtyCheck(dm.missiles);
+            dm.enemyCheck();
         },
-        planeListCheck: function (list) {
+        enemyCheck: function () {
+            var dm = this,
+                list = dm.enemies;
             for(var i in list){
-                var plane = list[i];
-                if(plane.canDestroy){
+                var enemy = list[i];
+                if(enemy.isDead){
                     list.splice(i,1);
                 }
             }

@@ -189,9 +189,9 @@ define(['util',
                 bullet.move(global.context);
             }
 
-            for (var i in dataManager.enemy_planes){
-                dataManager.enemy_planes[i].update();
-                var plane = dataManager.enemy_planes[i].plane;
+            for (var i in dataManager.enemies){
+                dataManager.enemies[i].update();
+                var plane = dataManager.enemies[i].plane;
                 plane.draw();
             }
 

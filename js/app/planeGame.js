@@ -122,7 +122,7 @@ define(['jquery',
                     var plane = randomBuild.createEnemyPlane(1/fps/2);
                     var missile = randomBuild.createMissile(1/fps/10);
                     if(plane){
-                        dataManager.resolvePlane(plane);
+                        dataManager.resolveEnemy(plane);
                     }
                     if(missile){
                         dataManager.resolveMissile(missile);
@@ -132,15 +132,15 @@ define(['jquery',
 
                     Screen.draw();
 
-                    // dataManager.judge(function ( plane ) {
-                    //     var tool = randomBuild.createTool(plane.toolDrop);
-                    //     if(tool){
-                    //         tool.position = plane.position;
-                    //         dataManager.resolveTool(tool);
-                    //     }
-                    // },function (  ) {
-                    //     game.gameOver();
-                    // });
+                    dataManager.judge(function ( plane ) {
+                        var tool = randomBuild.createTool(plane.toolDrop);
+                        if(tool){
+                            tool.position = plane.position;
+                            dataManager.resolveTool(tool);
+                        }
+                    },function (  ) {
+                        game.gameOver();
+                    });
                 }, 1000 / fps);
             },
             gameOver: function () {

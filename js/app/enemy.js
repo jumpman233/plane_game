@@ -17,6 +17,7 @@ define(['behNode', 'behTree', 'util', 'flyObject', 'dataManager'],function ( beh
         this.moveType = '';
         this.curHp = 0;
         this.patrolY = 0;
+        this.isDead = false;
 
         this.deadDuring = 10;
     }
@@ -43,11 +44,13 @@ define(['behNode', 'behTree', 'util', 'flyObject', 'dataManager'],function ( beh
         update: function (  ) {
             this.behTree.execute(this);
         },
-        isdead: function ( enemy ) {
-            return enemy.curHp <= 0;
+        ifDead: function ( enemy ) {
+            return enemy.curHp <= 0 || !util.isInCanvas(enemy.plane);
         },
         deadAct: function ( enemy ) {
-            enemy.deadDuring--;
+            if(enemy.deadDuring-- <= 0){
+                enemy.isDead = true;
+            }
             enemy.plane.img = enemy.plane.deadImg;
         },
         retreatCond: function (  ) {
@@ -67,6 +70,10 @@ define(['behNode', 'behTree', 'util', 'flyObject', 'dataManager'],function ( beh
 
             FlyObject.prototype.move.call(enemy.plane);
         },
+        //check if player's bullets have collision with enemies
+        //if true, it's possible to appear a tool
+        //check if enemies have collision with player's plane
+        //if true, player's life will be reduced
         ifGetShot: function ( enemy ) {
             var e_plane = enemy.plane,
                 result = false;
@@ -74,6 +81,7 @@ define(['behNode', 'behTree', 'util', 'flyObject', 'dataManager'],function ( beh
                 var bullet = dm.player_bullets[i];
                 if(e_plane && util.collisionTest(bullet, e_plane)){
                     enemy.getShot(bullet);
+                    dm.player_bullets.splice(i, 1);
                     result = true;
                 }
             }
@@ -82,7 +90,7 @@ define(['behNode', 'behTree', 'util', 'flyObject', 'dataManager'],function ( beh
         getShot: function ( bullet ) {
             var enemy = this;
             if(bullet && bullet.damage){
-                enemy.hp -= bullet.damage;
+                enemy.curHp -= bullet.damage;
             }
         },
         patrolMove: function (  ) {
@@ -124,11 +132,12 @@ define(['behNode', 'behTree', 'util', 'flyObject', 'dataManager'],function ( beh
     deadSeq.addChild(deadCond);
     deadSeq.addChild(deadAction);
 
-    deadCond.cond = Enemy.prototype.isdead;
+    deadCond.cond = Enemy.prototype.ifDead;
     deadAction.act = Enemy.prototype.deadAct;
 
     mainSeq.addChild(atkSeq);
     mainSeq.addChild(moveSel);
+    mainSeq.addChild(getShotSeq);
 
     atkSeq.addChild(atkCdCond);
     // atkSeq.addChild(atkAction);
@@ -146,8 +155,11 @@ define(['behNode', 'behTree', 'util', 'flyObject', 'dataManager'],function ( beh
 
     avoidSeq.addChild(avoidSel);
     avoidSeq.addChild(avoidAction);
-
     avoidSel.addChild(avoidCond);
+
+    getShotSeq.addChild(getShotCond);
+
+    getShotCond.cond = Enemy.prototype.ifGetShot;
 
     Enemy.prototype.behTree.root = rootSel;
 
