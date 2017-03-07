@@ -8,10 +8,8 @@
     "deadAudioName": "dead1",
     "role": "player",
     "direction": 0,
-    "canShoot": "false",
     "shootRate": 10,
-    "bulletType": 1,
-    "score": 5
+    "bulletType": 1
 },{
     "type": "2",
     "width": 50,
@@ -20,12 +18,8 @@
     "src": "img/LiPlane.png",
     "deadSrc": "img/dead.png",
     "deadAudioName": "dead1",
-    "hp": 20,
     "role": "enemy",
     "direction": 0,
-    "canShoot": "true",
     "shootRate": 40,
-    "bulletType": 2,
-    "score": 5,
-    "toolDrop": 0.1
+    "bulletType": 2
 }]

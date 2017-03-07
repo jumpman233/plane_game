@@ -40,6 +40,8 @@ define(['util',
         }
         if(params.canShoot){
             this.canShoot = params.canShoot;
+        } else{
+            this.canShoot = true;
         }
         if(params.curBullet){
             this.curBullet = params.curBullet;
@@ -59,12 +61,10 @@ define(['util',
             this.deadAudioName = params.deadAudioName;
         }
         this.deadAudio = null;
-        this.bulletList = [];
         this.isDead = false;
         this.animateSave = 0;
         this.canDestroy = false;
         this.target = null;
-        this.patrolY = 200;
     }
     Plane.prototype = util.copy(FlyObject.prototype);
     Plane.prototype.constructor = Plane;
@@ -106,53 +106,27 @@ define(['util',
             }
         }
     };
-    Plane.prototype.move = function () {
-        var plane = this;
-
-        if(plane.isDead) return;
-
-        plane.movePatrol();
-        // if(plane.target && plane.target.hasOwnProperty("position")){
-        //     FlyObject.prototype.moveToTarget.call(plane);
-        // } else{
-        //     FlyObject.prototype.move.call(plane);
-        // }
-    };
     Plane.prototype.draw = function () {
         var plane = this;
         plane.drawPlane();
-
-        if(plane.shootTime-- == 0 && plane.canShoot && plane.curBullet != undefined){
+    };
+    Plane.prototype.shoot = function (  ) {
+        var plane = this;
+        if(plane.shootTime-- <= 0 && plane.canShoot && plane.curBullet != undefined){
             var bulList = plane.bulletStyle.getBullets(plane.curBullet);
             for (var i = 0 ;i<bulList.length;i++){
                 bulList[i].position = util.copy(plane.position);
                 bulList[i].parent = plane;
                 bulList[i].direction = bulList[i].direction + bulList[i].parent.direction;
                 bulList[i].move();
-                bulList[i].move();
                 dataManager.resolveBullet(bulList[i]);
-                plane.shootTime = plane.shootRate;
             }
+            plane.shootTime = plane.shootRate;
             sound.playAudio(plane.bulletStyle.audio);
-        }
-    };
-    Plane.prototype.moveStraight = function (  ) {
-        FlyObject.prototype.move.call(plane);
-    };
-    Plane.prototype.movePatrol = function (  ) {
-        var plane = this;
-        console.log(plane.position);
-        if(plane.position.y == plane.patrolY){
-            plane.position.x += plane.speed;
-        } else{
-            FlyObject.prototype.moveToPos.call(this, plane.patrolY);
         }
     };
     Plane.prototype.moveToTarget = function (  ) {
         FlyObject.prototype.moveToTarget();
-    };
-    Plane.prototype.behaviourTree = function (  ) {
-        
     };
 
     return Plane;

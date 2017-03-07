@@ -4,8 +4,7 @@
 
 define(['gameEventHandler',
     'util',
-    'global'
-    ],function (GameEventHandler, util, global ) {
+    ],function (GameEventHandler, util) {
     'use strict';
     function Player() {
         this.plane = null;
@@ -50,8 +49,13 @@ define(['gameEventHandler',
                 player.plane.position = util.getEventPosition(e);
             });
             defer.resolve();
-            return defer;
-
+        },
+        shoot: function (  ) {
+            if(this.plane && typeof this.plane.shoot){
+                this.plane.shoot();
+            } else{
+                throw TypeError();
+            }
         }
     };
     return new Player();

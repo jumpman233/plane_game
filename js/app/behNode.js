@@ -42,9 +42,12 @@ define(['util'],function ( util ) {
     Sequence.prototype.constructor= Sequence;
     Sequence.prototype.execute= function (  ) {
         var seq = this;
-        console.log("??")
+        var args = arguments;
+        if(typeof args == 'object' && args.length ==1){
+            args = arguments[0];
+        }
         for(var i in seq.childList){
-            if(! seq.childList[i].execute.call(seq.childList[i], arguments)){
+            if(! seq.childList[i].execute.call(seq.childList[i], args)){
                 return false;
             }
         }
@@ -57,9 +60,13 @@ define(['util'],function ( util ) {
     Selector.prototype = util.inherit(BehNode.prototype);
     Selector.prototype.constructor = Selector;
     Selector.prototype.execute = function () {
+        var args = arguments;
+        if(typeof args == 'object' && args.length ==1){
+            args = arguments[0];
+        }
         var sel = this;
         for(var i in sel.childList){
-            if(sel.childList[i].execute.call(sel.childList[i], arguments)){
+            if(sel.childList[i].execute.call(sel.childList[i], args)){
                 return true;
             }
         }
@@ -76,8 +83,12 @@ define(['util'],function ( util ) {
     Action.prototype = util.inherit(BehNode.prototype);
     Action.prototype.constructor = Action;
     Action.prototype.execute = function () {
+        var args = arguments;
+        if(typeof args == 'object' && args.length ==1){
+            args = arguments[0];
+        }
         if(typeof this.act == 'function'){
-            this.act();
+            this.act.call(this,args);
             return true;
         } else{
             throw TypeError('Action execute act is not a function!');
@@ -94,8 +105,12 @@ define(['util'],function ( util ) {
     Condition.prototype = util.inherit(util.inherit(BehNode.prototype));
     Condition.prototype.constructor = Condition;
     Condition.prototype.execute = function (  ) {
+        var args = arguments;
+        if(typeof args == 'object' && args.length ==1){
+            args = arguments[0];
+        }
         if(typeof this.cond == 'function'){
-            return this.cond();
+            return this.cond.call(this,args);
         } else{
             throw TypeError('Condition execute cond is not function!');
         }

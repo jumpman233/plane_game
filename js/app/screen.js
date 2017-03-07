@@ -182,6 +182,7 @@ define(['util',
                 bullet.draw(global.context);
                 bullet.move(global.context);
             }
+
             for(var i in dataManager.player_bullets){
                 var bullet = dataManager.player_bullets[i];
                 bullet.draw(global.context);
@@ -189,9 +190,9 @@ define(['util',
             }
 
             for (var i in dataManager.enemy_planes){
-                var plane = dataManager.enemy_planes[i];
-                plane.draw(global.context, screen.frameNum);
-                plane.move();
+                dataManager.enemy_planes[i].update();
+                var plane = dataManager.enemy_planes[i].plane;
+                plane.draw();
             }
 
             for (var i in dataManager.tools){

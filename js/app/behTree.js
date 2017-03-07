@@ -9,9 +9,12 @@ define(['behNode'],function ( behNode ) {
     BehTree.prototype = {
         constructor: BehTree,
         execute: function (  ) {
+            var args = arguments;
+            if(typeof args == 'object' && args.length ==1){
+                args = arguments[0];
+            }
             if(this.root){
-                console.log(this.root.execute);
-                this.root.execute.call(this.root, arguments);
+                this.root.execute.call(this.root, args);
             }
         }
     };

@@ -7,7 +7,7 @@
   "toolDrop": 0.1,
   "moveType": "straight"
 },{
-  "type": 1,
+  "type": 2,
   "planeType": 2,
   "hp": 20,
   "speed": 3,

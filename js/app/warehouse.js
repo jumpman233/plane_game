@@ -82,8 +82,8 @@ define(['util',
         },
         getEnemyByType: function ( type ) {
             var warehouse = this;
-            for(var i in warehouse){
-                var enemy = warehouse[i];
+            for(var i in warehouse.enemyList){
+                var enemy = warehouse.enemyList[i];
                 if(enemy.type == type){
                     return util.copy(enemy);
                 }

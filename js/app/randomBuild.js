@@ -14,17 +14,18 @@ define(['warehouse',
         createEnemyPlane: function ( probability ) {
             if(Math.random()<probability){
                 var x = Math.random()*global.width;
-                var plane = warehouse.getPlaneByType(2);
+                var enemy = warehouse.getEnemyByType(2);
+                enemy.update();
+                var plane = enemy.plane;
                 plane.shootTime = plane.shootRate;
                 plane.position.x = x;
                 plane.position.y = 0;
                 plane.direction = 180;
-                plane.role = 'enemy';
                 plane.canShoot = true;
                 plane.bulletStyle = warehouse.getBulletStyleByType(2);
                 plane.curBullet = 0;
             }
-            return plane;
+            return enemy;
         },
         createMissile: function ( probability ) {
             if(Math.random() < probability){

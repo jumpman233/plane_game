@@ -28,14 +28,10 @@ define(['util',
         },
         resolvePlane: function ( plane ) {
             var manager = this;
-            if(!plane || !plane.role){
-                throw TypeError('DataManager resolveBullet: param type error!')
-            }
-            if(plane.role == 'player'){
-                manager.player_planes.push(plane);
-            } else if(plane.role == 'enemy'){
-                manager.enemy_planes.push(plane);
-            }
+            // if(!plane || !plane.role){
+            //     throw TypeError('DataManager resolveBullet: param type error!')
+            // }
+            manager.enemy_planes.push(plane);
         },
         resolveTool: function ( tool ) {
             this.tools.push(tool);
