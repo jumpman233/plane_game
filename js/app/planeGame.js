@@ -163,40 +163,51 @@ define(['jquery',
 
                 game.warehouse = Warehouse;
 
-                game.getConfig(config);
-
-                global.init({
-                    canvasId: config.canvasId
-                });
-
-                Warehouse
-                    .init(game.src)
+                game
+                    .getConfig(config)
                     .then(function (  ) {
-                        Screen.init();
+                         return global.init({
+                             canvasId: config.canvasId
+                         });
                     })
                     .then(function (  ) {
-                        Player.init({
+                        return Warehouse.init(game.src);
+                    })
+                    .then(function (  ) {
+                        return Screen.init();
+                    })
+                    .then(function (  ) {
+                        return Player.init({
                             plane: Warehouse.getPlaneByType(1)
                         });
                     })
                     .then(function (  ) {
-                        sound.init({
+                        return sound.init({
                             backgroundAudio: Warehouse.getAudioByName('backgroundMusic')
                         });
                     })
                     .then(function (  ) {
                         //if all the image and audio load is done ,the game's init is completed
-                        var interval = window.setInterval(function (  ) {
-                            if(global.notLoadedImgCount == 0
-                                && global.notLoadedAudioCount == 0){
-                                window.clearInterval(interval);
-                                console.log('all resource is loaded! cost '+(new Date().getTime()-startTime)+' ms');
-                                defer.resolve();
-                            }
-                        }, 200);
+                        game.ifInit(function (  ) {
+                            console.log('all resource is loaded! cost '+(new Date().getTime()-startTime)+' ms');
+                            defer.resolve();
+                        });
                     });
 
                 return defer;
+            },
+            ifInit: function ( func ) {
+                if(typeof func == 'function'){
+                    var interval = window.setInterval(function (  ) {
+                        if(global.notLoadedImgCount == 0
+                            && global.notLoadedAudioCount == 0){
+                            window.clearInterval(interval);
+                            func();
+                        }
+                    }, 200);
+                } else{
+                    throw Error('planeGame ifInit(): param is not right!');
+                }
             }
         };
 

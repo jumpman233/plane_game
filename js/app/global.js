@@ -14,12 +14,15 @@ define([],function () {
     Global.prototype = {
         constructor: Global,
         init: function ( params ) {
+            var defer = $.Deferred();
             if(params.canvasId){
                 this.canvasElement = $('#'+params.canvasId)[0];
                 this.context = this.canvasElement.getContext('2d');
                 this.width = this.context.canvas.width;
                 this.height = this.context.canvas.height;
             }
+            defer.resolve();
+            return defer;
         }
     };
 

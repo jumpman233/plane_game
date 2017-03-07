@@ -253,8 +253,9 @@ define(['util',
         },
         init: function (params) {
             var warehouse = this;
+            var defer = $.Deferred();
 
-            return warehouse
+            warehouse
                 .getConfig(params)
                 .then(function (  ) {
                     return warehouse.initAudio();
@@ -278,8 +279,11 @@ define(['util',
                     return warehouse.initMissile();
                 })
                 .then(function (  ) {
+                    defer.resolve();
                     console.log(warehouse);
                 });
+
+            return defer;
         }
     };
     return new Warehouse();

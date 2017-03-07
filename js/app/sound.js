@@ -10,6 +10,7 @@ define([],function (  ) {
         constructor: Sound,
         init: function ( params ) {
             var sound = this;
+            var defer = $.Deferred();
             $('#soundImg').click(function () {
                 if($('#soundSlider').attr('display') == 'false'){
                     $('#soundSlider').attr('display', 'true');
@@ -37,6 +38,8 @@ define([],function (  ) {
             this.addSoundChangeEvent(function (  ) {
                 sound.backgroundAudio.volume = sound.getCurSound();
             });
+            defer.resolve();
+            return defer;
         },
         playBackgroundMusic: function (  ) {
             var sound = this;

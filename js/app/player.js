@@ -33,7 +33,7 @@ define(['gameEventHandler',
             }
         },
         init: function ( params ) {
-
+            var defer = $.Deferred();
             var player = this;
 
             player.score = 0;
@@ -49,17 +49,9 @@ define(['gameEventHandler',
             player.geh.mouseMove(function (e) {
                 player.plane.position = util.getEventPosition(e);
             });
-            // player.geh.keydown(function ( e ) {
-            //     if(e.keyCode == 27 && player.playing){
-            //         if(!player.pause){
-            //             player.pause = true;
-            //             player.pauseMenu();
-            //         } else{
-            //             player.resume();
-            //             player.removeAllOptions();
-            //         }
-            //     }
-            // });
+            defer.resolve();
+            return defer;
+
         }
     };
     return new Player();

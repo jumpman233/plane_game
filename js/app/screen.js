@@ -20,9 +20,12 @@ define(['util',
     Screen.prototype = {
         constructor: Screen,
         init: function (  ) {
+            var defer = $.Deferred();
             this.canvasElement = global.canvasElement;
             this.context = global.context;
             this.backgoundImg = Warehouse.getItemByName("background");
+            defer.resolve();
+            return defer;
         },
         removeAllOptions: function (  ) {
             var screen = this;
