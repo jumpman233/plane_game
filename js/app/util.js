@@ -129,6 +129,17 @@ define(['position','global'],function ( Position, global ) {
                     }
                 }
             }
+        },
+        inherit: function ( obj ) {
+            if(obj == null) {throw  TypeError()}
+
+            if( Object.create) return Object.create(obj);
+
+            var t = typeof p;
+            if( t !== 'object' && t !== 'function') throw TypeError();
+            function f(  ) {};
+            f.prototype = obj;
+            return new f();
         }
     };
     return new GameUtil();

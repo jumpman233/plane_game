@@ -76,12 +76,11 @@ define(['jquery',
             context.fillText("Fight In Sky",width/2,height/2-100);
             Screen.drawMenuOption('Start Game', width/2,height/2, startGameFunc);
         },
-        pauseMenu: function (  ) {
+        pause: function (  ) {
             var game = this;
             game.isPause = true;
 
             var resumeFunc = function (  ) {
-                console.log("!");
                 game.resume.call(game);
             };
             var exitFunc = function (  ) {
@@ -103,11 +102,6 @@ define(['jquery',
 
             game.mainMenu();
         },
-        pause: function (  ) {
-            var game = this;
-            game.isPause = true;
-
-        },
         test1: function () {
             var game = this;
             game.playing = true;
@@ -115,7 +109,7 @@ define(['jquery',
             sound.playBackgroundMusic();
             GameEventHandler.keydown(function ( e ) {
                 if(e.keyCode == 27 && !game.isPause){
-                    game.pauseMenu();
+                    game.pause();
                 }
             });
             var fps = 50;

@@ -24,11 +24,34 @@ require.config({
         'global': 'app/global',
         'dataManager': 'app/dataManager',
         'player': 'app/player',
-        'randomBuild': 'app/randomBuild'
+        'randomBuild': 'app/randomBuild',
+        'behTree': 'app/behTree',
+        'behNode': 'app/behNode'
     }
 });
 
-require(['planeGame'],function ( PlaneGame ) {
+require(['planeGame','behNode', 'behTree'],function ( PlaneGame, behNode, BehTree ) {
+    var tree = new BehTree;
+    var Sequence = behNode.sequence,
+        Selector = behNode.selector,
+        Action = behNode.action,
+        Condition = behNode.condition;
+    tree.root = new Sequence();
+    var sel1 = new Selector();
+    var act1 = new Action();
+    var cond1 = new Condition();
+    act1.act = function (  ) {
+        console.log("!??");
+    };
+    cond1.cond = function () {
+        console.log("222");
+        return false;
+    };
+    tree.root.addChild(sel1);
+    sel1.addChild(cond1);
+    sel1.addChild(act1);
+    tree.execute();
+
     var config = {
         canvasElement: $('#myCanvas')[0],
         canvasId: 'myCanvas',

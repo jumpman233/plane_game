@@ -7,7 +7,9 @@ var process = require('process');
 var http = require('http'),
     url = require('url'),
     path = require('path'),
-    fs = require('fs');
+    fs = require('fs'),
+    os = require('os');
+var port = 3000;
 
 http.createServer(function ( req, res ) {
     var pathName = __dirname + url.parse(req.url).pathname;
@@ -65,6 +67,7 @@ http.createServer(function ( req, res ) {
             }
         }
     })
-}).listen(3000);
+}).listen(port);
 
-console.log(http);
+console.log("server is running at 127.0.0.1:3000");
+
