@@ -206,7 +206,7 @@ define(['jquery',
                         }
                     }, 200);
                 } else{
-                    throw Error('planeGame ifInit(): param is not right!');
+                    throw TypeError('planeGame ifInit(): param is not right!');
                 }
             }
         };

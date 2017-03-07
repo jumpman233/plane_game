@@ -18,7 +18,7 @@ define(['util',
         resolveBullet: function ( bullet ) {
             var manager = this;
             if(!bullet || !bullet.parent || !bullet.parent.role){
-                throw Error('DataManager resolveBullet: param type error!')
+                throw TypeError('DataManager resolveBullet: param type error!')
             }
             if(bullet.parent.role == 'player'){
                 manager.player_bullets.push(bullet);
@@ -29,7 +29,7 @@ define(['util',
         resolvePlane: function ( plane ) {
             var manager = this;
             if(!plane || !plane.role){
-                throw Error('DataManager resolveBullet: param type error!')
+                throw TypeError('DataManager resolveBullet: param type error!')
             }
             if(plane.role == 'player'){
                 manager.player_planes.push(plane);

@@ -24,7 +24,6 @@ define(['warehouse',
                 plane.bulletStyle = warehouse.getBulletStyleByType(2);
                 plane.curBullet = 0;
             }
-            console.log(plane);
             return plane;
         },
         createMissile: function ( probability ) {

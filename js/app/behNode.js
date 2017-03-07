@@ -4,12 +4,15 @@
 
 define(['util'],function ( util ) {
     function virtualFunc(  ) {
-        throw Error('this method is virtual!');
+        throw TypeError('this method is virtual!');
     }
 
     function BehNode(  ) {
         this.childList = [];
         this.parentNode = null;
+        if(typeof arguments[0] == 'object' && arguments.length >= 0){
+            this.name = arguments[0][0];
+        }
     }
     BehNode.prototype = {
         constructor: BehNode,
@@ -73,8 +76,12 @@ define(['util'],function ( util ) {
     Action.prototype = util.inherit(BehNode.prototype);
     Action.prototype.constructor = Action;
     Action.prototype.execute = function () {
-        this.act();
-        return true;
+        if(typeof this.act == 'function'){
+            this.act();
+            return true;
+        } else{
+            throw TypeError('Action execute act is not a function!');
+        }
     };
 
     function Condition( func ) {
@@ -87,8 +94,11 @@ define(['util'],function ( util ) {
     Condition.prototype = util.inherit(util.inherit(BehNode.prototype));
     Condition.prototype.constructor = Condition;
     Condition.prototype.execute = function (  ) {
-        console.log(this);
-        return this.cond();
+        if(typeof this.cond == 'function'){
+            return this.cond();
+        } else{
+            throw TypeError('Condition execute cond is not function!');
+        }
     };
 
     return {

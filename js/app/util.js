@@ -24,7 +24,7 @@ define(['position','global'],function ( Position, global ) {
         },
         initAudio: function ( params ) {
             if(!params.src){
-                throw Error('util initAudio: need param src!')
+                throw TypeError('util initAudio: need param src!')
             }
             console.log('start to init '+params.src);
             var audio = new Audio(params.src);
@@ -72,7 +72,7 @@ define(['position','global'],function ( Position, global ) {
                 return Math.abs(obj2.position.x - obj1.position.x) < (obj1.width + obj2.width) / 2 &&
                     Math.abs(obj2.position.y - obj1.position.y) < (obj1.height + obj2.height) / 2
             } else{
-                throw Error('GameUtil collisionTest(): params is not right! ');
+                throw TypeError('GameUtil collisionTest(): params is not right! ');
             }
         },
         getEventPosition: function (e) {
@@ -140,6 +140,24 @@ define(['position','global'],function ( Position, global ) {
             function f(  ) {};
             f.prototype = obj;
             return new f();
+        },
+        //first param must be array, second param must be object
+        paramInclude: function ( parentArray, includedObj ) {
+            if(typeof parentArray == 'object' && typeof includedObj == 'object'){
+                for(var i in parentArray){
+                    var flag = false;
+                    for(var j in includedObj){
+                        if(j == parentArray[i]){
+                            flag = true;
+                            break;
+                        }
+                    }
+                    if(!flag) return false;
+                }
+                return true;
+            } else{
+                throw TypeError('util paramInclude(): params are not right!');
+            }
         }
     };
     return new GameUtil();

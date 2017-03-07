@@ -1,0 +1,17 @@
+[{
+  "type": 1,
+  "planeType": 2,
+  "hp": 20,
+  "speed": 3,
+  "score": 10,
+  "toolDrop": 0.1,
+  "moveType": "straight"
+},{
+  "type": 1,
+  "planeType": 2,
+  "hp": 20,
+  "speed": 3,
+  "score": 10,
+  "toolDrop": 0.1,
+  "moveType": "patrol"
+}]

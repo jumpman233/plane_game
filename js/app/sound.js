@@ -65,7 +65,7 @@ define([],function (  ) {
         },
         playAudio: function (params) {
             if(!params.src || !params.currentSrc){
-                throw Error("playAudio lack of param src!");
+                throw TypeError("playAudio lack of param src!");
             }
             var path = params.src|| params.currentSrc;
             var audio = new Audio(path);

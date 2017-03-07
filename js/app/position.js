@@ -22,10 +22,10 @@ define([],function (  ) {
         constructor: Position,
         calDis: function (sta,des) {
             if(undefined === sta.x  && undefined === sta.y){
-                throw Error("calDis(): sta is not Position type!");
+                throw TypeError("calDis(): sta is not Position type!");
             }
             if(undefined !== des && undefined === des.x && undefined === des.y){
-                throw Error("calDis(): des is not Position type!");
+                throw TypeError("calDis(): des is not Position type!");
             }
             if(undefined === des){
                 des = this.position;
@@ -35,10 +35,10 @@ define([],function (  ) {
         },
         calDif: function (sta,des) {
             if(undefined === sta.x  && undefined === sta.y){
-                throw Error("calDis(): sta is not Position type!");
+                throw TypeError("calDis(): sta is not Position type!");
             }
             if(undefined !== des && undefined === des.x && undefined === des.y){
-                throw Error("calDis(): des is not Position type!");
+                throw TypeError("calDis(): des is not Position type!");
             }
             if(undefined === des){
                 des = this.position;
@@ -47,10 +47,10 @@ define([],function (  ) {
         },
         includeAng: function (sta, des, dir) {
             if(undefined === sta.x  && undefined === sta.y){
-                throw Error("calDis(): sta is not Position type!");
+                throw TypeError("calDis(): sta is not Position type!");
             }
             if(undefined !== des && undefined === des.x && undefined === des.y){
-                throw Error("calDis(): des is not Position type!");
+                throw TypeError("calDis(): des is not Position type!");
             }
             if(undefined === des){
                 des = this.position;

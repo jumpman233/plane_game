@@ -27,7 +27,6 @@ define(['util',
             fps = 30;
         }
         this.restFollow = this.maxFollow ? this.maxFollow * fps : 5 * fps;
-        console.log(this.restFollow);
     }
     Missile.prototype = util.copy(FlyObject.prototype);
     Missile.prototype.className = "missile";
@@ -46,4 +45,4 @@ define(['util',
     };
 
     return Missile;
-})
+});

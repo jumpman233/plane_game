@@ -26,31 +26,12 @@ require.config({
         'player': 'app/player',
         'randomBuild': 'app/randomBuild',
         'behTree': 'app/behTree',
-        'behNode': 'app/behNode'
+        'behNode': 'app/behNode',
+        'enemy': 'app/enemy'
     }
 });
 
-require(['planeGame','behNode', 'behTree'],function ( PlaneGame, behNode, BehTree ) {
-    var tree = new BehTree;
-    var Sequence = behNode.sequence,
-        Selector = behNode.selector,
-        Action = behNode.action,
-        Condition = behNode.condition;
-    tree.root = new Sequence();
-    var sel1 = new Selector();
-    var act1 = new Action();
-    var cond1 = new Condition();
-    act1.act = function (  ) {
-        console.log("!??");
-    };
-    cond1.cond = function () {
-        console.log("222");
-        return false;
-    };
-    tree.root.addChild(sel1);
-    sel1.addChild(cond1);
-    sel1.addChild(act1);
-    tree.execute();
+require(['planeGame','enemy'],function ( PlaneGame) {
 
     var config = {
         canvasElement: $('#myCanvas')[0],
@@ -62,7 +43,8 @@ require(['planeGame','behNode', 'behTree'],function ( PlaneGame, behNode, BehTre
             itemDataSrc: 'json/item.json',
             toolDataSrc: 'json/tool.json',
             missileDataSrc: 'json/missile.json',
-            audioDataSrc: 'json/audio.json'
+            audioDataSrc: 'json/audio.json',
+            enemyDataSrc: 'json/enemy.json'
         },
         fps: fps
     };

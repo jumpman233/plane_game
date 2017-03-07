@@ -5,7 +5,9 @@
 define(['util',
     'flyObject',
     'dataManager',
-    'sound'
+    'sound',
+    'behTree',
+    'behNode'
 ],function ( util, FlyObject, dataManager, sound) {
     /**
      * plane
@@ -61,6 +63,8 @@ define(['util',
         this.isDead = false;
         this.animateSave = 0;
         this.canDestroy = false;
+        this.target = null;
+        this.patrolY = 200;
     }
     Plane.prototype = util.copy(FlyObject.prototype);
     Plane.prototype.constructor = Plane;
@@ -104,11 +108,15 @@ define(['util',
     };
     Plane.prototype.move = function () {
         var plane = this;
-        if(!plane.isDead && plane.target && plane.target.hasOwnProperty("position")){
-            FlyObject.prototype.moveToTarget.call(plane);
-        } else if(!plane.isDead){
-            FlyObject.prototype.move.call(plane);
-        }
+
+        if(plane.isDead) return;
+
+        plane.movePatrol();
+        // if(plane.target && plane.target.hasOwnProperty("position")){
+        //     FlyObject.prototype.moveToTarget.call(plane);
+        // } else{
+        //     FlyObject.prototype.move.call(plane);
+        // }
     };
     Plane.prototype.draw = function () {
         var plane = this;
@@ -122,12 +130,29 @@ define(['util',
                 bulList[i].direction = bulList[i].direction + bulList[i].parent.direction;
                 bulList[i].move();
                 bulList[i].move();
-                // planeGame.bulletList.push(bulList[i]);
                 dataManager.resolveBullet(bulList[i]);
                 plane.shootTime = plane.shootRate;
             }
             sound.playAudio(plane.bulletStyle.audio);
         }
+    };
+    Plane.prototype.moveStraight = function (  ) {
+        FlyObject.prototype.move.call(plane);
+    };
+    Plane.prototype.movePatrol = function (  ) {
+        var plane = this;
+        console.log(plane.position);
+        if(plane.position.y == plane.patrolY){
+            plane.position.x += plane.speed;
+        } else{
+            FlyObject.prototype.moveToPos.call(this, plane.patrolY);
+        }
+    };
+    Plane.prototype.moveToTarget = function (  ) {
+        FlyObject.prototype.moveToTarget();
+    };
+    Plane.prototype.behaviourTree = function (  ) {
+        
     };
 
     return Plane;

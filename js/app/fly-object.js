@@ -124,6 +124,18 @@ define(['util',
                 obj.position.y -= obj.speed * Math.cos(obj.direction / 180 * Math.PI);
                 obj.position.x += obj.speed * Math.sin(obj.direction / 180 * Math.PI);
             }
+        },
+        moveToPos: function ( pos ) {
+            var obj = this;
+            if(pos != null){
+                if(pos - obj.position.y <= obj.speed){
+                    obj.position.y = pos;
+                } else{
+                    obj.position.y -= obj.speed * Math.cos(obj.direction / 360 * Math.PI * 2);
+                }
+            } else{
+                throw TypeError();
+            }
         }
     };
 

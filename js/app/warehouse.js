@@ -10,7 +10,8 @@ define(['util',
     'bullet',
     'item',
     'tool',
-    'bulletStyle'],function ( util, Plane, FlyObject, Position, Missile, Bullet, Item, Tool , BulletStyle) {
+    'bulletStyle',
+    'enemy'],function ( util, Plane, FlyObject, Position, Missile, Bullet, Item, Tool , BulletStyle, Enemy) {
     function Warehouse() {
         this.bulletTypeList = [];
         this.planeTypeList = [];
@@ -20,6 +21,9 @@ define(['util',
         this.missileList = [];
         this.src = {};
         this.audioList = [];
+        this.enemyList = [];
+        this.needSrc = ['bulletDataSrc', 'bulletStyleSrc', 'planeDataSrc', 'itemDataSrc',
+            'toolDataSrc', 'missileDataSrc', 'audioDataSrc', 'enemyDataSrc'];
     }
     Warehouse.prototype = {
         constructor: Warehouse,
@@ -76,29 +80,39 @@ define(['util',
                 }
             }
         },
-        getConfig: function ( params ) {
-            var defer = $.Deferred();
-            if(!params.bulletDataSrc    ||
-                !params.bulletStyleSrc      ||
-                !params.planeDataSrc        ||
-                !params.itemDataSrc         ||
-                !params.toolDataSrc         ||
-                !params.missileDataSrc  ||
-                !params.audioDataSrc ){
-                throw Error('warehouse init: the attribute are not right!');
-            }
+        getEnemyByType: function ( type ) {
             var warehouse = this;
+            for(var i in warehouse){
+                var enemy = warehouse[i];
+                if(enemy.type == type){
+                    return util.copy(enemy);
+                }
+            }
+        },
+        getItemByName: function (name) {
+            var list = this.itemList;
+            for(var i in list){
+                if(list[i].name==name){
+                    return util.copy(list[i]);
+                }
+            }
+        },
+        getConfig: function ( params ) {
+            var defer = $.Deferred(),
+                warehouse = this,
+                needSrc = warehouse.needSrc;
 
-            warehouse.src = {
-                bulletDataSrc: params.bulletDataSrc,
-                bulletStyleSrc: params.bulletStyleSrc,
-                planeDataSrc: params.planeDataSrc,
-                itemDataSrc: params.itemDataSrc,
-                toolDataSrc: params.toolDataSrc,
-                missileDataSrc: params.missileDataSrc,
-                audioDataSrc: params.audioDataSrc
-            };
-            defer.resolve(this);
+            if(!util.paramInclude(needSrc, params)){
+                throw TypeError('warehouse init: the attribute are not right!');
+            }
+
+
+            for(var i in needSrc){
+                var str = needSrc[i];
+                warehouse.src[str] = params[str];
+            }
+
+            defer.resolve();
             return defer;
         },
         initBullet: function (bullet) {
@@ -218,18 +232,22 @@ define(['util',
                 }
             });
         },
-        getItemByName: function (name) {
-            var list = this.itemList;
-            for(var i in list){
-                if(list[i].name==name){
-                    return util.copy(list[i]);
+        initEnemy: function (  ) {
+            var warehouse = this;
+            return warehouse.getData(warehouse.src.enemyDataSrc).then(function ( data ) {
+                for(var i in data){
+                    var item = data[i];
+                    item.plane = warehouse.getPlaneByType(item.type);
+                    var enemy = new Enemy();
+                    enemy.init(item);
+                    warehouse.enemyList.push(enemy);
                 }
-            }
+            })
         },
         getData: function (src, callback) {
             var defer = $.Deferred();
             if(undefined == src){
-                throw Error('Warehouse getData: src is not defined!');
+                throw TypeError('Warehouse getData: src is not defined!');
             }
             console.log('开始获取：' + src);
             $.ajax({
@@ -246,7 +264,7 @@ define(['util',
                     }
                 },
                 error: function (error) {
-                    throw Error('获取失败:' + src);
+                    throw TypeError('获取失败:' + src);
                 }
             });
             return defer;
@@ -277,6 +295,9 @@ define(['util',
                 })
                 .then( function (  ) {
                     return warehouse.initMissile();
+                })
+                .then( function (  ) {
+                    return warehouse.initEnemy();
                 })
                 .then(function (  ) {
                     defer.resolve();
