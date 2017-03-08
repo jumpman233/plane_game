@@ -14,15 +14,14 @@ define(['warehouse',
         createEnemyPlane: function ( probability ) {
             if(Math.random()<probability){
                 var x = Math.random()*global.width;
-                var enemy = warehouse.getEnemyByType(2);
-                enemy.update();
+                var m = Math.floor(Math.random()*warehouse.enemyList.length) + 1;
+                var enemy = warehouse.getEnemyByType(m);
                 var plane = enemy.plane;
                 plane.shootTime = plane.shootRate;
                 plane.position.x = x;
                 plane.position.y = 0;
                 plane.direction = 180;
                 plane.canShoot = true;
-                plane.bulletStyle = warehouse.getBulletStyleByType(2);
                 plane.curBullet = 0;
             }
             return enemy;

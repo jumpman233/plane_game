@@ -6,4 +6,11 @@
     "speed": 20,
     "direction": 1,
 	"damage": 10
+},{
+	"type": 2,
+	"src": "img/bullet-1.png",
+	"height": 30,
+	"width": 30,
+	"direction": 1,
+	"damage": 10
 }]

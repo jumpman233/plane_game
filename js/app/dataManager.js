@@ -17,12 +17,12 @@ define(['util',
         constructor: DataManager,
         resolveBullet: function ( bullet ) {
             var manager = this;
-            if(!bullet || !bullet.parent || !bullet.parent.role){
+            if(!bullet || !bullet.parent){
                 throw TypeError('DataManager resolveBullet: param type error!')
             }
             if(bullet.parent.role == 'player'){
                 manager.player_bullets.push(bullet);
-            } else if(bullet.parent.role == 'enemy'){
+            } else{
                 manager.enemy_bullets.push(bullet);
             }
         },

@@ -237,7 +237,7 @@ define(['util',
             return warehouse.getData(warehouse.src.enemyDataSrc).then(function ( data ) {
                 for(var i in data){
                     var item = data[i];
-                    item.plane = warehouse.getPlaneByType(item.type);
+                    item.plane = warehouse.getPlaneByType(item.planeType);
                     var enemy = new Enemy();
                     enemy.init(item);
                     warehouse.enemyList.push(enemy);

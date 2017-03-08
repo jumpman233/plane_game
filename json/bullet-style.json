@@ -31,4 +31,14 @@
       "direction": 0
     }]
   ]
+},{
+  "type": 3,
+  "audioName": "shoot1",
+  "style": [
+    [{
+      "type": 2,
+      "speed": 10,
+      "direction": 0
+    }]
+  ]
 }]

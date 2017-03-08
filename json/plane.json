@@ -15,11 +15,22 @@
     "width": 50,
     "height": 50,
     "speed": 3,
-    "src": "img/LiPlane.png",
+    "src": "img/plane_1.png",
     "deadSrc": "img/dead.png",
     "deadAudioName": "dead1",
     "role": "enemy",
     "direction": 0,
     "shootRate": 40,
     "bulletType": 2
+},{
+    "type": "3",
+    "width": 150,
+    "height": 50,
+    "speed": 3,
+    "src": "img/plane_2.png",
+    "deadSrc": "img/dead.png",
+    "deadAudioName": "dead1",
+    "direction": 0,
+    "shootRate": 40,
+    "bulletType": 3
 }]

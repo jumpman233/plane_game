@@ -121,12 +121,12 @@ define(['position','global'],function ( Position, global ) {
         },
         isInCanvas: function ( obj ) {
             if(obj && obj.position && obj.position.x != null && obj.position.y != null){
-                var x = obj.position.x + obj.width / 2,
-                    y = obj.position.y + obj.height / 2;
-                return !(x - obj.width / 2 - global.width > 0       ||
-                x + obj.width / 2 < 0                           ||
-                y - obj.height / 2 - global.height > 0          ||
-                y + obj.height / 2 < 0);
+                var x = obj.position.x,
+                    y = obj.position.y;
+                return !(x - obj.width - global.width > 0   ||
+                x + obj.width < 0                           ||
+                y - obj.height - global.height > 0          ||
+                y + obj.height < 0);
             } else{
                 throw TypeError('util isInCanvas: param is not right!');
             }

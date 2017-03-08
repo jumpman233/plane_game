@@ -2,7 +2,12 @@
  * Created by lzh on 2017/3/7.
  */
 
-define(['behNode', 'behTree', 'util', 'flyObject', 'dataManager'],function ( behNode,  BehTree, util, FlyObject, dm) {
+define(['behNode',
+    'behTree',
+    'util',
+    'flyObject',
+    'dataManager',
+    'global'],function ( behNode,  BehTree, util, FlyObject, dm,global) {
     var Sequence = behNode.sequence,
         Selector = behNode.selector,
         Action = behNode.action,
@@ -18,6 +23,7 @@ define(['behNode', 'behTree', 'util', 'flyObject', 'dataManager'],function ( beh
         this.curHp = 0;
         this.patrolY = 0;
         this.isDead = false;
+        this.target = null;
 
         this.deadDuring = 10;
     }
@@ -65,6 +71,22 @@ define(['behNode', 'behTree', 'util', 'flyObject', 'dataManager'],function ( beh
             enemy.plane.shoot();
             return true;
         },
+        move: function( enemy ){
+            if(!enemy || !enemy.moveType) { throw TypeError('Enemy move(): param is not right!')}
+            switch (enemy.moveType){
+                case 'straight':
+                    Enemy.prototype.straightMove(enemy);
+                    break;
+                case 'patrol':
+                    Enemy.prototype.patrolMove(enemy);
+                    break;
+                case 'toTarget':
+                    Enemy.prototype.moveToTarget(enemy);
+                    break;
+                default:
+                    throw TypeError("Enemy move(): moveType is not found!");
+            }
+        },
         straightMove: function ( enemy ) {
             if(!enemy.plane) enemy.throwNoPlaneError();
 
@@ -93,8 +115,24 @@ define(['behNode', 'behTree', 'util', 'flyObject', 'dataManager'],function ( beh
                 enemy.curHp -= bullet.damage;
             }
         },
-        patrolMove: function (  ) {
-
+        patrolMove: function ( enemy ) {
+            var plane = enemy.plane;
+            var pos = plane.position;
+            if(enemy.patrolY == 0){
+                enemy.patrolY = Math.random() * global.height/4 + plane.height;
+                plane.toRight = (pos.x >= global.width/2)? 1 : -1;
+            }
+            if(pos.y + plane.speed < enemy.patrolY){
+                pos.y += plane.speed;
+            } else{
+                pos.y = enemy.patrolY;
+                if(pos.x + plane.width / 2 >= global.width ){
+                    plane.toRight = -1;
+                } else if(pos.x - plane.width / 2 <= 0){
+                    plane.toRight = 1;
+                }
+                pos.x += plane.speed * plane.toRight;
+            }
         },
         moveToTarget: function (  ) {
 
@@ -146,7 +184,7 @@ define(['behNode', 'behTree', 'util', 'flyObject', 'dataManager'],function ( beh
     // moveSel.addChild(retreatSeq);
     // moveSel.addChild(avoidSeq);
     moveSel.addChild(normalMove);
-    normalMove.act = Enemy.prototype.straightMove;
+    normalMove.act = Enemy.prototype.move;
 
     retreatSeq.addChild(retreatSel);
     retreatSeq.addChild(retreatAction);
