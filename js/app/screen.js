@@ -7,7 +7,9 @@ define(['util',
 'position',
 'dataManager',
 'player',
-'global'],function ( util, Warehouse, Position, dataManager, player, global ) {
+'global',
+'rect',
+'text'],function ( util, Warehouse, Position, dataManager, player, global, Rect, Text ) {
     function Screen(  ) {
         this.optWidth = 200;
         this.optHeight = 30;
@@ -71,24 +73,30 @@ define(['util',
         },
         drawMenuOption: function ( name, x, y, callback ) {
             var screen = this;
-            var context = screen.context;
-            var rectX = x - screen.optWidth/2;
-            var rectY = y - screen.optHeight/2-5;
-            context.strokeRect(rectX, rectY, screen.optWidth, screen.optHeight);
-            context.font = screen.optFont + "px Georgia";
-            context.fillText(name, x, y);
-            screen.options.push({
-                rectX: rectX,
-                rectY: rectY,
-                width: screen.optWidth,
-                height: screen.optHeight
-            });
+            var context = global.context;
+            var rect = new Rect();
+            var text = new Text();
+            rect.x = x - screen.optWidth/2;
+            rect.y = y - screen.optHeight/2;
+            rect.width = screen.optWidth;
+            rect.height = screen.optHeight;
+
+            text.fontSize = screen.optFont;
+            text.fontFamily = 'Georgia';
+            text.text = name;
+            text.x = x;
+            text.y = y + text.fontSize / 3;
+
+            rect.draw(context);
+            text.draw(context);
+
+            screen.options.push(rect);
             function menuMouseMove (event) {
                 var pos = util.getEventPosition(event);
                 var flag = false;
                 for(var i in screen.options){
                     var opt = screen.options[i];
-                    if(util.checkInRect(pos, opt.rectX, opt.rectY, opt.width, opt.height)){
+                    if(opt.isInclude(pos.x, pos.y)){
                         util.setCursor('pointer');
                         flag = true;
                         break;
@@ -100,7 +108,7 @@ define(['util',
             }
             function menuMouseDown ( event ) {
                 var pos = util.getEventPosition(event);
-                if(util.checkInRect(pos, rectX, rectY, screen.optWidth, screen.optHeight)){
+                if(rect.isInclude(pos.x, pos.y)){
                     screen.removeAllOptions();
                     for(var i in screen.optionsFunc){
                         var func = screen.optionsFunc[i];
