@@ -8,8 +8,8 @@ define(['graph', 'util'], function ( Graph, util ) {
         this.y = 0;
         this.width = 10;
         this.height = 10;
-        this.fillColor = '#000';
-        this.strokeColor = '#fff';
+        this.fillColor = '#fff';
+        this.strokeColor = '#333';
     }
     Rect.prototype = util.copy(Graph.prototype);
     Rect.prototype.constructor= Rect;

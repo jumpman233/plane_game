@@ -14,8 +14,9 @@ define(['jquery',
     'sound',
     'randomBuild',
     'intervalManager',
-    'loadAnimate'],
-    function ( jquery, util, Position,Screen, Warehouse, Player, GameEventHandler, global, dataManager ,sound, randomBuild, IntervalManager, loadAnimate) {
+    'loadAnimate',
+    'bkAnimate'],
+    function ( jquery, util, Position,Screen, Warehouse, Player, GameEventHandler, global, dataManager ,sound, randomBuild, IntervalManager, loadAnimate, bkAnimate) {
         'use strict';
 
         function PlaneGame(params) {
@@ -200,6 +201,9 @@ define(['jquery',
                             IntervalManager.setInterval(function (  ) {
                                 if(loadAnimate.removeLoad(context)){
                                     IntervalManager.removeInterval();
+                                    IntervalManager.setInterval(function (  ) {
+                                        bkAnimate(context);
+                                    }, 20);
                                     defer.resolve();
                                 }
                             }, 20);

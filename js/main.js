@@ -33,12 +33,13 @@ require.config({
         'ball': 'app/animate/ball',
         'rect': 'app/animate/rect',
         'graph': 'app/animate/graph',
-        'text': 'app/animate/text'
+        'text': 'app/animate/text',
+        'regularTriangle': 'app/animate/regularTriangle',
+        'bkAnimate': 'app/animate/bkAnimate'
     }
 });
 
-require(['planeGame','enemy'],function ( PlaneGame) {
-
+require(['planeGame','bkAnimate'],function ( PlaneGame, bkAnimate) {
     var config = {
         canvasElement: $('#myCanvas')[0],
         canvasId: 'myCanvas',
@@ -54,7 +55,8 @@ require(['planeGame','enemy'],function ( PlaneGame) {
         },
         fps: fps
     };
-    PlaneGame.getConfig(config);
+    // var context = $('#myCanvas')[0].getContext('2d');
+
     PlaneGame.init(config).then(function (  ) {
         PlaneGame.start();
     });

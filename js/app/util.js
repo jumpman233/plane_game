@@ -159,6 +159,15 @@ define(['position','global'],function ( Position, global ) {
             } else{
                 throw TypeError('util paramInclude(): params are not right!');
             }
+        },
+        resolveColor: function (  ) {
+            if(arguments.length == 3){
+                return 'rgba(' + arguments[0] + ',' + arguments[1] + ',' + arguments[2] + ',' + 1 + ')';
+            } else if(arguments.length == 4){
+                return 'rgba(' + arguments[0] + ',' + arguments[1] + ',' + arguments[2] + ',' + arguments[3] +')';
+            } else{
+                throw TypeError('util resolveColor(): params are not right!')
+            }
         }
     };
     return new GameUtil();

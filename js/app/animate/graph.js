@@ -15,7 +15,8 @@ define([], function (  ) {
         this.ay = 0;
         this.loss = 0;
         this.f = 0;
-        this.color = '#aaa';
+        this.color = '#333';
+        this.rotation = 0;
     }
     Graph.prototype = {
         constructor : Graph,
