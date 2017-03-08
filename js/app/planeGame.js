@@ -12,8 +12,10 @@ define(['jquery',
     'global',
     'dataManager',
     'sound',
-    'randomBuild'],
-    function ( jquery, util, Position,Screen, Warehouse, Player, GameEventHandler, global, dataManager ,sound, randomBuild) {
+    'randomBuild',
+    'intervalManager',
+    'loadAnimate'],
+    function ( jquery, util, Position,Screen, Warehouse, Player, GameEventHandler, global, dataManager ,sound, randomBuild, IntervalManager, loadAnimate) {
         'use strict';
 
         function PlaneGame(params) {
@@ -61,9 +63,6 @@ define(['jquery',
             },
             mainMenu:function () {
                 var game = this;
-                var context = global.context;
-                var width = global.width;
-                var height = global.height;
                 game.playing = false;
 
                 var startGameFunc = function (  ) {
@@ -71,11 +70,7 @@ define(['jquery',
                     util.setCursor('none');
                     game.test1();
                 };
-
-                context.font = "20px Georgia";
-                context.textAlign = 'center';
-                context.fillText("Fight In Sky",width/2,height/2-100);
-                Screen.drawMenuOption('Start Game', width/2,height/2, startGameFunc);
+                Screen.mainMenu(startGameFunc);
             },
             pause: function (  ) {
                 var game = this;
@@ -114,7 +109,8 @@ define(['jquery',
                     }
                 });
                 var fps = 50;
-                game.gaming = window.setInterval(function () {
+
+                var gameTest = function () {
                     if(game.isPause){
                         return;
                     }
@@ -141,7 +137,9 @@ define(['jquery',
                     },function (  ) {
                         game.gameOver();
                     });
-                }, 1000 / fps);
+                };
+
+                IntervalManager.setInterval(gameTest, 1000 / fps);
             },
             gameOver: function () {
                 var game = this;
@@ -162,6 +160,12 @@ define(['jquery',
                 var startTime = new Date().getTime();
 
                 var defer = $.Deferred();
+
+                var context = $('#' + config.canvasId)[0].getContext('2d');
+
+                IntervalManager.setInterval(function (  ) {
+                    loadAnimate.loading(context);
+                }, 30);
 
                 game.warehouse = Warehouse;
 
@@ -192,7 +196,13 @@ define(['jquery',
                         //if all the image and audio load is done ,the game's init is completed
                         game.ifInit(function (  ) {
                             console.log('all resource is loaded! cost '+(new Date().getTime()-startTime)+' ms');
-                            defer.resolve();
+                            IntervalManager.removeInterval();
+                            IntervalManager.setInterval(function (  ) {
+                                if(loadAnimate.removeLoad(context)){
+                                    IntervalManager.removeInterval();
+                                    defer.resolve();
+                                }
+                            }, 20);
                         });
                     });
 
@@ -206,7 +216,7 @@ define(['jquery',
                             window.clearInterval(interval);
                             func();
                         }
-                    }, 200);
+                    }, 500);
                 } else{
                     throw TypeError('planeGame ifInit(): param is not right!');
                 }

@@ -27,7 +27,13 @@ require.config({
         'randomBuild': 'app/randomBuild',
         'behTree': 'app/behTree',
         'behNode': 'app/behNode',
-        'enemy': 'app/enemy'
+        'enemy': 'app/enemy',
+        'intervalManager': 'app/intervalManager',
+        'loadAnimate': 'app/animate/loadAnimate',
+        'ball': 'app/animate/ball',
+        'rect': 'app/animate/rect',
+        'graph': 'app/animate/graph',
+        'text': 'app/animate/text'
     }
 });
 

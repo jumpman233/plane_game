@@ -55,8 +55,19 @@ define(['util',
             screen.drawMenuOption('Resume', width/2, height/2, resumeFunc);
             screen.drawMenuOption('Exit', width/2, height/2 + 50, exitFunc);
         },
-        mainMenu: function (  ) {
-            
+        mainMenu: function ( startGameFunc ) {
+            var screen = this;
+            var context = global.context;
+            var width = global.width;
+            var height = global.height;
+
+            context.clearRect(0, 0, global.width, global.height);
+
+            context.font = "20px Georgia";
+            context.textAlign = 'center';
+            context.fillText("Fight In Sky",width/2,height/2-100);
+
+            screen.drawMenuOption('Start Game', width/2,height/2, startGameFunc);
         },
         drawMenuOption: function ( name, x, y, callback ) {
             var screen = this;
