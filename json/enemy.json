@@ -1,7 +1,7 @@
 [{
   "type": 1,
   "planeType": 2,
-  "hp": 20,
+  "hp": 12,
   "speed": 3,
   "score": 10,
   "toolDrop": 0.1,
@@ -9,7 +9,7 @@
 },{
   "type": 2,
   "planeType": 3,
-  "hp": 20,
+  "hp": 200,
   "speed": 3,
   "score": 10,
   "toolDrop": 0.1,

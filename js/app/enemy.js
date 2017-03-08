@@ -7,7 +7,8 @@ define(['behNode',
     'util',
     'flyObject',
     'dataManager',
-    'global'],function ( behNode,  BehTree, util, FlyObject, dm,global) {
+    'global',
+    'sound'],function ( behNode,  BehTree, util, FlyObject, dm, global, sound) {
     var Sequence = behNode.sequence,
         Selector = behNode.selector,
         Action = behNode.action,
@@ -59,17 +60,41 @@ define(['behNode',
             }
             enemy.plane.img = enemy.plane.deadImg;
         },
-        retreatCond: function (  ) {
-            return this.curHp <= this.hp / 4;
+        ifRetreat: function ( enemy ) {
+            return enemy.curHp <= enemy.hp / 4;
         },
-        avoid: function (  ) {
+        retreat: function ( enemy ) {
+            if(!enemy || !enemy.plane) enemy.throwNoPlaneError();
+
+            var plane = enemy.plane;
+            switch (enemy.moveType){
+                case 'straight':
+                    plane.speed += 0.2;
+                    Enemy.prototype.straightMove(enemy);
+                    break;
+                case 'patrol':
+                    var dy = plane.position.y,
+                        dx_r = plane.position.x,
+                        dx_l = global.width - plane.position.x;
+                    if(dy <= dx_l && dy <= dx_r){
+                        plane.position.y -= plane.speed;
+                    } else if(dx_l <= dy && dx_l <= dx_r){
+                        plane.position.x -= plane.speed;
+                    } else if(dx_r <= dy && dx_r <= dx_l){
+                        plane.position.x += plane.speed;
+                    }
+                    break;
+            }
+        },
+        avoid: function ( enemy ) {
+            if(!enemy || !enemy.plane) enemy.throwNoPlaneError();
+
 
         },
         attack: function ( enemy ) {
             if(!enemy.plane) enemy.throwNoPlaneError();
 
             enemy.plane.shoot();
-            return true;
         },
         move: function( enemy ){
             if(!enemy || !enemy.moveType) { throw TypeError('Enemy move(): param is not right!')}
@@ -115,6 +140,8 @@ define(['behNode',
                 enemy.curHp -= bullet.damage;
             }
         },
+        //if the enemy's move type is 'patrol', when its first move, its patrolY would be init.
+        //and it will move straight to patrolY until it arrives, and then, it will move horizontal
         patrolMove: function ( enemy ) {
             var plane = enemy.plane;
             var pos = plane.position;
@@ -177,22 +204,23 @@ define(['behNode',
     mainSeq.addChild(moveSel);
     mainSeq.addChild(getShotSeq);
 
-    atkSeq.addChild(atkCdCond);
-    // atkSeq.addChild(atkAction);
-    atkCdCond.cond = Enemy.prototype.attack;
+    atkSeq.addChild(atkAction);
+    atkAction.act = Enemy.prototype.attack;
 
-    // moveSel.addChild(retreatSeq);
+    moveSel.addChild(retreatSeq);
     // moveSel.addChild(avoidSeq);
     moveSel.addChild(normalMove);
     normalMove.act = Enemy.prototype.move;
 
-    retreatSeq.addChild(retreatSel);
+    retreatSeq.addChild(retreatHpCond);
     retreatSeq.addChild(retreatAction);
 
-    retreatSel.addChild(retreatHpCond);
+    retreatHpCond.cond = Enemy.prototype.ifRetreat;
+    retreatAction.act = Enemy.prototype.retreat;
 
     avoidSeq.addChild(avoidSel);
     avoidSeq.addChild(avoidAction);
+
     avoidSel.addChild(avoidCond);
 
     getShotSeq.addChild(getShotCond);
