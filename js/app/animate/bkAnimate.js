@@ -4,6 +4,7 @@
 
 define(['regularTriangle', 'util'], function ( Triangle, util ) {
     var shapeList = [],
+        max_speed = 10,
         speed = 1,
         width = 0,
         height = 0,
@@ -45,7 +46,7 @@ define(['regularTriangle', 'util'], function ( Triangle, util ) {
         frameNum++;
         //the origin state
         if(shapeList.length == 0 && !isInit){
-            speed = 10;
+            speed = max_speed;
             width = ctx.canvas.width;
             height = ctx.canvas.height;
             max_x_l = 0;
@@ -69,8 +70,10 @@ define(['regularTriangle', 'util'], function ( Triangle, util ) {
             shape.move();
             if(!shape.isInBound(ctx) && shape.y < height){
                 shapeList.splice(i, 1);
-                speed = 1;
-                finishInit = true;
+                if(!finishInit){
+                    speed = 1;
+                    finishInit = true;
+                }
             }
         }
         if(shapeList.length == 0 && isInit){
@@ -82,7 +85,7 @@ define(['regularTriangle', 'util'], function ( Triangle, util ) {
         draw: draw,
         remove: function (  ) {
             removing = true;
-            speed = 5;
+            speed = max_speed;
         },
         isRemoved: function (  ) {
             return removed;

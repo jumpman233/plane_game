@@ -12,7 +12,9 @@ define(['util',
 'text',
 'intervalManager',
 'menuAnimate',
-'bkAnimate'],function ( util, Warehouse, Position, dataManager, player, global, Rect, Text, IM,menuAnimate,bkAnimate ) {
+'bkAnimate',
+'hardAnimate',
+'ballBkAnimate'],function ( util, Warehouse, Position, dataManager, player, global, Rect, Text, IM,menuAnimate,bkAnimate, hardAnimate, ballBkAnimate ) {
     function Screen(  ) {
         this.optWidth = 200;
         this.optHeight = 30;
@@ -59,16 +61,43 @@ define(['util',
             screen.drawMenuOption('Resume', width/2, height/2, resumeFunc);
             screen.drawMenuOption('Exit', width/2, height/2 + 50, exitFunc);
         },
-        mainMenu: function ( startGameFunc ) {
+        mainMenu: function ( params ) {
+            if(!params || !params.startGame){
+                throw  TypeError('Screen mainMenu(): params are not right!');
+            }
+
             var screen = this,
                 width = global.width,
-                height = global.height;
+                height = global.height,
+                defer = $.Deferred();
 
+            var clickEvent = function (  ) {
+                screen
+                    .removeMainMenu()
+                    .then(function (  ) {
+                        defer.resolve(params.startGame);
+                    });
+            };
             screen
                 .drawMainMenu()
                 .then(function (  ) {
-                    screen.addOptionEvent(width/2, height/2 , startGameFunc);
+                    screen.setOptionEvent(width/2, height/2 , clickEvent);
                 });
+            return defer;
+        },
+        hardMenu: function ( params ) {
+            if(!params || !params.easy || !params.medium || !params.hard || !params.hell){
+                throw  TypeError('Screen hardMenu(): params are not right!');
+            }
+            IM.clearIntervalList();
+            hardAnimate.init(global.context);
+            ballBkAnimate.init(global.context);
+
+            IM.addInterval(function (  ) {
+                global.clearRect();
+                hardAnimate.draw();
+                ballBkAnimate.draw();
+            });
         },
         drawMainMenu: function (  ) {
             var defer = $.Deferred();
@@ -88,8 +117,10 @@ define(['util',
             var defer = $.Deferred();
 
             menuAnimate.mainMenu.remove();
+            bkAnimate.remove();
+
             var inter = function (  ) {
-                if(menuAnimate.mainMenu.isRemoved()){
+                if(menuAnimate.mainMenu.isRemoved() && bkAnimate.isRemoved()){
                     IM.removeInterval(inter);
                     defer.resolve();
                 }
@@ -98,9 +129,13 @@ define(['util',
             IM.addInterval(inter);
             return defer;
         },
-        addOptionEvent: function ( x, y, callback ) {
+        setOptionEvent: function ( x, y, callback ) {
+            if(typeof callback !== 'function'){
+                throw TypeError('Screen setOptionEvent(): params are not right!');
+            }
             var rect = new Rect(),
-                screen = this;
+                screen = this,
+                defer = $.Deferred();
 
             rect.x = x - screen.optWidth/2;
             rect.y = y - screen.optHeight/2;
@@ -129,16 +164,16 @@ define(['util',
                 var pos = util.getEventPosition(event);
                 if(rect.isInclude(pos.x, pos.y)){
                     screen.removeAllOptions();
-                    screen.removeMainMenu().then(function (  ) {
-                        console.log("!");
-                        callback();
-                    });
+                    util.setCursor('default');
+                    callback();
                 }
             }
             screen.optionsFunc.push(menuMouseMove);
             screen.optionsFunc.push(menuMouseDown);
             global.canvasElement.addEventListener('mousemove',menuMouseMove,false);
             global.canvasElement.addEventListener('mousedown', menuMouseDown, false);
+
+            return defer;
         },
         drawMenuOption: function ( name, x, y ) {
             var screen = this;

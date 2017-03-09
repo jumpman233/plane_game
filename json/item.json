@@ -6,4 +6,16 @@
 },{
   "name": "background",
   "src": "img/background1.jpg"
+},{
+  "name": "easy-cloud",
+  "src": "img/cloud-1.png"
+},{
+  "name": "mid-cloud",
+  "src": "img/cloud-2.png"
+},{
+  "name": "hard-cloud",
+  "src": "img/cloud-3.png"
+},{
+  "name": "hell-cloud",
+  "src": "img/cloud-4.png"
 }]

@@ -168,6 +168,9 @@ define(['position','global'],function ( Position, global ) {
             } else{
                 throw TypeError('util resolveColor(): params are not right!')
             }
+        },
+        randomPN: function (  ) {
+            return (Math.random() > 0.5 ? 1 : -1);
         }
     };
     return new GameUtil();

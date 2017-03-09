@@ -26,7 +26,7 @@ define(['graph', 'util'], function ( Graph, util ) {
             ball = this,
             x = ball.x,
             y = ball.y;
-        return x + ball.radius / 2 <= width && x - ball.radius / 2 >= 0&& y + ball.radius <= height && y - ball.radius >= 0;
+        return x - ball.radius / 2 <= width && x + ball.radius / 2 >= 0&& y - ball.radius <= height && y + ball.radius >= 0;
     };
 
     return Ball;

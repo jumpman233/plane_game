@@ -36,7 +36,10 @@ require.config({
         'text': 'app/animate/text',
         'regularTriangle': 'app/animate/regularTriangle',
         'bkAnimate': 'app/animate/bkAnimate',
-        'menuAnimate': 'app/animate/menuAnimate'
+        'menuAnimate': 'app/animate/menuAnimate',
+        'hardAnimate': 'app/animate/hardAnimate',
+        'aniImage': 'app/animate/aniImage',
+        'ballBkAnimate': 'app/animate/ballBkAnimate'
     }
 });
 

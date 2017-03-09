@@ -65,18 +65,26 @@ define(['jquery',
             },
             mainMenu:function () {
                 var game = this;
-                game.playing = false;
 
-                var startGameFunc = function (  ) {
-                    game.playing = true;
-                    util.setCursor('none');
-                    game.test1();
-                };
-
-                // IntervalManager.addInterval(function (  ) {
-                //     bkAnimate(global.context);
-                // });
-                Screen.mainMenu(startGameFunc);
+                Screen
+                    .mainMenu({
+                        startGame: 'start'
+                    })
+                    .then(function ( name ) {
+                        if(name == 'start'){
+                            game.hardChoose();
+                        }
+                    });
+            },
+            hardChoose: function (  ) {
+                var game = this;
+                Screen
+                    .hardMenu({
+                        easy: 'easy',
+                        medium: 'medium',
+                        hard: 'hard',
+                        hell: 'hell'
+                    })
             },
             pause: function (  ) {
                 var game = this;
