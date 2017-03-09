@@ -10,6 +10,9 @@ define([],function () {
         this.context = null;
         this.width = 0;
         this.height = 0;
+        this.optWidth = 200;
+        this.optHeight = 30;
+        this.optFont = 16;
     }
     Global.prototype = {
         constructor: Global,
@@ -23,6 +26,11 @@ define([],function () {
             }
             defer.resolve();
             return defer;
+        },
+        clearRect: function (  ) {
+            if(this.context){
+                this.context.clearRect(0, 0, this.width, this.height);
+            }
         }
     };
 

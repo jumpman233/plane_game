@@ -15,8 +15,9 @@ define(['jquery',
     'randomBuild',
     'intervalManager',
     'loadAnimate',
-    'bkAnimate'],
-    function ( jquery, util, Position,Screen, Warehouse, Player, GameEventHandler, global, dataManager ,sound, randomBuild, IntervalManager, loadAnimate, bkAnimate) {
+    'bkAnimate',
+    'menuAnimate'],
+    function ( jquery, util, Position,Screen, Warehouse, Player, GameEventHandler, global, dataManager ,sound, randomBuild, IntervalManager, loadAnimate, bkAnimate, menuAnimate) {
         'use strict';
 
         function PlaneGame(params) {
@@ -71,6 +72,10 @@ define(['jquery',
                     util.setCursor('none');
                     game.test1();
                 };
+
+                // IntervalManager.addInterval(function (  ) {
+                //     bkAnimate(global.context);
+                // });
                 Screen.mainMenu(startGameFunc);
             },
             pause: function (  ) {
@@ -104,6 +109,11 @@ define(['jquery',
                 game.playing = true;
                 game.isPause = false;
                 sound.playBackgroundMusic();
+                IntervalManager.clearIntervalList();
+                IntervalManager.addInterval(function (  ) {
+                    global.clearRect();
+                    bkAnimate.draw(global.context);
+                });
                 GameEventHandler.keydown(function ( e ) {
                     if(e.keyCode == 27 && !game.isPause){
                         game.pause();
@@ -140,7 +150,7 @@ define(['jquery',
                     });
                 };
 
-                IntervalManager.setInterval(gameTest, 1000 / fps);
+                IntervalManager.addInterval(gameTest, 1000 / fps);
             },
             gameOver: function () {
                 var game = this;
@@ -156,17 +166,25 @@ define(['jquery',
                 game.isPause = true;
             },
             init: function (config) {
-                var game = this;
+                var game = this,
+                    startTime = new Date().getTime(),
+                    defer = $.Deferred(),
+                    context = $('#' + config.canvasId)[0].getContext('2d');
 
-                var startTime = new Date().getTime();
+                var loading = function (  ) {
+                    loadAnimate.draw(context);
+                };
 
-                var defer = $.Deferred();
+                var removeLoad = function (  ) {
+                    loadAnimate.remove(context);
+                    if(loadAnimate.isRemoved()){
+                        IntervalManager.clearIntervalList();
+                        defer.resolve();
+                    }
+                };
 
-                var context = $('#' + config.canvasId)[0].getContext('2d');
-
-                IntervalManager.setInterval(function (  ) {
-                    loadAnimate.loading(context);
-                }, 30);
+                IntervalManager.start(20);
+                IntervalManager.addInterval(loading, 30);
 
                 game.warehouse = Warehouse;
 
@@ -178,6 +196,7 @@ define(['jquery',
                          });
                     })
                     .then(function (  ) {
+                        menuAnimate.init();
                         return Warehouse.init(game.src);
                     })
                     .then(function (  ) {
@@ -197,16 +216,8 @@ define(['jquery',
                         //if all the image and audio load is done ,the game's init is completed
                         game.ifInit(function (  ) {
                             console.log('all resource is loaded! cost '+(new Date().getTime()-startTime)+' ms');
-                            IntervalManager.removeInterval();
-                            IntervalManager.setInterval(function (  ) {
-                                if(loadAnimate.removeLoad(context)){
-                                    IntervalManager.removeInterval();
-                                    IntervalManager.setInterval(function (  ) {
-                                        bkAnimate(context);
-                                    }, 20);
-                                    defer.resolve();
-                                }
-                            }, 20);
+                            IntervalManager.removeInterval(loading);
+                            IntervalManager.addInterval(removeLoad);
                         });
                     });
 

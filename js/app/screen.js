@@ -9,7 +9,10 @@ define(['util',
 'player',
 'global',
 'rect',
-'text'],function ( util, Warehouse, Position, dataManager, player, global, Rect, Text ) {
+'text',
+'intervalManager',
+'menuAnimate',
+'bkAnimate'],function ( util, Warehouse, Position, dataManager, player, global, Rect, Text, IM,menuAnimate,bkAnimate ) {
     function Screen(  ) {
         this.optWidth = 200;
         this.optHeight = 30;
@@ -41,7 +44,6 @@ define(['util',
             }
             screen.optionsFunc = [];
             screen.options = [];
-            console.log(screen.optionsFunc);
         },
         pauseMenu: function ( resumeFunc, exitFunc ) {
             var screen = this;
@@ -58,20 +60,87 @@ define(['util',
             screen.drawMenuOption('Exit', width/2, height/2 + 50, exitFunc);
         },
         mainMenu: function ( startGameFunc ) {
-            var screen = this;
-            var context = global.context;
-            var width = global.width;
-            var height = global.height;
+            var screen = this,
+                width = global.width,
+                height = global.height;
 
-            context.clearRect(0, 0, global.width, global.height);
-
-            context.font = "20px Georgia";
-            context.textAlign = 'center';
-            context.fillText("Fight In Sky",width/2,height/2-100);
-
-            screen.drawMenuOption('Start Game', width/2,height/2, startGameFunc);
+            screen
+                .drawMainMenu()
+                .then(function (  ) {
+                    screen.addOptionEvent(width/2, height/2 , startGameFunc);
+                });
         },
-        drawMenuOption: function ( name, x, y, callback ) {
+        drawMainMenu: function (  ) {
+            var defer = $.Deferred();
+            var draw = function (  ) {
+                global.clearRect();
+                bkAnimate.draw(global.context);
+                menuAnimate.mainMenu.draw(global.context);
+                if(menuAnimate.mainMenu.complete()){
+                    defer.resolve();
+                }
+            };
+
+            IM.addInterval(draw);
+            return defer;
+        },
+        removeMainMenu: function (  ) {
+            var defer = $.Deferred();
+
+            menuAnimate.mainMenu.remove();
+            var inter = function (  ) {
+                if(menuAnimate.mainMenu.isRemoved()){
+                    IM.removeInterval(inter);
+                    defer.resolve();
+                }
+            };
+
+            IM.addInterval(inter);
+            return defer;
+        },
+        addOptionEvent: function ( x, y, callback ) {
+            var rect = new Rect(),
+                screen = this;
+
+            rect.x = x - screen.optWidth/2;
+            rect.y = y - screen.optHeight/2;
+            rect.width = screen.optWidth;
+            rect.height = screen.optHeight;
+
+            screen.options.push(rect);
+
+            function menuMouseMove (event) {
+                var pos = util.getEventPosition(event);
+                var flag = false;
+                for(var i in screen.options){
+                    var opt = screen.options[i];
+                    if(opt.isInclude(pos.x, pos.y)){
+                        util.setCursor('pointer');
+                        flag = true;
+                        break;
+                    }
+                }
+                if(!flag){
+                    util.setCursor('default');
+                }
+            }
+
+            function menuMouseDown ( event ) {
+                var pos = util.getEventPosition(event);
+                if(rect.isInclude(pos.x, pos.y)){
+                    screen.removeAllOptions();
+                    screen.removeMainMenu().then(function (  ) {
+                        console.log("!");
+                        callback();
+                    });
+                }
+            }
+            screen.optionsFunc.push(menuMouseMove);
+            screen.optionsFunc.push(menuMouseDown);
+            global.canvasElement.addEventListener('mousemove',menuMouseMove,false);
+            global.canvasElement.addEventListener('mousedown', menuMouseDown, false);
+        },
+        drawMenuOption: function ( name, x, y ) {
             var screen = this;
             var context = global.context;
             var rect = new Rect();
@@ -89,40 +158,6 @@ define(['util',
 
             rect.draw(context);
             text.draw(context);
-
-            screen.options.push(rect);
-            function menuMouseMove (event) {
-                var pos = util.getEventPosition(event);
-                var flag = false;
-                for(var i in screen.options){
-                    var opt = screen.options[i];
-                    if(opt.isInclude(pos.x, pos.y)){
-                        util.setCursor('pointer');
-                        flag = true;
-                        break;
-                    }
-                }
-                if(!flag){
-                    util.setCursor('default');
-                }
-            }
-            function menuMouseDown ( event ) {
-                var pos = util.getEventPosition(event);
-                if(rect.isInclude(pos.x, pos.y)){
-                    screen.removeAllOptions();
-                    for(var i in screen.optionsFunc){
-                        var func = screen.optionsFunc[i];
-                        if(func == menuMouseDown || func == menuMouseMove){
-                            screen.optionsFunc.splice(i,1);
-                        }
-                    }
-                    callback();
-                }
-            }
-            screen.optionsFunc.push(menuMouseMove);
-            screen.optionsFunc.push(menuMouseDown);
-            global.canvasElement.addEventListener('mousemove',menuMouseMove,false);
-            global.canvasElement.addEventListener('mousedown', menuMouseDown, false);
         },
         drawScore: function () {
             var screen = this;
@@ -188,9 +223,7 @@ define(['util',
 
         draw: function () {
             var screen = this;
-            global.context.clearRect(0,0,screen.width,screen.height);
-
-            screen.drawFightBk();
+            // screen.drawFightBk();
             screen.drawScore();
             screen.drawLife();
 

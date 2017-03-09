@@ -4,6 +4,7 @@
 
 define(['graph', 'util'], function ( Graph, util ) {
     function Rect(  ) {
+        Graph.apply(this, arguments);
         this.x = 0;
         this.y = 0;
         this.width = 10;
@@ -19,6 +20,14 @@ define(['graph', 'util'], function ( Graph, util ) {
         ctx.translate(rect.x, rect.y);
         ctx.fillStyle = rect.fillColor;
         ctx.strokeStyle = rect.strokeColor;
+
+        ctx.shadowColor = "#333"; // string
+        //Color of the shadow;  RGB, RGBA, HSL, HEX, and other inputs are valid.
+        ctx.shadowOffsetX = 0; // integer
+        //Horizontal distance of the shadow, in relation to the text.
+        ctx.shadowOffsetY = 0; // integer
+        //Vertical distance of the shadow, in relation to the text.
+        ctx.shadowBlur = 20;
         ctx.fillRect(0, 0, rect.width, rect.height);
         ctx.strokeRect(0, 0, rect.width, rect.height);
         ctx.restore();

@@ -8,27 +8,46 @@
 define([], function (  ) {
     function IntervalManager(  ) {
         this.interval = null;
+        this.interList = [];
     }
 
-    IntervalManager.prototype.setInterval = function ( func, frame ) {
-        if(this.ifInterRunning()){
-            throw Error('IntervalManager setInterval: interval is running!');
+    IntervalManager.prototype.addInterval = function ( func ) {
+        if(typeof func == 'function'){
+            this.interList.push(func);
         } else{
-            if(typeof func == 'function' && typeof frame == 'number'){
-                this.interval = window.setInterval(func, frame);
-            } else{
-                throw TypeError('IntervalManager setInterval(): params are not right!');
+            throw TypeError('IntervalManager addInterval(): param is not right!');
+        }
+    };
+    IntervalManager.prototype.removeInterval = function ( func ) {
+        if(!func) return;
+
+        for(var i in this.interList){
+            if(func == this.interList[i]){
+                this.interList.splice(i, 1);
+                return true;
             }
         }
+        return false;
     };
-    IntervalManager.prototype.removeInterval = function (  ) {
-        if(typeof this.interval == 'number'){
-            window.clearInterval(this.interval);
-            this.interval = null;
+    IntervalManager.prototype.clearIntervalList = function (  ) {
+        this.interList = [];
+    };
+    IntervalManager.prototype.start = function ( fps ) {
+        var im = this;
+        if(!fps){
+            fps = 20;
         }
+
+        var interFunc = function (  ) {
+            for(var i in im.interList){
+                im.interList[i]();
+            }
+        };
+
+        im.interval = window.setInterval(interFunc, fps)
     };
-    IntervalManager.prototype.ifInterRunning = function (  ) {
-        return this.interval != null;
+    IntervalManager.prototype.stop = function (  ) {
+        window.clearInterval(this.interval);
     };
 
     return new IntervalManager();

@@ -35,7 +35,8 @@ require.config({
         'graph': 'app/animate/graph',
         'text': 'app/animate/text',
         'regularTriangle': 'app/animate/regularTriangle',
-        'bkAnimate': 'app/animate/bkAnimate'
+        'bkAnimate': 'app/animate/bkAnimate',
+        'menuAnimate': 'app/animate/menuAnimate'
     }
 });
 

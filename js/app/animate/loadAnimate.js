@@ -18,7 +18,8 @@ define(['ball', 'text'],function ( Ball , Text) {
         frame = 0,
         angle = 0,
         x = 0,
-        y = 0;
+        y = 0,
+        removed = false;
 
     //for remove function
     b1.vy = - (Math.random() * 10 + 5);
@@ -37,9 +38,6 @@ define(['ball', 'text'],function ( Ball , Text) {
         text.x = context.canvas.width / 2;
         text.y = context.canvas.height / 2 + 60;
         frame++;
-        context.clearRect(0,0, x*2, y*2);
-        b1.draw(context);
-        b2.draw(context);
 
         b1.x = x + Math.sin(angle) * 40;
         b2.x = x - Math.sin(angle) * 40;
@@ -51,6 +49,10 @@ define(['ball', 'text'],function ( Ball , Text) {
         for(var i = 0; i < pointNum; i++){
             text.text += '.';
         }
+
+        context.clearRect(0,0, x*2, y*2);
+        b1.draw(context);
+        b2.draw(context);
         text.draw(context);
 
         text.text = 'Loading';
@@ -63,6 +65,7 @@ define(['ball', 'text'],function ( Ball , Text) {
         }
         angle += 0.1;
     };
+
     var removeLoading = function ( context ) {
         context.clearRect(0, 0, context.canvas.width, context.canvas.height);
         text.draw(context);
@@ -71,10 +74,16 @@ define(['ball', 'text'],function ( Ball , Text) {
         text.move();
         b1.move();
         b2.move();
-        return !text.isInBound(context) && !b1.isInBound(context) && !b2.isInBound(context);
+        if(!text.isInBound(context) && !b1.isInBound(context) && !b2.isInBound(context)){
+            removed = true;
+        }
     };
+
     return {
-        loading: drawLoading,
-        removeLoad: removeLoading
+        draw: drawLoading,
+        remove: removeLoading,
+        isRemoved: function (  ) {
+            return removed;
+        }
     };
 });

@@ -15,14 +15,15 @@ define(['regularTriangle', 'util'], function ( Triangle, util ) {
         createCd = 0,
         isInit = false,
         finishInit = false,
-        baseColor = 70;
+        baseColor = 70,
+        removing = false,
+        removed = false;
 
     var createTr = function ( baseX ) {
         var tr = new Triangle();
         var randomColor = Math.floor(baseColor + Math.random() * 128);
         tr.len = Math.random() * 30 + base_len;
-        tr.color = util.resolveColor(randomColor, randomColor, randomColor);
-        // tr.color = 'rgba(255,255,1,1)';
+        tr.color = util.resolveColor(randomColor, randomColor, randomColor, Math.floor((Math.random()*0.5 + 0.5)*10) / 10);
         tr.rotation = Math.random() * Math.PI * 2;
         tr.x = Math.random() * max_x_w + baseX;
         tr.y = height + tr.len;
@@ -32,11 +33,19 @@ define(['regularTriangle', 'util'], function ( Triangle, util ) {
         return tr;
     };
 
+    var reset = function (  ) {
+        isInit = false;
+        finishInit = false;
+        removing = false;
+        removed = false;
+        shapeList = [];
+    };
+
     var draw = function ( ctx ) {
         frameNum++;
         //the origin state
         if(shapeList.length == 0 && !isInit){
-            speed = 5;
+            speed = 10;
             width = ctx.canvas.width;
             height = ctx.canvas.height;
             max_x_l = 0;
@@ -47,13 +56,11 @@ define(['regularTriangle', 'util'], function ( Triangle, util ) {
             createCd = base_len / speed;
             isInit = true;
         }
-        if(createCd-- <= 0){
+        if(createCd-- <= 0 && !removing){
             shapeList.push(createTr(max_x_l));
             shapeList.push(createTr(max_x_r));
             createCd = base_len / speed;
         }
-
-        ctx.clearRect(0, 0, width, height);
 
         for(var i in shapeList){
             var shape = shapeList[i];
@@ -66,8 +73,20 @@ define(['regularTriangle', 'util'], function ( Triangle, util ) {
                 finishInit = true;
             }
         }
-        return finishInit;
+        if(shapeList.length == 0 && isInit){
+            removed = true;
+        }
     };
 
-    return draw;
+    return {
+        draw: draw,
+        remove: function (  ) {
+            removing = true;
+            speed = 5;
+        },
+        isRemoved: function (  ) {
+            return removed;
+        },
+        reset: reset
+    };
 });

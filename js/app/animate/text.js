@@ -9,7 +9,7 @@ define(['graph', 'util'], function ( Graph, util ) {
         this.fontSize = '20';
         this.fontFamily = 'Tahoma Arial';
         this.textAlign = 'center';
-        this.color = '#aaa';
+        this.color = '#444';
         this.text = '';
     }
 
