@@ -20,20 +20,35 @@ define(['warehouse', 'aniImage', 'util', 'text', 'global'], function ( warehouse
         isInit = false,
         removed = false,
         removing = false,
-        complete = false,
+        easyClick = null,
+        midClick = null,
+        hardClick = null,
+        hellClick = null,
         x1, x2, x3, x4,
         y1, y2, y3, y4;
 
-    var init = function ( ctx ) {
-        if(!ctx){
+    var init = function ( ctx, easyCall, midCall, hardCall, hellCall ) {
+        if(!ctx ||
+            typeof easyCall !== 'function' ||
+            typeof midCall !== 'function' ||
+            typeof hardCall !== 'function' ||
+            typeof hellCall !== 'function'){
+
             throw TypeError('HardAnimation init(): param is not right!');
         }
 
         context = ctx;
+        easyClick = easyCall;
+        midClick = midCall;
+        hardClick = hardCall;
+        hellClick = hellCall;
         width = context.canvas.width;
         height = context.canvas.height;
         imgWidth = width / 10;
         imgHeight = imgWidth * 2 / 3;
+
+        context.canvas.addEventListener('mousedown', mouseClick);
+        context.canvas.addEventListener('mousemove', mouseMove);
 
         easyImg = new AniImage(warehouse.getItemByName('easy-cloud').img, imgWidth, imgHeight);
         midImg = new AniImage(warehouse.getItemByName('mid-cloud').img, imgWidth, imgHeight);
@@ -122,14 +137,65 @@ define(['warehouse', 'aniImage', 'util', 'text', 'global'], function ( warehouse
         midText.draw(context);
         hardText.draw(context);
         hellText.draw(context);
+
+        if(easyImg.isInBound(context) && midImg.isInBound(context) &&
+        hardImg.isInBound(context) && hellImg.isInBound(context)){
+            removed = true;
+        }
     };
 
     var remove = function (  ) {
+        y3 = y4 = height + imgHeight * 2;
+        y1 = y2 = -imgHeight * 2;
+        removing = true;
+    };
 
+    var mouseMove = function ( event ) {
+        var pos = util.getEventPosition(event);
+
+        if(easyImg.isInclude(pos.x, pos.y) ||
+        midImg.isInclude(pos.x, pos.y) ||
+        hardImg.isInclude(pos.x, pos.y) ||
+        hellImg.isInclude(pos.x, pos.y)){
+            util.setCursor('pointer');
+        } else{
+            util.setCursor('default');
+        }
+    };
+
+    var mouseClick = function ( event ) {
+        var pos = util.getEventPosition(event);
+
+        if(easyImg.isInclude(pos.x, pos.y)){
+            easyClick();
+            util.setCursor('default');
+        }
+        if(midImg.isInclude(pos.x, pos.y)){
+            midClick();
+            util.setCursor('default');
+        }
+        if(hardImg.isInclude(pos.x, pos.y)){
+            hardClick();
+            util.setCursor('default');
+        }
+        if(hellImg.isInclude(pos.x, pos.y)){
+            hellClick();
+            util.setCursor('default');
+        }
+    };
+
+    var removeEvent = function (  ) {
+        context.canvas.removeEventListener('mousemove', mouseMove);
+        context.canvas.removeEventListener('mousedown', mouseClick);
     };
 
     return {
         init: init,
-        draw: draw
+        draw: draw,
+        remove: remove,
+        isRemoved: function (  ) {
+            return removed;
+        },
+        removeEvent: removeEvent
     }
 });

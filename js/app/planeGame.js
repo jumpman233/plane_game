@@ -65,6 +65,7 @@ define(['jquery',
             },
             mainMenu:function () {
                 var game = this;
+                sound.playBackgroundMusic();
 
                 Screen
                     .mainMenu({
@@ -84,6 +85,9 @@ define(['jquery',
                         medium: 'medium',
                         hard: 'hard',
                         hell: 'hell'
+                    })
+                    .then(function ( hard ) {
+                        game.test1();
                     })
             },
             pause: function (  ) {
@@ -116,12 +120,10 @@ define(['jquery',
                 var game = this;
                 game.playing = true;
                 game.isPause = false;
-                sound.playBackgroundMusic();
-                IntervalManager.clearIntervalList();
-                IntervalManager.addInterval(function (  ) {
-                    global.clearRect();
-                    bkAnimate.draw(global.context);
-                });
+                // IntervalManager.addInterval(function (  ) {
+                //     global.clearRect();
+                //     bkAnimate.draw(global.context);
+                // });
                 GameEventHandler.keydown(function ( e ) {
                     if(e.keyCode == 27 && !game.isPause){
                         game.pause();
@@ -133,6 +135,7 @@ define(['jquery',
                     if(game.isPause){
                         return;
                     }
+                    global.clearRect();
 
                     var plane = randomBuild.createEnemyPlane(1/fps/2);
                     var missile = randomBuild.createMissile(1/fps/10);
@@ -158,6 +161,7 @@ define(['jquery',
                     });
                 };
 
+                IntervalManager.clearIntervalList();
                 IntervalManager.addInterval(gameTest, 1000 / fps);
             },
             gameOver: function () {

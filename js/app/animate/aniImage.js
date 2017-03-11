@@ -29,7 +29,7 @@ define(['graph', 'util'], function ( Graph, util ) {
     AniImage.prototype.isInclude = function ( x, y ) {
         var img = this;
         return img.x - img.width / 2 <= x && img.x + img.width / 2 >= x &&
-                img.y -img.height / 2 <= y && img.y + img.height / 2 <= y;
+                img.y -img.height / 2 <= y && img.y + img.height / 2 >= y;
     };
 
     return AniImage;

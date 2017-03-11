@@ -11,7 +11,10 @@ define(['util', 'ball'], function ( util, Ball ) {
         width = 0,
         height = 0,
         frameNum = 0,
-        baseColor = 100;
+        baseColor = 100,
+        baseSpeed = 1,
+        removing = false,
+        removed = false;
 
     var createBalls = function (  ) {
         for(var i = 0; i < perCreate; i++){
@@ -21,7 +24,7 @@ define(['util', 'ball'], function ( util, Ball ) {
             ball.radius = baseLen + Math.random() * baseLen;
             ball.x = perLen * i + Math.random() * perLen;
             ball.y = - baseLen * 2;
-            ball.vy = (Math.random() + 1);
+            ball.vy = (Math.random() + baseSpeed);
             balls.push(ball);
         }
     };
@@ -39,7 +42,7 @@ define(['util', 'ball'], function ( util, Ball ) {
     };
 
     var draw = function (  ) {
-        if(frameNum++ %  10 == 0){
+        if(frameNum++ %  10 == 0 && !removing && !removed){
             createBalls();
         }
         for(var i in balls){
@@ -53,11 +56,26 @@ define(['util', 'ball'], function ( util, Ball ) {
                 balls.splice(i, 1);
             }
         }
+        if(balls.length == 0 && removing){
+            removed = true;
+        }
+    };
+
+    var remove = function (  ) {
+        removing = true;
+        baseSpeed = 3;
+        for(var i in balls){
+            balls[i].vy = baseSpeed + Math.random() * 2;
+        }
     };
 
     return {
         init: init,
-        draw: draw
+        draw: draw,
+        remove: remove,
+        isRemoved: function (  ) {
+            return removed;
+        }
     }
 
 });

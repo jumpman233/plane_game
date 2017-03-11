@@ -89,8 +89,32 @@ define(['util',
             if(!params || !params.easy || !params.medium || !params.hard || !params.hell){
                 throw  TypeError('Screen hardMenu(): params are not right!');
             }
+            var defer = $.Deferred();
+
+            var removeAnimate = function ( str ) {
+                hardAnimate.remove();
+                ballBkAnimate.remove();
+
+                IM.addInterval(function (  ) {
+                    if(hardAnimate.isRemoved() && ballBkAnimate.isRemoved()){
+                        defer.resolve(str);
+                        IM.clearIntervalList();
+                    }
+                });
+            };
+
             IM.clearIntervalList();
-            hardAnimate.init(global.context);
+
+            hardAnimate.init(global.context, function() {
+                removeAnimate('easy');
+            } , function (  ) {
+                removeAnimate('medium');
+            },function (  ) {
+                removeAnimate('hard');
+            },function (  ) {
+                removeAnimate('hell');
+            });
+
             ballBkAnimate.init(global.context);
 
             IM.addInterval(function (  ) {
@@ -98,6 +122,8 @@ define(['util',
                 hardAnimate.draw();
                 ballBkAnimate.draw();
             });
+
+            return defer;
         },
         drawMainMenu: function (  ) {
             var defer = $.Deferred();
