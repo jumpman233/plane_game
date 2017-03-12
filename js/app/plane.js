@@ -128,6 +128,19 @@ define(['util',
     Plane.prototype.moveToTarget = function (  ) {
         FlyObject.prototype.moveToTarget();
     };
+    Plane.prototype.clone = function (  ) {
+        var newPlane = new Plane(),
+            oldPlane = this;
+
+        for(var i in oldPlane){
+            if(oldPlane[i] && typeof oldPlane[i] == 'object' && oldPlane[i].clone){
+                newPlane[i] = oldPlane[i].clone();
+            } else{
+                newPlane[i] = oldPlane[i];
+            }
+        }
+        return newPlane;
+    };
 
     return Plane;
 });

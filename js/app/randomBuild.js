@@ -6,16 +6,18 @@
 define(['warehouse',
 'global',
 'player',
-'util'],function ( warehouse, global, player, util ) {
+    'plane',
+'util'],function ( warehouse, global, player, Pl,util ) {
     function RandomBuild(  ) {
 
     }
     RandomBuild.prototype = {
         createEnemyPlane: function ( probability ) {
-            if(Math.random()<probability){
+            if(Math.random() < probability){
                 var x = Math.random()*global.width;
-                var m = Math.floor(Math.random()*warehouse.enemyList.length) + 1;
+                var m = Math.floor(Math.random() * warehouse.enemyList.length) + 1;
                 var enemy = warehouse.getEnemyByType(m);
+                console.log(enemy);
                 var plane = enemy.plane;
                 plane.shootTime = plane.shootRate;
                 plane.position.x = x;

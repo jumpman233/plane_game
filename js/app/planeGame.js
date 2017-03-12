@@ -138,13 +138,13 @@ define(['jquery',
                     global.clearRect();
 
                     var plane = randomBuild.createEnemyPlane(1/fps/2);
-                    var missile = randomBuild.createMissile(1/fps/10);
+                    // var missile = randomBuild.createMissile(1/fps/10);
                     if(plane){
                         dataManager.resolveEnemy(plane);
                     }
-                    if(missile){
-                        dataManager.resolveMissile(missile);
-                    }
+                    // if(missile){
+                    //     dataManager.resolveMissile(missile);
+                    // }
 
                     Player.shoot();
 

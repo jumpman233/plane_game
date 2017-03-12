@@ -33,7 +33,7 @@ define([],function (  ) {
             });
             if(params.backgroundAudio){
                 sound.backgroundAudio = params.backgroundAudio;
-                sound.backgroundAudio.loop = sound;
+                sound.backgroundAudio.loop = true;
             }
             this.addSoundChangeEvent(function (  ) {
                 sound.backgroundAudio.volume = sound.getCurSound();

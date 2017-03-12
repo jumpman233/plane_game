@@ -167,6 +167,20 @@ define(['behNode',
         throwNoPlaneError: function (  ) {
             throw TypeError('Enemy: no plane param error')
         },
+        clone: function (  ) {
+            var newEnemy = new Enemy(),
+                oldEnemy = this;
+
+            for(var i in oldEnemy){
+                if(oldEnemy[i] != null && typeof oldEnemy[i] == 'object' && oldEnemy[i].clone){
+                    newEnemy[i] = oldEnemy[i].clone();
+                } else{
+                    newEnemy[i] = oldEnemy[i];
+                }
+            }
+
+            return newEnemy;
+        },
         behTree: new BehTree()
     };
 

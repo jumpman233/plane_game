@@ -27,6 +27,20 @@ define(['util'], function ( util ) {
                 list.push(util.copy(style[i].bullet));
             }
             return list;
+        },
+        clone: function (  ) {
+            var newStyle = new BulletStyle(),
+                oldStyle = this;
+
+            for(var i in oldStyle){
+                if(oldStyle[i] && oldStyle[i].clone){
+                    newStyle[i] = oldStyle[i].clone();
+                } else{
+                    newStyle[i] = oldStyle[i];
+                }
+            }
+
+            return newStyle;
         }
     };
     return BulletStyle;

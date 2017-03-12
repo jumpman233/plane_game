@@ -43,6 +43,20 @@ define(['util',
         }
         missile.restFollow--;
     };
+    Missile.prototype.clone = function (  ) {
+        var newMissile = new Missile(),
+            oldMissile = this;
+
+        for(var i in oldMissile){
+            if(oldMissile[i] && oldMissile[i].clone){
+                newMissile[i] = oldMissile[i].clone();
+            } else{
+                newMissile[i] = oldMissile[i];
+            }
+        }
+
+        return newMissile;
+    };
 
     return Missile;
 });

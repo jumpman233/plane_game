@@ -124,6 +124,20 @@ define(['util',
                 obj.position.y -= obj.speed * Math.cos(obj.direction / 180 * Math.PI);
                 obj.position.x += obj.speed * Math.sin(obj.direction / 180 * Math.PI);
             }
+        },
+        clone: function (  ) {
+            var newFly = new FlyObject(),
+                oldFly = this;
+
+            for(var i in oldFly){
+                if(oldFly[i] && oldFly[i].clone){
+                    newFly[i] = oldFly[i].clone();
+                } else{
+                    newFly[i] = oldFly[i];
+                }
+            }
+
+            return newFly;
         }
     };
 

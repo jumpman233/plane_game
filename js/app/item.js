@@ -34,6 +34,20 @@ define(['util'], function ( util ) {
                 height: item.height,
                 src: item.src
             });
+        },
+        clone: function (  ) {
+            var newItem = new Item(),
+                oldItem = this;
+
+            for(var i in oldItem){
+                if(oldItem[i] && oldItem[i].clone){
+                    newItem[i] = oldItem[i].clone();
+                } else {
+                    newItem[i] = oldItem[i];
+                }
+            }
+
+            return newItem;
         }
     };
     return Item;

@@ -52,8 +52,11 @@ define(['position','global'],function ( Position, global ) {
                 return list;
             } else if(typeof obj == 'object'){
                 var newObj = new Object();
+                if(obj && obj.clone){
+                    return obj.clone();
+                }
                 for(var i in obj){
-                    if(obj[i] instanceof Audio || obj[i] instanceof Image || obj[i] == Object.getPrototypeOf(obj)[i]){
+                    if(obj[i] instanceof HTMLElement || obj[i] == Object.getPrototypeOf(obj)[i]){
                         newObj[i] = obj[i];
                     } else{
                         newObj[i] = util.copy(obj[i]);

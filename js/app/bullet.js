@@ -40,5 +40,19 @@ define(['util',
         bullet.position.y -= bullet.speed * Math.cos((bullet.direction) / 360 * Math.PI * 2);
         bullet.position.x += bullet.speed * Math.sin((bullet.direction) / 360 * Math.PI * 2);
     };
+    Bullet.prototype.clone = function (  ) {
+        var newBullet = new Bullet(),
+            oldBullet = this;
+
+        for(var i in oldBullet){
+            if(oldBullet[i] && oldBullet[i].clone){
+                newBullet[i] = oldBullet[i].clone();
+            } else{
+                newBullet[i] = oldBullet[i];
+            }
+        }
+
+        return newBullet;
+    };
     return Bullet;
 });

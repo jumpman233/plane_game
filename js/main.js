@@ -43,6 +43,8 @@ require.config({
     }
 });
 
+console.log(typeof null);
+
 require(['planeGame','bkAnimate'],function ( PlaneGame, bkAnimate) {
     var config = {
         canvasElement: $('#myCanvas')[0],

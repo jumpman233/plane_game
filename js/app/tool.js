@@ -83,6 +83,17 @@ define(['util',
             if(tool.extraTime!=null){
                 tool.extraTime--;
             }
+        },
+        clone: function (  ) {
+            var newTool = new Tool(),
+                oldTool = this;
+
+            for(var i in oldTool){
+                if(oldTool[i] && oldTool[i].clone){
+                    newTool[i] = oldTool[i];
+                }
+            }
+            return newTool;
         }
     };
     return Tool;

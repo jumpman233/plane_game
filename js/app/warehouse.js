@@ -49,7 +49,7 @@ define(['util',
             var list = warehouse.bulletTypeList;
             for(var i in list){
                 if(list[i].type == type){
-                    return util.copy(list[i]);
+                    return list[i].clone();
                 }
             }
         },
@@ -58,7 +58,7 @@ define(['util',
             var list = warehouse.missileList;
             for(var i in list){
                 if(list[i].type == type){
-                    return util.copy(list[i]);
+                    return list[i].clone();
                 }
             }
         },
@@ -67,7 +67,7 @@ define(['util',
             var list = warehouse.planeTypeList;
             for(var i in list){
                 if(list[i].type == type){
-                    return util.copy(list[i]);
+                    return list[i].clone();
                 }
             }
         },
@@ -76,7 +76,7 @@ define(['util',
             var list = warehouse.bulletStyleList;
             for(var i in list){
                 if(list[i].type == type){
-                    return util.copy(list[i]);
+                    return list[i].clone();
                 }
             }
         },
@@ -85,7 +85,7 @@ define(['util',
             for(var i in warehouse.enemyList){
                 var enemy = warehouse.enemyList[i];
                 if(enemy.type == type){
-                    return util.copy(enemy);
+                    return enemy.clone();
                 }
             }
         },
@@ -93,7 +93,7 @@ define(['util',
             var list = this.itemList;
             for(var i in list){
                 if(list[i].name==name){
-                    return util.copy(list[i]);
+                    return list[i].clone();
                 }
             }
         },

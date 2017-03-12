@@ -72,6 +72,9 @@ define([],function (  ) {
                 inAng = Math.asin(sin) / Math.PI * 180 + 270;
             }
             return inAng-dir;
+        },
+        clone: function (  ) {
+            return new Position(this.x, this.y);
         }
     };
     return Position;
