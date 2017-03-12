@@ -43,8 +43,6 @@ require.config({
     }
 });
 
-console.log(typeof null);
-
 require(['planeGame','bkAnimate'],function ( PlaneGame, bkAnimate) {
     var config = {
         canvasElement: $('#myCanvas')[0],
@@ -57,7 +55,8 @@ require(['planeGame','bkAnimate'],function ( PlaneGame, bkAnimate) {
             toolDataSrc: 'json/tool.json',
             missileDataSrc: 'json/missile.json',
             audioDataSrc: 'json/audio.json',
-            enemyDataSrc: 'json/enemy.json'
+            enemyDataSrc: 'json/enemy.json',
+            difficultyDataSrc: 'json/difficulty.json'
         },
         fps: fps
     };

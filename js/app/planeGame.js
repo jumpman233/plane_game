@@ -225,6 +225,9 @@ define(['jquery',
                         });
                     })
                     .then(function (  ) {
+                        return randomBuild.init();
+                    })
+                    .then(function (  ) {
                         //if all the image and audio load is done ,the game's init is completed
                         game.ifInit(function (  ) {
                             console.log('all resource is loaded! cost '+(new Date().getTime()-startTime)+' ms');

@@ -1,0 +1,52 @@
+[{
+  "difficulty": "easy",
+  "e1": {
+    "canShoot": false,
+    "toolDrop": 0.05,
+    "possibility": 70,
+    "score": 5
+  },
+  "e2": {
+    "canShoot": true,
+    "toolDrop": 0.4,
+    "possibility": 30,
+    "score": 40
+  },
+  "e3":{
+    "possibility": 0
+  }
+},{
+  "difficulty": "medium",
+  "e1": {
+    "canShoot": true,
+    "toolDrop": 0.05,
+    "possibility": 60,
+    "score": 10
+  },
+  "e2": {
+    "canShoot": true,
+    "toolDrop": 0.3,
+    "possibility": 40,
+    "score": 80
+  },
+  "e3":{
+    "possibility": 0
+  }
+},{
+  "difficulty": "hard",
+  "e1": {
+    "canShoot": true,
+    "toolDrop": 0.04,
+    "possibility": 60,
+    "score": 15
+  },
+  "e2": {
+    "canShoot": true,
+    "toolDrop": 0.2,
+    "possibility": 40,
+    "score": 120
+  },
+  "e3": {
+
+  }
+}]

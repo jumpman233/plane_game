@@ -6,12 +6,28 @@
 define(['warehouse',
 'global',
 'player',
-    'plane',
-'util'],function ( warehouse, global, player, Pl,util ) {
+'util'],function ( warehouse, global, player, util ) {
     function RandomBuild(  ) {
-
+        this.curDiff = null;
+        this.diffData = [];
     }
     RandomBuild.prototype = {
+        init: function (  ) {
+            var defer = $.Deferred();
+
+            this.diffData = util.copy(warehouse.difficultyData);
+
+            defer.resolve();
+
+            return defer;
+        },
+        setCurDiff: function ( num ) {
+            if(num >= this.diffData.length){
+                throw TypeError("RandomBuild setCurDiff: param is not right!");
+            }
+
+            this.curDiff = this.diffData[num];
+        },
         createEnemyPlane: function ( probability ) {
             if(Math.random() < probability){
                 var x = Math.random()*global.width;

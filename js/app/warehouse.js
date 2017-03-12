@@ -22,8 +22,9 @@ define(['util',
         this.src = {};
         this.audioList = [];
         this.enemyList = [];
+        this.difficultyData = [];
         this.needSrc = ['bulletDataSrc', 'bulletStyleSrc', 'planeDataSrc', 'itemDataSrc',
-            'toolDataSrc', 'missileDataSrc', 'audioDataSrc', 'enemyDataSrc'];
+            'toolDataSrc', 'missileDataSrc', 'audioDataSrc', 'enemyDataSrc', 'difficultyDataSrc'];
     }
     Warehouse.prototype = {
         constructor: Warehouse,
@@ -102,6 +103,7 @@ define(['util',
                 warehouse = this,
                 needSrc = warehouse.needSrc;
 
+            console.log(params);
             if(!util.paramInclude(needSrc, params)){
                 throw TypeError('warehouse init: the attribute are not right!');
             }
@@ -244,6 +246,15 @@ define(['util',
                 }
             })
         },
+        initDifficulty: function (  ) {
+            var warehouse = this;
+
+            return warehouse.getData(warehouse.src.difficultyDataSrc).then(function ( data ) {
+                for(var i in data){
+                    warehouse.difficultyData.push(data[i]);
+                }
+            })
+        },
         getData: function (src, callback) {
             var defer = $.Deferred();
             if(undefined == src){
@@ -298,6 +309,9 @@ define(['util',
                 })
                 .then( function (  ) {
                     return warehouse.initEnemy();
+                })
+                .then( function (  ) {
+                    return warehouse.initDifficulty();
                 })
                 .then(function (  ) {
                     defer.resolve();

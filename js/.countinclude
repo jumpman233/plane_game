@@ -1,2 +1,4 @@
 app/*.js
 ../server.js
+main.js
+../json/*.json
