@@ -36,11 +36,6 @@ define(['jquery',
             if(params.src){
                 this.src = params.src;
             }
-            if (params.fps) {
-                this.fps = params.fps;
-            } else{
-                this.fps = 30;
-            }
         }
 
         PlaneGame.prototype = {
@@ -54,11 +49,6 @@ define(['jquery',
                 }
                 if(params.src){
                     this.src = params.src;
-                }
-                if (params.fps) {
-                    this.fps = params.fps;
-                } else{
-                    this.fps = 20;
                 }
                 defer.resolve();
                 return defer;
@@ -86,13 +76,14 @@ define(['jquery',
                         hard: 'hard',
                         hell: 'hell'
                     })
-                    .then(function ( hard ) {
+                    .then(function ( difficulty ) {
+                        randomBuild.setCurDiff(difficulty);
                         game.test1();
                     })
             },
             pause: function (  ) {
                 var game = this;
-                game.isPause = true;
+                game.isPause = !game.isPause;
 
                 var resumeFunc = function (  ) {
                     game.resume.call(game);
@@ -120,6 +111,7 @@ define(['jquery',
                 var game = this;
                 game.playing = true;
                 game.isPause = false;
+                global.frameNum = 0;
                 // IntervalManager.addInterval(function (  ) {
                 //     global.clearRect();
                 //     bkAnimate.draw(global.context);
@@ -129,15 +121,15 @@ define(['jquery',
                         game.pause();
                     }
                 });
-                var fps = 50;
 
                 var gameTest = function () {
+                    global.frameNum++;
                     if(game.isPause){
                         return;
                     }
                     global.clearRect();
 
-                    var plane = randomBuild.createEnemyPlane(1/fps/2);
+                    var plane = randomBuild.createEnemyPlane();
                     // var missile = randomBuild.createMissile(1/fps/10);
                     if(plane){
                         dataManager.resolveEnemy(plane);
@@ -162,7 +154,7 @@ define(['jquery',
                 };
 
                 IntervalManager.clearIntervalList();
-                IntervalManager.addInterval(gameTest, 1000 / fps);
+                IntervalManager.addInterval(gameTest);
             },
             gameOver: function () {
                 var game = this;
@@ -195,8 +187,8 @@ define(['jquery',
                     }
                 };
 
-                IntervalManager.start(20);
-                IntervalManager.addInterval(loading, 30);
+                IntervalManager.start(1000 / config.fps);
+                IntervalManager.addInterval(loading);
 
                 game.warehouse = Warehouse;
 
@@ -204,7 +196,8 @@ define(['jquery',
                     .getConfig(config)
                     .then(function (  ) {
                          return global.init({
-                             canvasId: config.canvasId
+                             canvasId: config.canvasId,
+                             fps: config.fps
                          });
                     })
                     .then(function (  ) {

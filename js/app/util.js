@@ -174,6 +174,15 @@ define(['position','global'],function ( Position, global ) {
         },
         randomPN: function (  ) {
             return (Math.random() > 0.5 ? 1 : -1);
+        },
+        randomInt: function ( l_num, r_num ) {
+            if(arguments.length == 1){
+                return Math.round(Math.random() * l_num);
+            } else if(arguments.length == 2){
+                return Math.round(Math.random() * (r_num - l_num) + l_num);
+            } else{
+                throw TypeError('util randomInt(): parmas are not right!');
+            }
         }
     };
     return new GameUtil();

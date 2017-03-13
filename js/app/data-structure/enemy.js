@@ -145,10 +145,12 @@ define(['behNode',
         patrolMove: function ( enemy ) {
             var plane = enemy.plane;
             var pos = plane.position;
+
             if(enemy.patrolY == 0){
                 enemy.patrolY = Math.random() * global.height/4 + plane.height;
-                plane.toRight = (pos.x >= global.width/2)? 1 : -1;
+                plane.toRight = (pos.x >= global.width / 2) ? 1 : -1;
             }
+
             if(pos.y + plane.speed < enemy.patrolY){
                 pos.y += plane.speed;
             } else{
@@ -183,6 +185,12 @@ define(['behNode',
         },
         behTree: new BehTree()
     };
+    Object.defineProperty(Enemy.prototype, 'className', {
+        writable: false,
+        configurable: false,
+        enumerable: false,
+        value: 'Enemy'
+    });
 
     var rootSel = new Selector('rootSel'),
         deadSeq = new Sequence('deadSeq'),

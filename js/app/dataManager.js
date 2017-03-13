@@ -26,12 +26,24 @@ define(['util',
                 manager.enemy_bullets.push(bullet);
             }
         },
-        resolveEnemy: function ( plane ) {
+        resolveEnemy: function ( enemy ) {
             var manager = this;
-            // if(!plane || !plane.role){
-            //     throw TypeError('DataManager resolveEnemy: param type error!')
-            // }
-            manager.enemies.push(plane);
+
+            if(!(enemy.className === 'Enemy') && !enemy.hasOwnProperty('length')){
+                throw TypeError('DataManager resolveEnemy: param type error!');
+            }
+
+            if(enemy.className === 'Enemy'){
+                manager.enemies.push(enemy);
+            } else if(enemy.hasOwnProperty('length')){
+                for(var i in enemy){
+                    if(enemy[i].className === 'Enemy'){
+                        manager.enemies.push(enemy[i]);
+                    } else{
+                        throw TypeError('DataManager resolveEnemy: param type error!');
+                    }
+                }
+            }
         },
         resolveTool: function ( tool ) {
             this.tools.push(tool);
@@ -98,6 +110,7 @@ define(['util',
                 var enemy = list[i];
                 if(enemy.isDead){
                     list.splice(i,1);
+                    player.score += enemy.score;
                 }
             }
         }

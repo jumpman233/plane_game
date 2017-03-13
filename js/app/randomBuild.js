@@ -6,43 +6,93 @@
 define(['warehouse',
 'global',
 'player',
-'util'],function ( warehouse, global, player, util ) {
+'util',
+'dataManager'],function ( warehouse, global, player, util, dm ) {
+    'use strict';
     function RandomBuild(  ) {
         this.curDiff = null;
         this.diffData = [];
+        this.frequency = null;
+        this.frameNum = 0;
     }
     RandomBuild.prototype = {
         init: function (  ) {
             var defer = $.Deferred();
+            var rb = this;
+            rb.diffData = util.copy(warehouse.difficultyData);
 
-            this.diffData = util.copy(warehouse.difficultyData);
+            for(var i in rb.diffData){
+                for(var j in rb.diffData[i].enemies){
+                    var enemy = rb.diffData[i].enemies[j];
+                    if(enemy.enemyType){
+                        enemy.enemy = warehouse.getEnemyByType(enemy.enemyType);
+                    }
+                }
+            }
 
             defer.resolve();
-
             return defer;
         },
         setCurDiff: function ( num ) {
-            if(num >= this.diffData.length){
+            var rb = this;
+            if(num >= rb.diffData.length){
                 throw TypeError("RandomBuild setCurDiff: param is not right!");
             }
 
-            this.curDiff = this.diffData[num];
+            rb.curDiff = rb.diffData[num - 1];
+
+            rb.enemyType = util.copy(rb.curDiff.enemies);
+            rb.frequency = rb.curDiff.frequency;
         },
-        createEnemyPlane: function ( probability ) {
-            if(Math.random() < probability){
-                var x = Math.random()*global.width;
-                var m = Math.floor(Math.random() * warehouse.enemyList.length) + 1;
-                var enemy = warehouse.getEnemyByType(m);
-                console.log(enemy);
-                var plane = enemy.plane;
-                plane.shootTime = plane.shootRate;
-                plane.position.x = x;
-                plane.position.y = 0;
-                plane.direction = 180;
-                plane.canShoot = true;
-                plane.curBullet = 0;
+        createEnemyPlane: function ( ) {
+            var rb = this,
+                isCreate = false,
+                x = 0,
+                curDiff = rb.curDiff,
+                enemyData = curDiff.enemies;
+            if(global.frameNum % (global.fps * rb.frequency) === 0){
+                while(!isCreate){
+                    for(var i = 0; i < enemyData.length; i++){
+                        var e_data = enemyData[i];
+                        if(Math.random() <= e_data.possibility){
+                            var newEnemy = rb.initNewEnemy(e_data);
+                            dm.resolveEnemy(newEnemy);
+                            isCreate = true;
+                        }
+                    }
+                }
             }
-            return enemy;
+        },
+        initNewEnemy: function ( enemyData ) {
+            var enemy = enemyData.enemy,
+                list = [],
+                initNum = util.randomInt(enemyData.min_num, enemyData.max_num),
+                plane_width = enemy.plane.width + 5,
+                initMaxWidth = global.width - plane_width * initNum,
+                startX = Math.random() * initMaxWidth;
+
+            var initOne = function ( enemy ) {
+                var plane = enemy.plane;
+
+                plane.canShoot = enemyData.canShoot;
+                plane.speed = enemyData.speed;
+                enemy.score = enemyData.score;
+                plane.position.x = startX;
+                plane.position.y = - plane.height;
+                plane.direction = 180;
+                plane.curBullet = 0;
+
+                startX += plane_width;
+
+                return enemy;
+            };
+
+            for(var i = 0; i < initNum; i++){
+                var newEnemy = initOne(enemy.clone());
+                list.push(newEnemy);
+            }
+
+            return list;
         },
         createMissile: function ( probability ) {
             if(Math.random() < probability){

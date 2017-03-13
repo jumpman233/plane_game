@@ -3,6 +3,7 @@
  */
 
 define([],function () {
+    'use strict';
     function Global(  ) {
         this.notLoadedImgCount = 0;
         this.notLoadedAudioCount = 0;
@@ -13,17 +14,26 @@ define([],function () {
         this.optWidth = 200;
         this.optHeight = 30;
         this.optFont = 16;
+        this.frameNum = 0;
     }
     Global.prototype = {
         constructor: Global,
         init: function ( params ) {
-            var defer = $.Deferred();
-            if(params.canvasId){
-                this.canvasElement = $('#'+params.canvasId)[0];
-                this.context = this.canvasElement.getContext('2d');
-                this.width = this.context.canvas.width;
-                this.height = this.context.canvas.height;
+            if(!params.fps || !params.canvasId){
+                throw TypeError('Global init():params are not right!');
             }
+
+            var defer = $.Deferred();
+            this.canvasElement = $('#'+params.canvasId)[0];
+            this.context = this.canvasElement.getContext('2d');
+            this.width = this.context.canvas.width;
+            this.height = this.context.canvas.height;
+            Object.defineProperty(this, 'fps', {
+                writable: false,
+                configurable: false,
+                enumerable: true,
+                value: params.fps
+            });
             defer.resolve();
             return defer;
         },

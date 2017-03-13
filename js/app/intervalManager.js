@@ -5,7 +5,7 @@
 /**
  * there is only one interval running request, so I write IntervalManager to manage
  */
-define([], function (  ) {
+define(['global'], function ( global ) {
     function IntervalManager(  ) {
         this.interval = null;
         this.interList = [];
@@ -35,7 +35,7 @@ define([], function (  ) {
     IntervalManager.prototype.start = function ( fps ) {
         var im = this;
         if(!fps){
-            fps = 20;
+            throw Error('IntervalManager start(): no attr fps!')
         }
 
         var interFunc = function (  ) {

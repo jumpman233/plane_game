@@ -2,8 +2,6 @@
  * Created by lzh on 2017/2/28.
  */
 
-fps = 30;
-
 require.config({
     paths: {
         'jquery': 'lib/jquery',
@@ -44,6 +42,7 @@ require.config({
 });
 
 require(['planeGame','bkAnimate'],function ( PlaneGame, bkAnimate) {
+    var fps = 50;
     var config = {
         canvasElement: $('#myCanvas')[0],
         canvasId: 'myCanvas',

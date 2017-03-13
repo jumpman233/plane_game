@@ -1,27 +1,29 @@
 [{
   "difficulty": "easy",
-  "e1": {
+  "enemies": [{
     "canShoot": false,
     "toolDrop": 0.05,
     "possibility": 70,
-    "score": 5
-  },
-  "e2": {
+    "score": 5,
+    "min_num": 1,
+    "max_num": 3
+  }, {
     "canShoot": true,
     "toolDrop": 0.4,
     "possibility": 30,
-    "score": 40
-  },
-  "e3":{
-    "possibility": 0
-  }
+    "score": 40,
+    "min_num": 1,
+    "max_num": 3
+  }]
 },{
   "difficulty": "medium",
   "e1": {
     "canShoot": true,
     "toolDrop": 0.05,
     "possibility": 60,
-    "score": 10
+    "score": 10,
+    "min_num": 1,
+    "max_num": 3
   },
   "e2": {
     "canShoot": true,
@@ -34,19 +36,26 @@
   }
 },{
   "difficulty": "hard",
-  "e1": {
-    "canShoot": true,
+  "frequency": 2,
+  "enemies": [{
+    "enemyType": 1,
+    "canShoot": false,
     "toolDrop": 0.04,
-    "possibility": 60,
-    "score": 15
-  },
-  "e2": {
+    "possibility": 0.6,
+    "score": 15,
+    "speed": 3,
+    "min_num": 2,
+    "max_num": 4
+  }, {
+    "enemyType": 2,
     "canShoot": true,
     "toolDrop": 0.2,
-    "possibility": 40,
-    "score": 120
-  },
-  "e3": {
-
-  }
+    "possibility": 0.3,
+    "speed": 2,
+    "score": 120,
+    "min_num": 1,
+    "max_num": 1
+  }]
+},{
+  "difficulty": "hell"
 }]

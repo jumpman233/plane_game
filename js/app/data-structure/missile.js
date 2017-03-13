@@ -22,11 +22,12 @@ define(['util',
         if(params.type){
             this.type = params.type;
         }
+        /**
+         * TODO
+         * @type {number}
+         */
         // if there is no global variable called fps, it will create a default fps to build variable restFollow
-        if(undefined !== fps){
-            fps = 30;
-        }
-        this.restFollow = this.maxFollow ? this.maxFollow * fps : 5 * fps;
+        this.restFollow = this.maxFollow ? this.maxFollow * 50 : 5 * 50;
     }
     Missile.prototype = util.copy(FlyObject.prototype);
     Missile.prototype.className = "missile";
