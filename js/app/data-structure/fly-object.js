@@ -64,12 +64,27 @@ define(['util',
         } else{
             this.maxRotate = 5;
         }
+        this.k = 0;
+        this.b = 0;
     }
 
     FlyObject.prototype = {
         className: 'flyObject',
         constructor: FlyObject,
-        context: null,
+        setKb: function (  ) {
+            var obj = this,
+                rotation = this.direction,
+                x = this.position.x,
+                y = this.position.y,
+                pi = Math.PI;
+            if(rotation == pi / 2 || rotation == pi / 2 * 3){
+                obj.k = 0;
+            } else{
+                obj.k = Math.tan(rotation);
+            }
+
+            obj.b = y - obj.k * x;
+        },
         loadImg: function () {
             var obj = this;
             obj.img = util.initImage({
