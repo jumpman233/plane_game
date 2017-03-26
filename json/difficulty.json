@@ -55,7 +55,8 @@
     "speed": 2,
     "score": 120,
     "min_num": 1,
-    "max_num": 1
+    "max_num": 1,
+    "secureDis": 50
   }]
 },{
   "difficulty": "hell"

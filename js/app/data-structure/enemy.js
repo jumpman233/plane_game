@@ -29,6 +29,8 @@ define(['behNode',
         this.target = null;
         this.secureDis = 0;
         this.watchAng = 0;
+        this.avoidCd = 150;
+        this.avoidReduce = 0;
 
         this.deadDuring = 10;
     }
@@ -98,9 +100,7 @@ define(['behNode',
         avoid: function ( enemy ) {
             if(!enemy || !enemy.plane) enemy.throwNoPlaneError();
             var player_bullets = dm.player_bullets,
-                plane = enemy.plane,
-                min_direction = plane.direction - enemy.watchAng / 2,
-                max_direction = plane.direction + enemy.watchAng / 2;
+                plane = enemy.plane;
 
             switch (enemy.moveType){
                 case 'straight':
@@ -116,7 +116,7 @@ define(['behNode',
                         var minAng = Number.POSITIVE_INFINITY;
                         for(var i = 0; i < angList.length; i++){
                             if(Math.abs(angList[i]) < Math.abs(minAng)){
-                                minAng = angList[i]
+                                minAng = angList[i];
                             }
                         }
                         if(minAng <= 0){
@@ -132,12 +132,36 @@ define(['behNode',
                     } else if(plane.direction > 270){
                         plane.direction = 270;
                     }
-                    enemy.move(enemy);
+                    break;
+                case 'patrol':
+                    if(enemy.avoidReduce > 0){
+                        enemy.avoidReduce--;
+                        break;
+                    }
+                    var min = Number.POSITIVE_INFINITY,
+                        minIndex = 0;
+                    for(var i = 0; i < player_bullets.length; i++){
+                        var pa_dis = Position.prototype.calDis(enemy.plane.position, player_bullets[i].position);
+                        if(min > pa_dis){
+                            min = pa_dis;
+                            minIndex = i;
+                        }
+                    }
+                    if(min < enemy.secureDis){
+                        if(player_bullets[minIndex].position.x < plane.position.x) {
+                            enemy.plane.toRight = 1;
+                        } else{
+                            enemy.plane.toRight = -1;
+                        }
+                        enemy.avoidReduce = enemy.avoidCd;
+                    } else{
+                    }
                     break;
                 default:
-                    enemy.move(enemy);
                     break;
             }
+
+            enemy.move(enemy);
         },
         attack: function ( enemy ) {
             if(!enemy.plane) enemy.throwNoPlaneError();
