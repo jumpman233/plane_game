@@ -8,7 +8,9 @@ define(['behNode',
     'flyObject',
     'dataManager',
     'global',
-    'sound'],function ( behNode,  BehTree, util, FlyObject, dm, global, sound) {
+    'sound',
+    'position'],function ( behNode,  BehTree, util, FlyObject, dm, global, sound, Position) {
+    'use strict';
     var Sequence = behNode.sequence,
         Selector = behNode.selector,
         Action = behNode.action,
@@ -25,6 +27,8 @@ define(['behNode',
         this.patrolY = 0;
         this.isDead = false;
         this.target = null;
+        this.secureDis = 0;
+        this.watchAng = 0;
 
         this.deadDuring = 10;
     }
@@ -33,10 +37,10 @@ define(['behNode',
         init: function ( params ) {
             if(!params) throw TypeError("Enemy init(): param is not right");
 
-            var needParam = ['type','plane', 'hp', 'speed', 'score', 'toolDrop', 'moveType'];
+            var needParam = ['type','plane', 'hp', 'speed', 'score', 'toolDrop', 'moveType', 'watchAng'];
 
             if(!util.paramInclude(needParam, params)){
-                throw TypeError('Enemy init(): param is not right!');
+                    throw TypeError('Enemy init(): params are not right!');
             }
 
             var enemy = this;
@@ -69,7 +73,7 @@ define(['behNode',
             var plane = enemy.plane;
             switch (enemy.moveType){
                 case 'straight':
-                    plane.speed += 0.2;
+                    // plane.speed += 0.2;
                     Enemy.prototype.straightMove(enemy);
                     break;
                 case 'patrol':
@@ -86,10 +90,54 @@ define(['behNode',
                     break;
             }
         },
-        avoid: function ( enemy ) {
+        ifAvoid: function(enemy){
             if(!enemy || !enemy.plane) enemy.throwNoPlaneError();
 
+            return global.difficuly === 'hard' || global.difficuly === 'hell';
+        },
+        avoid: function ( enemy ) {
+            if(!enemy || !enemy.plane) enemy.throwNoPlaneError();
+            var player_bullets = dm.player_bullets,
+                plane = enemy.plane,
+                min_direction = plane.direction - enemy.watchAng / 2,
+                max_direction = plane.direction + enemy.watchAng / 2;
 
+            switch (enemy.moveType){
+                case 'straight':
+                    var angList = [];
+                    for(var i = 0; i < player_bullets.length; i++){
+                        var dis = Position.prototype.calDis(enemy.plane.position, player_bullets[i].position);
+                        var ang = Position.prototype.includeAng(plane.position, player_bullets[i].position, plane.direction);
+                        if(dis <= enemy.secureDis && Math.abs(ang) <= enemy.watchAng / 2){
+                            angList.push(ang);
+                        }
+                    }
+                    if(angList.length >= 1){
+                        var minAng = Number.POSITIVE_INFINITY;
+                        for(var i = 0; i < angList.length; i++){
+                            if(Math.abs(angList[i]) < Math.abs(minAng)){
+                                minAng = angList[i]
+                            }
+                        }
+                        if(minAng <= 0){
+                            plane.direction += plane.maxRotate;
+                        } else{
+                            plane.direction -= plane.maxRotate;
+                        }
+                    } else{
+                        plane.rotateToAngle(plane.originDirection);
+                    }
+                    if(plane.direction < 90){
+                        plane.direction = 90;
+                    } else if(plane.direction > 270){
+                        plane.direction = 270;
+                    }
+                    enemy.move(enemy);
+                    break;
+                default:
+                    enemy.move(enemy);
+                    break;
+            }
         },
         attack: function ( enemy ) {
             if(!enemy.plane) enemy.throwNoPlaneError();
@@ -230,7 +278,7 @@ define(['behNode',
     atkAction.act = Enemy.prototype.attack;
 
     moveSel.addChild(retreatSeq);
-    // moveSel.addChild(avoidSeq);
+    moveSel.addChild(avoidSeq);
     moveSel.addChild(normalMove);
     normalMove.act = Enemy.prototype.move;
 
@@ -244,6 +292,8 @@ define(['behNode',
     avoidSeq.addChild(avoidAction);
 
     avoidSel.addChild(avoidCond);
+    avoidCond.cond = Enemy.prototype.ifAvoid;
+    avoidAction.act = Enemy.prototype.avoid;
 
     getShotSeq.addChild(getShotCond);
 

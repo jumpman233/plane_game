@@ -1,17 +1,19 @@
 [{
   "type": 1,
   "planeType": 2,
-  "hp": 12,
-  "speed": 3,
+  "hp": 100,
+  "speed": 5,
   "score": 10,
   "toolDrop": 0.1,
-  "moveType": "straight"
+  "moveType": "straight",
+  "watchAng": 90
 },{
   "type": 2,
   "planeType": 3,
-  "hp": 200,
+  "hp": 1,
   "speed": 3,
   "score": 10,
   "toolDrop": 0.1,
-  "moveType": "patrol"
+  "moveType": "patrol",
+  "watchAng": 90
 }]

@@ -8,7 +8,7 @@
     "deadAudioName": "dead1",
     "role": "player",
     "direction": 0,
-    "shootRate": 10,
+    "shootRate": 40,
     "bulletType": 1
 },{
     "type": "2",
@@ -21,7 +21,8 @@
     "role": "enemy",
     "direction": 0,
     "shootRate": 40,
-    "bulletType": 2
+    "bulletType": 2,
+    "maxRotate": 1
 },{
     "type": "3",
     "width": 150,
@@ -32,5 +33,6 @@
     "deadAudioName": "dead1",
     "direction": 0,
     "shootRate": 40,
-    "bulletType": 3
+    "bulletType": 3,
+    "maxRotate": 0
 }]

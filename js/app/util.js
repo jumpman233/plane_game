@@ -78,6 +78,9 @@ define(['position','global'],function ( Position, global ) {
                 throw TypeError('GameUtil collisionTest(): params is not right! ');
             }
         },
+        angToRed: function(angle){
+            return angle / 360 * 2 * Math.PI;
+        },
         getEventPosition: function (e) {
             if(undefined == e){
                 return;
@@ -156,7 +159,7 @@ define(['position','global'],function ( Position, global ) {
                             break;
                         }
                     }
-                    if(!flag) return false;
+                    if(!flag) throw TypeError(parentArray[i] + ' is request');
                 }
                 return true;
             } else{

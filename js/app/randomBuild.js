@@ -39,7 +39,7 @@ define(['warehouse',
                 throw TypeError("RandomBuild setCurDiff: param is not right!");
             }
 
-            rb.curDiff = rb.diffData[num - 1];
+            rb.curDiff = rb.diffData[num];
 
             rb.enemyType = util.copy(rb.curDiff.enemies);
             rb.frequency = rb.curDiff.frequency;
@@ -75,11 +75,12 @@ define(['warehouse',
                 var plane = enemy.plane;
 
                 plane.canShoot = enemyData.canShoot;
-                plane.speed = enemyData.speed;
                 enemy.score = enemyData.score;
+                enemy.secureDis = enemyData.secureDis * plane.speed;
                 plane.position.x = startX;
                 plane.position.y = - plane.height;
-                plane.direction = 180;
+                plane.originDirection = 180;
+                plane.direction = plane.originDirection;
                 plane.curBullet = 0;
 
                 startX += plane_width;

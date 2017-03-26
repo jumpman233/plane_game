@@ -15,6 +15,7 @@ define([],function () {
         this.optHeight = 30;
         this.optFont = 16;
         this.frameNum = 0;
+        this.difficuly = '';
     }
     Global.prototype = {
         constructor: Global,

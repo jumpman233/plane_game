@@ -45,7 +45,8 @@
     "score": 15,
     "speed": 3,
     "min_num": 2,
-    "max_num": 4
+    "max_num": 4,
+    "secureDis": 100
   }, {
     "enemyType": 2,
     "canShoot": true,

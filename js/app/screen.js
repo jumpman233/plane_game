@@ -106,13 +106,13 @@ define(['util',
             IM.clearIntervalList();
 
             hardAnimate.init(global.context, function() {
-                removeAnimate(1);
+                removeAnimate(params.easy);
             } , function (  ) {
-                removeAnimate(2);
+                removeAnimate(params.medium);
             },function (  ) {
-                removeAnimate(3);
+                removeAnimate(params.hard);
             },function (  ) {
-                removeAnimate(4);
+                removeAnimate(params.hell);
             });
 
             ballBkAnimate.init(global.context);

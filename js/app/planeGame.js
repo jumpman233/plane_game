@@ -77,7 +77,23 @@ define(['jquery',
                         hell: 'hell'
                     })
                     .then(function ( difficulty ) {
-                        randomBuild.setCurDiff(difficulty);
+                        var num = 0;
+                        global.difficuly = difficulty;
+                        switch (difficulty){
+                            case 'easy':
+                                num = 0;
+                                break;
+                            case 'medium':
+                                num = 1;
+                                break;
+                            case 'hard':
+                                num = 2;
+                                break;
+                            case 'hell':
+                                num = 3;
+                                break;
+                        }
+                        randomBuild.setCurDiff(num);
                         game.test1();
                     })
             },

@@ -241,6 +241,7 @@ define(['util',
                     var item = data[i];
                     item.plane = warehouse.getPlaneByType(item.planeType);
                     var enemy = new Enemy();
+                    console.log(item);
                     enemy.init(item);
                     warehouse.enemyList.push(enemy);
                 }

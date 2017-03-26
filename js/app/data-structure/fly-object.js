@@ -47,8 +47,9 @@ define(['util',
         if (params.src) {
             this.src = params.src;
         }
-        if (params.direction!=null) {
+        if (params.direction !== null) {
             this.direction = params.direction;
+            this.originDirection = this.direction;
         }
         if (params.deadImg){
             this.deadImg = params.deadImg;
@@ -85,6 +86,19 @@ define(['util',
 
             obj.b = y - obj.k * x;
         },
+        rotateToAngle: function ( angle ) {
+            var obj = this,
+                rotateAngle = this.maxRotate,
+                totAngle = Math.abs(this.direction - angle);
+            if(totAngle <= rotateAngle){
+                rotateAngle = totAngle;
+            }
+            if(obj.direction < angle) {
+                obj.direction += rotateAngle;
+            } else{
+                obj.direction -= rotateAngle;
+            }
+        },
         loadImg: function () {
             var obj = this;
             obj.img = util.initImage({
@@ -111,8 +125,8 @@ define(['util',
         },
         move: function () {
             var obj = this;
-            obj.position.y -= obj.speed * Math.cos(obj.direction / 360 * Math.PI * 2);
-            obj.position.x += obj.speed * Math.sin(obj.direction / 360 * Math.PI * 2);
+            obj.position.y -= obj.speed * Math.cos(util.angToRed(obj.direction));
+            obj.position.x += obj.speed * Math.sin(util.angToRed(obj.direction));
         },
         moveToTarget: function () {
             var obj = this;
