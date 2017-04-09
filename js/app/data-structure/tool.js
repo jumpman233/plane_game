@@ -90,6 +90,8 @@ define(['util',
 
             for(var i in oldTool){
                 if(oldTool[i] && oldTool[i].clone){
+                    newTool[i] = oldTool[i].clone();
+                } else{
                     newTool[i] = oldTool[i];
                 }
             }

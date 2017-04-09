@@ -3,7 +3,8 @@
  */
 
 define(['util',
-'player'],function ( util, player ) {
+'player',
+'randomBuild'],function ( util, player, rm ) {
     function DataManager(  ) {
         this.enemy_bullets = [];
         this.player_bullets = [];
@@ -29,19 +30,15 @@ define(['util',
         resolveEnemy: function ( enemy ) {
             var manager = this;
 
-            if(!(enemy.className === 'Enemy') && !enemy.hasOwnProperty('length')){
+            if(!(enemy.className === 'Enemy') && !Array.isArray(enemy)){
                 throw TypeError('DataManager resolveEnemy: param type error!');
             }
 
             if(enemy.className === 'Enemy'){
                 manager.enemies.push(enemy);
-            } else if(enemy.hasOwnProperty('length')){
+            } else{
                 for(var i in enemy){
-                    if(enemy[i].className === 'Enemy'){
-                        manager.enemies.push(enemy[i]);
-                    } else{
-                        throw TypeError('DataManager resolveEnemy: param type error!');
-                    }
+                    this.resolveEnemy(enemy[i]);
                 }
             }
         },
@@ -101,16 +98,23 @@ define(['util',
             util.dirtyCheck(dm.player_bullets);
             util.dirtyCheck(dm.tools);
             util.dirtyCheck(dm.missiles);
-            dm.enemyCheck();
+            dm.enemyDeadCheck();
         },
-        enemyCheck: function () {
+        enemyDeadCheck: function () {
             var dm = this,
-                list = dm.enemies;
+                list = dm.enemies,
+                tool;
             for(var i in list){
                 var enemy = list[i];
                 if(enemy.isDead){
                     list.splice(i,1);
-                    player.score += enemy.score;
+                    if(util.isInCanvas(enemy.plane)){
+                        player.score += enemy.score;
+                        tool = rm.createTool(enemy.toolDrop, enemy.plane.position);
+                        if(tool !== undefined){
+                            dm.resolveTool(tool);
+                        }
+                    }
                 }
             }
         }

@@ -127,6 +127,7 @@ define(['util',
         },
         drawMainMenu: function (  ) {
             var defer = $.Deferred();
+            bkAnimate.reset();
             var draw = function (  ) {
                 global.clearRect();
                 bkAnimate.draw(global.context);

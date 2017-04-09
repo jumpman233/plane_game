@@ -8,7 +8,7 @@
     "deadAudioName": "dead1",
     "role": "player",
     "direction": 0,
-    "shootRate": 40,
+    "shootRate": 30,
     "bulletType": 1
 },{
     "type": "2",

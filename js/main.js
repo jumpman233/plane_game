@@ -62,7 +62,12 @@ require(['planeGame','bkAnimate'],function ( PlaneGame, bkAnimate) {
     // var context = $('#myCanvas')[0].getContext('2d');
 
     PlaneGame.init(config).then(function (  ) {
-        PlaneGame.start();
+        try{
+            PlaneGame.start();
+        }
+        catch (e){
+            console.log("e");
+        }
     });
 
     // planeGame.testAllModules();

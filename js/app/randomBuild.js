@@ -3,20 +3,19 @@
  * Created by lzh on 2017/3/1.
  */
 
-define(['warehouse',
-'global',
+define(['global',
 'player',
-'util',
-'dataManager'],function ( warehouse, global, player, util, dm ) {
+'util'],function ( global, player, util ) {
     'use strict';
     function RandomBuild(  ) {
         this.curDiff = null;
         this.diffData = [];
         this.frequency = null;
         this.frameNum = 0;
+        this.warehouse = null;
     }
     RandomBuild.prototype = {
-        init: function (  ) {
+        init: function ( warehouse ) {
             var defer = $.Deferred();
             var rb = this;
             rb.diffData = util.copy(warehouse.difficultyData);
@@ -30,6 +29,7 @@ define(['warehouse',
                 }
             }
 
+            this.warehouse = warehouse;
             defer.resolve();
             return defer;
         },
@@ -49,19 +49,21 @@ define(['warehouse',
                 isCreate = false,
                 x = 0,
                 curDiff = rb.curDiff,
-                enemyData = curDiff.enemies;
+                enemyData = curDiff.enemies,
+                list = [];
             if(global.frameNum % (global.fps * rb.frequency) === 0){
                 while(!isCreate){
                     for(var i = 0; i < enemyData.length; i++){
                         var e_data = enemyData[i];
                         if(Math.random() <= e_data.possibility){
                             var newEnemy = rb.initNewEnemy(e_data);
-                            dm.resolveEnemy(newEnemy);
+                            list.push(newEnemy);
                             isCreate = true;
                         }
                     }
                 }
             }
+            return list;
         },
         initNewEnemy: function ( enemyData ) {
             var enemy = enemyData.enemy,
@@ -106,26 +108,31 @@ define(['warehouse',
             }
             return missile;
         },
-        createTool : function ( probability ) {
-            var allWeight = 0;
+        createTool : function ( probability, position ) {
+            var allWeight = 0,
+                rm = this;
+            if(typeof probability !== 'number' || !position || !position.x || !position.y){
+                throw TypeError('randomBuild createTool(): params are not right!');
+            }
 
             var rand = Math.random();
-            if(rand>probability){
+            if(rand > probability){
                 return;
             }
 
-            for(var i in warehouse.toolList){
-                var tool = warehouse.toolList[i];
+            for(var i in rm.warehouse.toolList){
+                var tool = rm.warehouse.toolList[i];
                 allWeight += tool.weight;
             }
             rand = Math.random() * allWeight;
-            for(var i in warehouse.toolList){
-                var tool = warehouse.toolList[i];
+            for(var i in rm.warehouse.toolList){
+                var tool = rm.warehouse.toolList[i];
                 rand -= tool.weight;
                 if(rand<=0){
                     var newTool = util.copy(tool);
                     newTool.init();
-                    newTool.extraTime = fps * newTool.existTime;
+                    newTool.position = util.copy(position);
+                    newTool.extraTime = global.fps * newTool.existTime;
                     return newTool;
                 }
             }

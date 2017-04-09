@@ -145,10 +145,10 @@ define(['jquery',
                     }
                     global.clearRect();
 
-                    var plane = randomBuild.createEnemyPlane();
+                    var planes = randomBuild.createEnemyPlane();
                     // var missile = randomBuild.createMissile(1/fps/10);
-                    if(plane){
-                        dataManager.resolveEnemy(plane);
+                    if(planes !== undefined){
+                        dataManager.resolveEnemy(planes);
                     }
                     // if(missile){
                     //     dataManager.resolveMissile(missile);
@@ -234,7 +234,7 @@ define(['jquery',
                         });
                     })
                     .then(function (  ) {
-                        return randomBuild.init();
+                        return randomBuild.init(Warehouse);
                     })
                     .then(function (  ) {
                         //if all the image and audio load is done ,the game's init is completed

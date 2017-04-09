@@ -1,10 +1,10 @@
 [{
   "type": 1,
   "planeType": 2,
-  "hp": 100,
+  "hp": 5,
   "speed": 5,
   "score": 10,
-  "toolDrop": 0.1,
+  "toolDrop": 1,
   "moveType": "straight",
   "watchAng": 90
 },{
