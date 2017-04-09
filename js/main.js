@@ -37,7 +37,8 @@ require.config({
         'menuAnimate': 'app/animate/menuAnimate',
         'hardAnimate': 'app/animate/hardAnimate',
         'aniImage': 'app/animate/aniImage',
-        'ballBkAnimate': 'app/animate/ballBkAnimate'
+        'ballBkAnimate': 'app/animate/ballBkAnimate',
+        'storeMenu': 'app/animate/storeMenu'
     }
 });
 

@@ -58,14 +58,22 @@ define(['jquery',
                 sound.playBackgroundMusic();
 
                 Screen
-                    .mainMenu({
-                        startGame: 'start'
-                    })
-                    .then(function ( name ) {
-                        if(name == 'start'){
-                            game.hardChoose();
+                    .mainMenu()
+                    .then(function ( opt ) {
+                        switch (opt){
+                            case 0:
+                                game.hardChoose();
+                                break;
+                            case 1:
+                                game.storeMenu();
+                                break;
                         }
                     });
+            },
+            storeMenu: function (  ) {
+                var game = this;
+
+
             },
             hardChoose: function (  ) {
                 var game = this;
@@ -132,6 +140,9 @@ define(['jquery',
                 //     global.clearRect();
                 //     bkAnimate.draw(global.context);
                 // });
+                debugger;
+                util.setCursor('none');
+
                 GameEventHandler.keydown(function ( e ) {
                     if(e.keyCode == 27 && !game.isPause){
                         game.pause();

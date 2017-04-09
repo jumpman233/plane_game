@@ -17,9 +17,14 @@ define(['global', 'rect', 'text'], function ( global, Rect, Text ) {
         easing = 0.06,
         mainMenuComplete = false,
         mainMenuRemoving = false,
-        mainMenuRemoved = false;
+        mainMenuRemoved = false,
+        storeText = new Text(),
+        storeRect = new Rect(),
+        storeOptTarget = {x: 0, y:0},
+        startClickListener = null,
+        storeClickListener = null;
 
-    var initMenuData = function (  ) {
+    var initMenuData = function ( startClickLis, storeClickLis ) {
         if(global.width == 0 && global.height == 0){
             throw TypeError('initMenuData: global has not been init!');
         }
@@ -29,6 +34,8 @@ define(['global', 'rect', 'text'], function ( global, Rect, Text ) {
         width = global.width;
         height = global.height;
         context = global.context;
+        startClickListener = startClickLis;
+        storeClickListener = storeClickLis;
 
         resetMainMenu();
     };
@@ -47,6 +54,9 @@ define(['global', 'rect', 'text'], function ( global, Rect, Text ) {
         startOptTarget.x = width / 2;
         startOptTarget.y = height / 2;
 
+        storeOptTarget.x = width / 2;
+        storeOptTarget.y = height / 2 + 100;
+
         gameNameText.x = width / 2;
         gameNameText.y = -optHeight;
         gameNameText.text = 'FIGHT IN SKY';
@@ -61,6 +71,16 @@ define(['global', 'rect', 'text'], function ( global, Rect, Text ) {
         startRect.height = optHeight;
         startText.text = 'START GAME';
 
+        storeRect.width = optWidth;
+        storeRect.height = optHeight;
+
+        storeRect.x = width / 2 - optWidth / 2;
+        storeRect.y = height + optHeight;
+        storeText.x = width / 2;
+        storeText.y = height + optHeight;
+        storeText.text = 'STORE';
+        storeText.fontSize = optFont;
+
         mainMenuComplete = false;
         mainMenuRemoving = false;
         mainMenuRemoved = false;
@@ -70,7 +90,9 @@ define(['global', 'rect', 'text'], function ( global, Rect, Text ) {
         var inScreen = function (  ) {
             var d1 = easeMoveToTarget(gameNameText.x, gameNameText.y, gameNameTarget.x, gameNameTarget.y),
                 d2 = easeMoveToTarget(startText.x, startText.y, startOptTarget.x, startOptTarget.y),
-                d3 = easeMoveToTarget(startRect.x, startRect.y, startOptTarget.x - optWidth / 2, startOptTarget.y - optHeight * 0.7);
+                d3 = easeMoveToTarget(startRect.x, startRect.y, startOptTarget.x - optWidth / 2, startOptTarget.y - optHeight * 0.7),
+                d4 = easeMoveToTarget(storeRect.x, storeRect.y, storeOptTarget.x - optWidth / 2, storeOptTarget.y - optHeight * 0.7),
+                d5 = easeMoveToTarget(storeText.x, storeText.y, storeOptTarget.x, storeOptTarget.y);
 
             gameNameText.x += d1.dx;
             gameNameText.y += d1.dy;
@@ -80,24 +102,37 @@ define(['global', 'rect', 'text'], function ( global, Rect, Text ) {
             startText.x += d2.dx;
             startText.y += d2.dy;
 
+            storeText.x += d5.dx;
+            storeText.y += d5.dy;
+            storeRect.x += d4.dx;
+            storeRect.y += d4.dy;
+
             gameNameText.draw(ctx);
 
             startRect.draw(ctx);
             startText.draw(ctx);
+            storeRect.draw(ctx);
+            storeText.draw(ctx);
 
-            if(Math.abs(gameNameText.y - gameNameTarget.y) <= 1){
+            if(Math.abs(gameNameText.y - gameNameTarget.y) <= 1 && !mainMenuComplete){
                 mainMenuComplete = true;
+                startClickListener(startOptTarget.x, startOptTarget.y);
+                storeClickListener(storeOptTarget.x, storeOptTarget.y);
             }
         };
 
         var outScreen = function (  ) {
             startRect.draw(ctx);
             startText.draw(ctx);
+            storeRect.draw(ctx);
+            storeText.draw(ctx);
             gameNameText.draw(ctx);
 
             startText.move();
             startRect.move();
             gameNameText.move();
+            storeText.move();
+            storeRect.move();
 
             if(startText.y - optHeight > height &&
             startRect.y - optHeight > height &&
@@ -123,11 +158,18 @@ define(['global', 'rect', 'text'], function ( global, Rect, Text ) {
             ay2 =  Math.random() + 1,
             vx2 = (Math.random() * 10 + 2) * (Math.random() < 0.5 ? 1 : -1),
             vy1 = - (Math.random() * 10 + 5),
-            vy2 = - (Math.random() * 10 + 5);
+            vy2 = - (Math.random() * 10 + 5),
+            vx3 = (Math.random() * 10 + 2) * (Math.random() < 0.5 ? 1 : -1),
+            vy3 = - (Math.random() * 10 + 5),
+            ay3 =  Math.random() + 1;
 
         startText.vx = startRect.vx = vx1;
         startText.vy = startRect.vy = vy1;
         startText.ay = startRect.ay = ay1;
+
+        storeText.vx = storeRect.vx = vx3;
+        storeText.vy = storeRect.vy = vy3;
+        storeText.ay = storeRect.ay = ay3;
 
         gameNameText.vx = vx2;
         gameNameText.vy = vy2;
@@ -137,6 +179,7 @@ define(['global', 'rect', 'text'], function ( global, Rect, Text ) {
     return {
         init: initMenuData,
         mainMenu: {
+            init: initMenuData,
             reset: resetMainMenu,
             draw: drawMainMenu,
             remove: removeMainMenu,

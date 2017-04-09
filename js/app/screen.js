@@ -14,7 +14,8 @@ define(['util',
 'menuAnimate',
 'bkAnimate',
 'hardAnimate',
-'ballBkAnimate'],function ( util, Warehouse, Position, dataManager, player, global, Rect, Text, IM,menuAnimate,bkAnimate, hardAnimate, ballBkAnimate ) {
+'ballBkAnimate',
+'storeMenu'],function ( util, Warehouse, Position, dataManager, player, global, Rect, Text, IM,menuAnimate,bkAnimate, hardAnimate, ballBkAnimate, storeMenu ) {
     function Screen(  ) {
         this.optWidth = 200;
         this.optHeight = 30;
@@ -61,29 +62,35 @@ define(['util',
             screen.drawMenuOption('Resume', width/2, height/2, resumeFunc);
             screen.drawMenuOption('Exit', width/2, height/2 + 50, exitFunc);
         },
-        mainMenu: function ( params ) {
-            if(!params || !params.startGame){
-                throw  TypeError('Screen mainMenu(): params are not right!');
-            }
-
+        mainMenu: function () {
             var screen = this,
-                width = global.width,
-                height = global.height,
                 defer = $.Deferred();
 
-            var clickEvent = function (  ) {
+            var startGameClickEvent = function (  ) {
                 screen
-                    .removeMainMenu()
+                    .removeMainMenu(true)
                     .then(function (  ) {
-                        defer.resolve(params.startGame);
+                        defer.resolve(0);
+                    });
+            };
+            var storeGameClickEvent = function (  ) {
+                screen.removeMainMenu(false)
+                    .then(function (  ) {
+                        defer.resolve(1);
                     });
             };
             screen
-                .drawMainMenu()
-                .then(function (  ) {
-                    screen.setOptionEvent(width/2, height/2 , clickEvent);
+                .drawMainMenu(function ( x, y ) {
+                    screen.setOptionEvent(x, y, startGameClickEvent);
+                }, function ( x, y ) {
+                    screen.setOptionEvent(x, y, storeGameClickEvent);
                 });
             return defer;
+        },
+        storeMenu: function (  ) {
+            var screen = this,
+                defer = $.Deferred();
+
         },
         hardMenu: function ( params ) {
             if(!params || !params.easy || !params.medium || !params.hard || !params.hell){
@@ -94,6 +101,7 @@ define(['util',
             var removeAnimate = function ( str ) {
                 hardAnimate.remove();
                 ballBkAnimate.remove();
+                hardAnimate.removeEvent();
 
                 IM.addInterval(function (  ) {
                     if(hardAnimate.isRemoved() && ballBkAnimate.isRemoved()){
@@ -125,9 +133,10 @@ define(['util',
 
             return defer;
         },
-        drawMainMenu: function (  ) {
+        drawMainMenu: function ( startListener, storeListener ) {
             var defer = $.Deferred();
             bkAnimate.reset();
+            menuAnimate.mainMenu.init(startListener, storeListener);
             var draw = function (  ) {
                 global.clearRect();
                 bkAnimate.draw(global.context);
@@ -140,20 +149,31 @@ define(['util',
             IM.addInterval(draw);
             return defer;
         },
-        removeMainMenu: function (  ) {
-            var defer = $.Deferred();
+        removeMainMenu: function ( bk ) {
+            var defer = $.Deferred(),
+                inter = null;
 
             menuAnimate.mainMenu.remove();
-            bkAnimate.remove();
+            if(bk === true){
+                bkAnimate.remove();
 
-            var inter = function (  ) {
-                if(menuAnimate.mainMenu.isRemoved() && bkAnimate.isRemoved()){
-                    IM.removeInterval(inter);
-                    defer.resolve();
-                }
-            };
+                inter = function (  ) {
+                    if(menuAnimate.mainMenu.isRemoved() && bkAnimate.isRemoved()){
+                        IM.removeInterval(inter);
+                        defer.resolve();
+                    }
+                };
+                IM.addInterval(inter);
+            } else{
+                inter = function (  ) {
+                    if(menuAnimate.mainMenu.isRemoved()){
+                        IM.removeInterval(inter);
+                        defer.resolve();
+                    }
+                };
+                IM.addInterval(inter);
+            }
 
-            IM.addInterval(inter);
             return defer;
         },
         setOptionEvent: function ( x, y, callback ) {
@@ -192,6 +212,8 @@ define(['util',
                 if(rect.isInclude(pos.x, pos.y)){
                     screen.removeAllOptions();
                     util.setCursor('default');
+                    global.canvasElement.removeEventListener('mousemove', menuMouseMove);
+                    global.canvasElement.removeEventListener('mousedown', menuMouseDown);
                     callback();
                 }
             }
@@ -289,7 +311,7 @@ define(['util',
             screen.drawScore();
             screen.drawLife();
 
-            player.plane.draw(global.context);
+            player.draw(global.context);
 
             for(var i in dataManager.enemy_bullets){
                 var bullet = dataManager.enemy_bullets[i];
