@@ -40,6 +40,9 @@ define(['graph', 'util'], function ( Graph, util ) {
                 rect.y >= 0 && rect.y + rect.height <= height
     };
     Rect.prototype.isInclude= function ( x, y ) {
+        if(typeof x !== 'number' || typeof y !== 'number'){
+            throw TypeError('Rect inInclude(): params are not right!');
+        }
         var rect = this;
         return rect.x <= x && rect.x + rect.width >= x &&
                 rect.y <= y && rect.y + rect.height >= y;

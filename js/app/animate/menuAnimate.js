@@ -2,7 +2,7 @@
  * Created by lzh on 2017/3/8.
  */
 
-define(['global', 'rect', 'text'], function ( global, Rect, Text ) {
+define(['global', 'rect', 'text', 'util'], function ( global, Rect, Text , util) {
     var context = null,
         optWidth = 0,
         optHeight = 0,
@@ -48,17 +48,20 @@ define(['global', 'rect', 'text'], function ( global, Rect, Text ) {
     };
 
     var resetMainMenu = function (  ) {
+        var dh = optHeight * 2;
+
         gameNameTarget.x = width / 2;
         gameNameTarget.y = height / 5;
 
         startOptTarget.x = width / 2;
-        startOptTarget.y = height / 2;
+        startOptTarget.y = height / 5 + dh * 2;
 
         storeOptTarget.x = width / 2;
-        storeOptTarget.y = height / 2 + optHeight * 2;
+        storeOptTarget.y = height / 5 + dh * 3;
 
         gameNameText.x = width / 2;
         gameNameText.y = -optHeight;
+        gameNameText.fontSize = optFont * 2;
         gameNameText.text = 'FIGHT IN SKY';
 
         startRect.x = width / 2 - optWidth / 2;
@@ -69,10 +72,12 @@ define(['global', 'rect', 'text'], function ( global, Rect, Text ) {
 
         startRect.width = optWidth;
         startRect.height = optHeight;
+        startRect.fillColor = '#fff';
         startText.text = 'START GAME';
 
         storeRect.width = optWidth;
         storeRect.height = optHeight;
+        storeRect.fillColor = '#fff';
 
         storeRect.x = width / 2 - optWidth / 2;
         storeRect.y = height + optHeight;
@@ -84,6 +89,20 @@ define(['global', 'rect', 'text'], function ( global, Rect, Text ) {
         mainMenuComplete = false;
         mainMenuRemoving = false;
         mainMenuRemoved = false;
+    };
+
+    var mouseMove = function ( event ) {
+        var pos = util.getEventPosition(event);
+        if(startRect.isInclude(pos.x, pos.y)){
+            startRect.fillColor = '#ddd';
+        } else{
+            startRect.fillColor = '#fff';
+        }
+        if(storeRect.isInclude(pos.x, pos.y)){
+            storeRect.fillColor = '#ddd';
+        } else{
+            storeRect.fillColor = '#fff';
+        }
     };
 
     var inScreen = function ( ctx ) {
@@ -117,6 +136,7 @@ define(['global', 'rect', 'text'], function ( global, Rect, Text ) {
             mainMenuComplete = true;
             startClickListener(startOptTarget.x, startOptTarget.y);
             storeClickListener(storeOptTarget.x, storeOptTarget.y);
+            global.canvasElement.addEventListener('mousemove', mouseMove);
         }
     };
 
@@ -162,6 +182,8 @@ define(['global', 'rect', 'text'], function ( global, Rect, Text ) {
             vx3 = (Math.random() * 10 + 2) * (Math.random() < 0.5 ? 1 : -1),
             vy3 = - (Math.random() * 10 + 5),
             ay3 =  Math.random() + 1;
+
+        global.canvasElement.removeEventListener('mousemove', mouseMove);
 
         startText.vx = startRect.vx = vx1;
         startText.vy = startRect.vy = vy1;

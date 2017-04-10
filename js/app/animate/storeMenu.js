@@ -73,7 +73,8 @@ define(['global', 'rect', 'text', 'util'], function ( global, Rect, Text, util )
 
             opt.valueText.text = '' + opt.getValue();
             opt.valueText.fontSize = params.fontSize;
-            opt.valueTextTarget.x = params.x + params.optWidth - opt.valueText.text.length * params.fontSize * 0.4;
+            opt.valueTextTarget.x = params.x + params.optWidth - opt.optRect.width / 15;
+            opt.valueText.textAlign = 'right';
             opt.valueTextTarget.y = params.y + textOffsetY;
             opt.valueText.x = params.initX;
             opt.valueText.y = params.initY;
@@ -174,6 +175,8 @@ define(['global', 'rect', 'text', 'util'], function ( global, Rect, Text, util )
         storeTextTarget.x = width / 2;
         storeTextTarget.y = height / 5;
 
+        backRect = new Rect;
+        backText = new Text;
         backText.text = 'BACK';
         backText.fontSize = fontSize;
         backText.x = width / 2;

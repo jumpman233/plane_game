@@ -11,18 +11,38 @@ define(['global'], function ( global ) {
         this.interList = [];
     }
 
-    IntervalManager.prototype.addInterval = function ( func ) {
+    IntervalManager.prototype.addToTop = function ( func ) {
         if(typeof func == 'function'){
+            this.interList.unshift(func);
+        } else{
+            throw TypeError('IntervalManager addInterval(): param is not right!');
+        }
+    };
+    IntervalManager.prototype.addInterval = function ( func, name ) {
+        if(typeof func == 'function'){
+            if(typeof name === 'string'){
+                func.f_name = name;
+            }
             this.interList.push(func);
         } else{
             throw TypeError('IntervalManager addInterval(): param is not right!');
         }
     };
-    IntervalManager.prototype.removeInterval = function ( func ) {
-        if(!func) return;
+    IntervalManager.prototype.haveInterval = function ( func ) {
+        if(typeof func !== 'function' && typeof func !== 'string') return;
 
         for(var i in this.interList){
-            if(func == this.interList[i]){
+            if(func == this.interList[i] || func === this.interList[i].f_name){
+                return true;
+            }
+        }
+        return false;
+    };
+    IntervalManager.prototype.removeInterval = function ( func ) {
+        if(typeof func !== 'function' && typeof func !== 'string') return;
+
+        for(var i in this.interList){
+            if(func == this.interList[i] || func === this.interList[i].f_name){
                 this.interList.splice(i, 1);
                 return true;
             }

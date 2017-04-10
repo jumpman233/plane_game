@@ -95,13 +95,18 @@ define(['util',
                 storeMenu
                     .remove()
                     .then(function (  ) {
-                        IM.removeInterval(storeMenu.draw);
+                        IM.clearIntervalList();
                         defer.resolve();
                     });
             };
+            var draw = function (  ) {
+                global.clearRect();
+                storeMenu.draw();
+            };
 
             storeMenu.init(list, backClick);
-            IM.addInterval(storeMenu.draw);
+            screen.startMenuBk();
+            IM.addToTop(draw);
 
             return defer;
         },
@@ -146,22 +151,35 @@ define(['util',
 
             return defer;
         },
+        startMenuBk: function (  ) {
+            if(!bkAnimate.isPlaying() || !IM.haveInterval('bk')){
+                var draw = function (  ) {
+                    bkAnimate.draw(global.context);
+                };
+
+                IM.addInterval(function (  ) {
+                    draw();
+                }, 'bk');
+            }
+        },
         drawMainMenu: function ( startListener, storeListener ) {
             var defer = $.Deferred();
-            if(!bkAnimate.isPlaying()){
-                bkAnimate.reset();
-            }
             menuAnimate.mainMenu.init(startListener, storeListener);
             var draw = function (  ) {
                 global.clearRect();
-                bkAnimate.draw(global.context);
                 menuAnimate.mainMenu.draw(global.context);
                 if(menuAnimate.mainMenu.complete()){
                     defer.resolve();
                 }
             };
 
-            IM.addInterval(draw);
+            if(!bkAnimate.isPlaying()){
+                bkAnimate.reset();
+            }
+            this.startMenuBk();
+
+            IM.addToTop(draw);
+
             return defer;
         },
         removeMainMenu: function ( bk ) {
@@ -174,7 +192,7 @@ define(['util',
 
                 inter = function (  ) {
                     if(menuAnimate.mainMenu.isRemoved() && bkAnimate.isRemoved()){
-                        IM.removeInterval(inter);
+                        IM.clearIntervalList();
                         defer.resolve();
                     }
                 };
@@ -182,7 +200,7 @@ define(['util',
             } else{
                 inter = function (  ) {
                     if(menuAnimate.mainMenu.isRemoved()){
-                        IM.removeInterval(inter);
+                        IM.clearIntervalList();
                         defer.resolve();
                     }
                 };
