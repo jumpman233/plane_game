@@ -131,7 +131,7 @@ define(['util',
                 hardAnimate.remove();
                 ballBkAnimate.remove();
                 hardAnimate.removeEvent();
-                screen.fadeTo(16, 16, 16)
+                screen.fadeTo(255, 255, 255)
                     .then(function (  ) {
                         flag1 = true;
                         checkFinish(str);

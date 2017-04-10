@@ -10,7 +10,9 @@ define(['gameEventHandler',
         this.plane = null;
         this.maxLife = 0;
         this.curLife = 0;
+        this.curSpeed = 0;
         this.score = 0;
+        this.aSpeed = 0.1;
         this.speed = 0;
         this.toPos = null;
         this.money = 0;
@@ -38,7 +40,7 @@ define(['gameEventHandler',
             var data = this.getData();
             switch (str.toLowerCase()){
                 case 'speed':
-                    return data.speed * 10000;
+                    return data.speed * 100;
                 case 'damage':
                     return data.damage * 100;
             }
@@ -56,7 +58,7 @@ define(['gameEventHandler',
         },
         resetData: function (  ) {
             var playerData = {
-                speed: 0.02,
+                speed: 5,
                 damage: 5,
                 shootRate: 30,
                 bulletSpeed: 5,
@@ -64,6 +66,7 @@ define(['gameEventHandler',
                 money: 500
             };
             this.setData(playerData);
+            this.updateData();
         },
         updateData: function (  ) {
             var player = this,
@@ -75,6 +78,7 @@ define(['gameEventHandler',
             player.plane.shootRate = playerData.shootRate;
             player.plane.damage = playerData.damage;
             player.speed = playerData.speed;
+            player.curSpeed = 0;
         },
         setData: function ( data ) {
             localStorage.setItem('playerData', JSON.stringify(data));
@@ -89,7 +93,7 @@ define(['gameEventHandler',
 
             switch (str){
                 case 'speed':
-                    playerData.speed = (playerData.speed * 100 + 1) / 100;
+                    playerData.speed += 1;
                     break;
                 case 'damage':
                     playerData.damage += 1;
@@ -114,6 +118,8 @@ define(['gameEventHandler',
             player.geh = GameEventHandler;
 
             player.plane = params.plane;
+            player.plane.position.x = 300;
+            player.plane.position.y = 300;
             player.plane.curBullet = 0;
             player.plane.role = 'player';
             player.updateData();
@@ -137,10 +143,22 @@ define(['gameEventHandler',
         },
         move: function (  ) {
             var player = this,
-                curPos = player.plane.position;
+                curPos = player.plane.position,
+                dis = curPos.calDis(player.toPos),
+                ang = 0;
 
-            curPos.x += player.speed * (player.toPos.x - curPos.x);
-            curPos.y += player.speed * (player.toPos.y - curPos.y);
+            if(dis <= player.speed){
+                curPos.x = player.toPos.x;
+                curPos.y = player.toPos.y;
+            } else{
+                if(player.curSpeed < player.speed){
+                    player.curSpeed += player.aSpeed;
+                }
+                ang = curPos.includeAng(player.toPos);
+                curPos.x += Math.sin(util.angToRed(ang)) * player.curSpeed;
+                curPos.y -= Math.cos(util.angToRed(ang)) * player.curSpeed;
+                debugger;
+            }
         },
         draw: function ( ctx ) {
             this.plane.draw(ctx);

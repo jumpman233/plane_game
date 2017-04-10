@@ -27,8 +27,9 @@ define([],function (  ) {
             if(undefined !== des && undefined === des.x && undefined === des.y){
                 throw TypeError("calDis(): des is not Position type!");
             }
-            if(undefined === des){
-                des = this.position;
+            if(undefined === des && typeof this.x === 'number' && typeof this.y === 'number'){
+                des = sta;
+                sta = this;
             }
             var dp = this.calDif(sta, des);
             return Math.sqrt(Math.pow(dp.x, 2) + Math.pow(dp.y, 2));
@@ -40,8 +41,9 @@ define([],function (  ) {
             if(undefined !== des && undefined === des.x && undefined === des.y){
                 throw TypeError("calDis(): des is not Position type!");
             }
-            if(undefined === des){
-                des = this.position;
+            if(undefined === des && typeof this.x === 'number' && typeof this.y === 'number'){
+                des = sta;
+                sta = this;
             }
             return new Position(des.x - sta.x, des.y - sta.y);
         },
@@ -52,8 +54,12 @@ define([],function (  ) {
             if(undefined !== des && undefined === des.x && undefined === des.y){
                 throw TypeError("calDis(): des is not Position type!");
             }
-            if(undefined === des){
-                des = this.position;
+            if(undefined === des && typeof this.x === 'number' && typeof this.y === 'number'){
+                des = sta;
+                sta = this;
+            }
+            if(undefined === dir){
+                dir = 0;
             }
             var dp = this.calDif(sta, des);
             var dis = this.calDis(sta, des);
