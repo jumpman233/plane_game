@@ -39,7 +39,7 @@ define(['gameEventHandler',
                 playerData = "1" || JSON.parse(localStorage.getItem('playerData'));
             if(playerData){
                 playerData = {
-                    speed: 0.05,
+                    speed: 0.02,
                     damage: 5,
                     shootRate: 30,
                     bulletSpeed: 5,

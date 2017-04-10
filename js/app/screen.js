@@ -87,9 +87,11 @@ define(['util',
                 });
             return defer;
         },
-        storeMenu: function (  ) {
+        storeMenu: function ( list ) {
             var screen = this,
                 defer = $.Deferred();
+            storeMenu.init(list);
+            IM.addInterval(storeMenu.draw);
 
         },
         hardMenu: function ( params ) {

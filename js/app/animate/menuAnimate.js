@@ -49,13 +49,13 @@ define(['global', 'rect', 'text'], function ( global, Rect, Text ) {
 
     var resetMainMenu = function (  ) {
         gameNameTarget.x = width / 2;
-        gameNameTarget.y = height / 2 - 100;
+        gameNameTarget.y = height / 5;
 
         startOptTarget.x = width / 2;
         startOptTarget.y = height / 2;
 
         storeOptTarget.x = width / 2;
-        storeOptTarget.y = height / 2 + 100;
+        storeOptTarget.y = height / 2 + optHeight * 2;
 
         gameNameText.x = width / 2;
         gameNameText.y = -optHeight;
@@ -86,65 +86,65 @@ define(['global', 'rect', 'text'], function ( global, Rect, Text ) {
         mainMenuRemoved = false;
     };
 
-    var drawMainMenu = function ( ctx ) {
-        var inScreen = function (  ) {
-            var d1 = easeMoveToTarget(gameNameText.x, gameNameText.y, gameNameTarget.x, gameNameTarget.y),
-                d2 = easeMoveToTarget(startText.x, startText.y, startOptTarget.x, startOptTarget.y),
-                d3 = easeMoveToTarget(startRect.x, startRect.y, startOptTarget.x - optWidth / 2, startOptTarget.y - optHeight * 0.7),
-                d4 = easeMoveToTarget(storeRect.x, storeRect.y, storeOptTarget.x - optWidth / 2, storeOptTarget.y - optHeight * 0.7),
-                d5 = easeMoveToTarget(storeText.x, storeText.y, storeOptTarget.x, storeOptTarget.y);
+    var inScreen = function ( ctx ) {
+        var d1 = easeMoveToTarget(gameNameText.x, gameNameText.y, gameNameTarget.x, gameNameTarget.y),
+            d2 = easeMoveToTarget(startText.x, startText.y, startOptTarget.x, startOptTarget.y),
+            d3 = easeMoveToTarget(startRect.x, startRect.y, startOptTarget.x - optWidth / 2, startOptTarget.y - optHeight * 0.7),
+            d4 = easeMoveToTarget(storeRect.x, storeRect.y, storeOptTarget.x - optWidth / 2, storeOptTarget.y - optHeight * 0.7),
+            d5 = easeMoveToTarget(storeText.x, storeText.y, storeOptTarget.x, storeOptTarget.y);
 
-            gameNameText.x += d1.dx;
-            gameNameText.y += d1.dy;
+        gameNameText.x += d1.dx;
+        gameNameText.y += d1.dy;
 
-            startRect.x += d3.dx;
-            startRect.y += d3.dy;
-            startText.x += d2.dx;
-            startText.y += d2.dy;
+        startRect.x += d3.dx;
+        startRect.y += d3.dy;
+        startText.x += d2.dx;
+        startText.y += d2.dy;
 
-            storeText.x += d5.dx;
-            storeText.y += d5.dy;
-            storeRect.x += d4.dx;
-            storeRect.y += d4.dy;
+        storeText.x += d5.dx;
+        storeText.y += d5.dy;
+        storeRect.x += d4.dx;
+        storeRect.y += d4.dy;
 
-            gameNameText.draw(ctx);
+        gameNameText.draw(ctx);
 
-            startRect.draw(ctx);
-            startText.draw(ctx);
-            storeRect.draw(ctx);
-            storeText.draw(ctx);
+        startRect.draw(ctx);
+        startText.draw(ctx);
+        storeRect.draw(ctx);
+        storeText.draw(ctx);
 
-            if(Math.abs(gameNameText.y - gameNameTarget.y) <= 1 && !mainMenuComplete){
-                mainMenuComplete = true;
-                startClickListener(startOptTarget.x, startOptTarget.y);
-                storeClickListener(storeOptTarget.x, storeOptTarget.y);
-            }
-        };
+        if(Math.abs(gameNameText.y - gameNameTarget.y) <= 1 && !mainMenuComplete){
+            mainMenuComplete = true;
+            startClickListener(startOptTarget.x, startOptTarget.y);
+            storeClickListener(storeOptTarget.x, storeOptTarget.y);
+        }
+    };
 
-        var outScreen = function (  ) {
-            startRect.draw(ctx);
-            startText.draw(ctx);
-            storeRect.draw(ctx);
-            storeText.draw(ctx);
-            gameNameText.draw(ctx);
+    var outScreen = function ( ctx ) {
+        startRect.draw(ctx);
+        startText.draw(ctx);
+        storeRect.draw(ctx);
+        storeText.draw(ctx);
+        gameNameText.draw(ctx);
 
-            startText.move();
-            startRect.move();
-            gameNameText.move();
-            storeText.move();
-            storeRect.move();
+        startText.move();
+        startRect.move();
+        gameNameText.move();
+        storeText.move();
+        storeRect.move();
 
-            if(startText.y - optHeight > height &&
+        if(startText.y - optHeight > height &&
             startRect.y - optHeight > height &&
             gameNameText.y - optHeight > height){
-                mainMenuRemoved = true;
-            }
-        };
+            mainMenuRemoved = true;
+        }
+    };
 
+    var drawMainMenu = function ( ctx ) {
         if(!mainMenuRemoving && !mainMenuRemoved){
-            inScreen();
+            inScreen(ctx);
         } else if(mainMenuRemoving){
-            outScreen();
+            outScreen(ctx);
         }
     };
 

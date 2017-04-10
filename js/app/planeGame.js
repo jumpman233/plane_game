@@ -71,9 +71,23 @@ define(['jquery',
                     });
             },
             storeMenu: function (  ) {
-                var game = this;
+                var game = this,
+                    list = [];
+                list.push({
+                    name: 'speed',
+                    value: '12',
+                    click: function (  ) {
+                        console.log('haha');
+                    }
+                },{
+                    name: 'damage',
+                    value: '5',
+                    click: function (  ) {
+                        console.log("???");
+                    }
+                });
 
-
+                Screen.storeMenu(list);
             },
             hardChoose: function (  ) {
                 var game = this;
