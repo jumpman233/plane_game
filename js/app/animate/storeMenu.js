@@ -2,13 +2,20 @@
  * Created by lzh on 2017/4/9.
  */
 
-define(['global', 'rect', 'text', 'util'], function ( global, Rect, Text, util ) {
+define(['global',
+    'rect',
+    'text',
+    'util',
+    'popper'], function ( global, Rect, Text, util, Popper ) {
     var storeText = new Text,
         backText = new Text,
         backRect = new Rect,
+        moneyText = new Text,
+        popper = new Popper(0, 0, 'cost: '),
         storeTextTarget = {x: 0, y: 0},
         backTextTarget = {x: 0, y: 0},
         backRectTarget = {x: 0, y: 0},
+        moneyTarget = {x: 0, y: 0},
         optWidth = 0,
         optHeight = 0,
         options = [],
@@ -16,7 +23,9 @@ define(['global', 'rect', 'text', 'util'], function ( global, Rect, Text, util )
         isRemoved = false,
         removing = false,
         isInit = false,
-        backEvent = null;
+        backEvent = null,
+        getMoney = null,
+        getCost = null;
 
     var easeMove = function ( sta, tar ) {
         if(sta && sta.x !== undefined && sta.y !== undefined && tar && tar.x !== undefined && tar.y !== undefined){
@@ -126,14 +135,16 @@ define(['global', 'rect', 'text', 'util'], function ( global, Rect, Text, util )
         }
     };
 
-    var init = function ( list, backClick ) {
+    var init = function ( list, callback ) {
         var width = global.width,
             height = global.height,
             indexH,
             indexW,
             dh,
             fontSize = 20;
-        backEvent = backClick;
+        backEvent = callback.backClick;
+        getMoney = callback.getMoney;
+        getCost = callback.getCost;
 
         inComplete = false;
         isRemoved = false;
@@ -175,6 +186,13 @@ define(['global', 'rect', 'text', 'util'], function ( global, Rect, Text, util )
         storeTextTarget.x = width / 2;
         storeTextTarget.y = height / 5;
 
+        moneyText.text = 'money: ' + getMoney() + ' G';
+        moneyText.fontSize = fontSize * 1.2;
+        moneyText.x = width / 2;
+        moneyText.y = -optHeight;
+        moneyTarget.x = width / 2;
+        moneyTarget.y = height / 5 + dh / 2;
+
         backRect = new Rect;
         backText = new Text;
         backText.text = 'BACK';
@@ -202,6 +220,10 @@ define(['global', 'rect', 'text', 'util'], function ( global, Rect, Text, util )
                 flag = false;
                 util.setCursor('pointer');
                 options[i].upgradeRect.fillColor = '#ddd';
+                popper.display = true;
+                popper.text = 'cost: ' + getCost(options[i].optText.text) + ' G';
+                popper.position.x = pos.x;
+                popper.position.y = pos.y;
             } else{
                 options[i].upgradeRect.fillColor = '#fff';
             }
@@ -215,6 +237,7 @@ define(['global', 'rect', 'text', 'util'], function ( global, Rect, Text, util )
         }
         if(flag){
             util.setCursor('default');
+            popper.display = false;
         }
     };
 
@@ -234,7 +257,6 @@ define(['global', 'rect', 'text', 'util'], function ( global, Rect, Text, util )
     };
 
     var draw = function (  ) {
-
         if(!inComplete && !isInit){
             var flag = true;
             for(var i = 0; i < options.length; i++){
@@ -265,12 +287,18 @@ define(['global', 'rect', 'text', 'util'], function ( global, Rect, Text, util )
         }
 
         storeText.draw(global.context);
+        moneyText.draw(global.context);
         backRect.draw(global.context);
         backText.draw(global.context);
 
         easeMove(storeText, storeTextTarget);
         easeMove(backRect, backRectTarget);
         easeMove(backText, backTextTarget);
+        easeMove(moneyText, moneyTarget);
+
+        if(popper.display){
+            popper.draw(global.context);
+        }
     };
 
     var removeEvents = function (  ) {
@@ -291,7 +319,11 @@ define(['global', 'rect', 'text', 'util'], function ( global, Rect, Text, util )
 
         storeText.vx = (Math.random() * 10 + 2) * (Math.random() < 0.5 ? 1 : -1);
         storeText.vy = - (Math.random() * 10 + 5);
-        storeText.ay =  Math.random() + 0.5;
+        storeText.ay = Math.random() + 0.7;
+
+        moneyText.vx = (Math.random() * 10 + 2) * (Math.random() < 0.5 ? 1 : -1);
+        moneyText.vy = - (Math.random() * 10 + 5);
+        moneyText.ay = Math.random() + 1;
 
         for(var i = 0; i < options.length; i++){
             var vx = (Math.random() * 10 + 2) * (Math.random() < 0.5 ? 1 : -1);

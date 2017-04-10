@@ -13,6 +13,7 @@ define(['gameEventHandler',
         this.score = 0;
         this.speed = 0;
         this.toPos = null;
+        this.money = 0;
     }
     Player.prototype = {
         getTool: function (tool) {
@@ -33,12 +34,14 @@ define(['gameEventHandler',
                     break;
             }
         },
-        saveLocal: function (  ) {
-            var player = this;
-            localStorage.setItem("playerData", JSON.stringify({
-                speed: player.speed,
-                damage: player.da
-            }));
+        getCost: function ( str ) {
+            var data = this.getData();
+            switch (str.toLowerCase()){
+                case 'speed':
+                    return data.speed * 10000;
+                case 'damage':
+                    return data.damage * 100;
+            }
         },
         getData: function (  ) {
             var playerData;
@@ -57,7 +60,8 @@ define(['gameEventHandler',
                 damage: 5,
                 shootRate: 30,
                 bulletSpeed: 5,
-                maxLife: 3
+                maxLife: 3,
+                money: 0
             };
             this.setData(playerData);
         },

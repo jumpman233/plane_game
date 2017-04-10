@@ -87,11 +87,11 @@ define(['util',
                 });
             return defer;
         },
-        storeMenu: function ( list ) {
+        storeMenu: function ( list, callback ) {
             var screen = this,
                 defer = $.Deferred();
 
-            var backClick = function (  ) {
+            callback.backClick = function (  ) {
                 storeMenu
                     .remove()
                     .then(function (  ) {
@@ -104,7 +104,7 @@ define(['util',
                 storeMenu.draw();
             };
 
-            storeMenu.init(list, backClick);
+            storeMenu.init(list, callback);
             screen.startMenuBk();
             IM.addToTop(draw);
 

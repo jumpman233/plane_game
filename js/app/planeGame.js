@@ -72,7 +72,8 @@ define(['jquery',
             },
             storeMenu: function (  ) {
                 var game = this,
-                    list = [];
+                    list = [],
+                    callback = {};
                 list.push({
                     name: 'speed',
                     getValue: function (  ) {
@@ -90,8 +91,14 @@ define(['jquery',
                         player.upgrade('damage');
                     }
                 });
+                callback.getMoney = function (  ) {
+                    return player.getData().money;
+                };
+                callback.getCost = function(str){
+                    return player.getCost(str);
+                };
 
-                Screen.storeMenu(list)
+                Screen.storeMenu(list, callback)
                     .then(function (  ) {
                         return game.mainMenu();
                     });
