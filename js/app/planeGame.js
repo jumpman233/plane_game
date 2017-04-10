@@ -75,19 +75,26 @@ define(['jquery',
                     list = [];
                 list.push({
                     name: 'speed',
-                    value: '12',
+                    getValue: function (  ) {
+                        return player.getData().speed;
+                    },
                     click: function (  ) {
-                        console.log('haha');
+                        player.upgrade('speed');
                     }
                 },{
                     name: 'damage',
-                    value: '5',
+                    getValue: function (  ) {
+                        return player.getData().damage;
+                    },
                     click: function (  ) {
-                        console.log("???");
+                        player.upgrade('damage');
                     }
                 });
 
-                Screen.storeMenu(list);
+                Screen.storeMenu(list)
+                    .then(function (  ) {
+                        return game.mainMenu();
+                    });
             },
             hardChoose: function (  ) {
                 var game = this;
@@ -154,7 +161,6 @@ define(['jquery',
                 //     global.clearRect();
                 //     bkAnimate.draw(global.context);
                 // });
-                debugger;
                 util.setCursor('none');
 
                 GameEventHandler.keydown(function ( e ) {

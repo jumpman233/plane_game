@@ -18,7 +18,8 @@ define(['regularTriangle', 'util'], function ( Triangle, util ) {
         finishInit = false,
         baseColor = 70,
         removing = false,
-        removed = false;
+        removed = false,
+        isPlaying = false;
 
     var createTr = function ( baseX ) {
         var tr = new Triangle();
@@ -39,6 +40,7 @@ define(['regularTriangle', 'util'], function ( Triangle, util ) {
         finishInit = false;
         removing = false;
         removed = false;
+        isPlaying = false;
         shapeList = [];
     };
 
@@ -56,6 +58,7 @@ define(['regularTriangle', 'util'], function ( Triangle, util ) {
             shapeList.push(createTr(max_x_r));
             createCd = base_len / speed;
             isInit = true;
+            isPlaying = true;
         }
         if(createCd-- <= 0 && !removing){
             shapeList.push(createTr(max_x_l));
@@ -78,6 +81,7 @@ define(['regularTriangle', 'util'], function ( Triangle, util ) {
         }
         if(shapeList.length == 0 && isInit){
             removed = true;
+            isPlaying = false;
         }
     };
 
@@ -89,6 +93,9 @@ define(['regularTriangle', 'util'], function ( Triangle, util ) {
         },
         isRemoved: function (  ) {
             return removed;
+        },
+        isPlaying: function (  ) {
+            return isPlaying;
         },
         reset: reset
     };

@@ -33,36 +33,87 @@ define(['gameEventHandler',
                     break;
             }
         },
-        init: function ( params ) {
-            var defer = $.Deferred(),
-                player = this,
-                playerData = "1" || JSON.parse(localStorage.getItem('playerData'));
-            if(playerData){
-                playerData = {
-                    speed: 0.02,
-                    damage: 5,
-                    shootRate: 30,
-                    bulletSpeed: 5,
-                    maxLife: 3
-                };
-                localStorage.setItem("playerData", JSON.stringify(playerData));
+        saveLocal: function (  ) {
+            var player = this;
+            localStorage.setItem("playerData", JSON.stringify({
+                speed: player.speed,
+                damage: player.da
+            }));
+        },
+        getData: function (  ) {
+            var playerData;
+
+            if(localStorage.getItem('playerData')){
+                playerData = JSON.parse(localStorage.getItem('playerData'));
+            } else{
+                this.resetData();
             }
+
+            return playerData;
+        },
+        resetData: function (  ) {
+            var playerData = {
+                speed: 0.02,
+                damage: 5,
+                shootRate: 30,
+                bulletSpeed: 5,
+                maxLife: 3
+            };
+            this.setData(playerData);
+        },
+        updateData: function (  ) {
+            var player = this,
+                playerData = player.getData();
 
             player.score = 0;
             player.maxLife = playerData.maxLife;
             player.curLife = player.maxLife;
+            player.plane.shootRate = playerData.shootRate;
+            player.plane.damage = playerData.damage;
+            player.speed = playerData.speed;
+        },
+        setData: function ( data ) {
+            localStorage.setItem('playerData', JSON.stringify(data));
+        },
+        upgrade: function ( str ) {
+            var player = this,
+                playerData = player.getData();
+
+            switch (str){
+                case 'speed':
+                    playerData.speed += 0.01;
+                    break;
+                case 'damage':
+                    playerData.damage += 1;
+                    break;
+                case 'shootRate':
+                    playerData.shootRate += 5;
+                    break;
+                case 'maxLife':
+                    playerData.maxLife += 1;
+                    break;
+            }
+
+            player.setData(playerData);
+        },
+        init: function ( params ) {
+            var defer = $.Deferred(),
+                player = this;
 
             player.geh = GameEventHandler;
 
             player.plane = params.plane;
-            player.plane.shootRate = playerData.shootRate;
-            player.plane.damage = playerData.damage;
-            player.speed = playerData.speed;
             player.plane.curBullet = 0;
             player.plane.role = 'player';
+            player.updateData();
 
             player.geh.mouseMove(function (e) {
                 player.toPos = util.getEventPosition(e);
+            });
+            player.geh.keydown(function ( e ) {
+                if(e.code === 'F2'){
+                    player.resetData();
+                }
             });
             defer.resolve();
         },

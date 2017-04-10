@@ -90,9 +90,20 @@ define(['util',
         storeMenu: function ( list ) {
             var screen = this,
                 defer = $.Deferred();
-            storeMenu.init(list);
+
+            var backClick = function (  ) {
+                storeMenu
+                    .remove()
+                    .then(function (  ) {
+                        IM.removeInterval(storeMenu.draw);
+                        defer.resolve();
+                    });
+            };
+
+            storeMenu.init(list, backClick);
             IM.addInterval(storeMenu.draw);
 
+            return defer;
         },
         hardMenu: function ( params ) {
             if(!params || !params.easy || !params.medium || !params.hard || !params.hell){
@@ -137,7 +148,9 @@ define(['util',
         },
         drawMainMenu: function ( startListener, storeListener ) {
             var defer = $.Deferred();
-            bkAnimate.reset();
+            if(!bkAnimate.isPlaying()){
+                bkAnimate.reset();
+            }
             menuAnimate.mainMenu.init(startListener, storeListener);
             var draw = function (  ) {
                 global.clearRect();
