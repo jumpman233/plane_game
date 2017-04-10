@@ -3,7 +3,7 @@
  */
 
 define(['gameEventHandler',
-    'util',
+    'util'
     ],function (GameEventHandler, util) {
     'use strict';
     function Player() {
@@ -61,7 +61,7 @@ define(['gameEventHandler',
                 shootRate: 30,
                 bulletSpeed: 5,
                 maxLife: 3,
-                money: 0
+                money: 500
             };
             this.setData(playerData);
         },
@@ -81,11 +81,15 @@ define(['gameEventHandler',
         },
         upgrade: function ( str ) {
             var player = this,
-                playerData = player.getData();
+                playerData = player.getData(),
+                cost = player.getCost(str),
+                money = playerData.money;
+            if(money < cost)
+                return false;
 
             switch (str){
                 case 'speed':
-                    playerData.speed += 0.01;
+                    playerData.speed = (playerData.speed * 100 + 1) / 100;
                     break;
                 case 'damage':
                     playerData.damage += 1;
@@ -98,7 +102,10 @@ define(['gameEventHandler',
                     break;
             }
 
+            playerData.money -= cost;
             player.setData(playerData);
+
+            return true;
         },
         init: function ( params ) {
             var defer = $.Deferred(),

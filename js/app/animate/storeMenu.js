@@ -248,6 +248,7 @@ define(['global',
             if(options[i].upgradeRect.isInclude(pos.x, pos.y)){
                 options[i].clickEvent(e);
                 options[i].valueText.text = '' + options[i].getValue();
+                moneyText.text = 'money: ' + getMoney() + ' G';
             }
         }
         if(backRect.isInclude(pos.x, pos.y)){
@@ -277,6 +278,7 @@ define(['global',
             storeText.move();
             backRect.move();
             backText.move();
+            moneyText.move();
             for(var i = 0; i < options.length; i++){
                 options[i].move();
             }
