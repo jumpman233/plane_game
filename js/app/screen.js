@@ -40,11 +40,8 @@ define(['util',
             var screen = this;
             for(var i in screen.optionsFunc){
                 var func = screen.optionsFunc[i];
-                if(func.name == 'menuMouseMove'){
-                    global.canvasElement.removeEventListener('mousemove',func);
-                } else if(func.name == 'menuMouseDown'){
-                    global.canvasElement.removeEventListener('mousedown',func);
-                }
+
+                global.canvasElement.removeEventListener('mousedown',func);
             }
             screen.optionsFunc = [];
             screen.options = [];
@@ -62,6 +59,7 @@ define(['util',
             context.fillText("Pause",width/2,height/2-100);
             screen.drawMenuOption('Resume', width/2, height/2, resumeFunc);
             screen.drawMenuOption('Exit', width/2, height/2 + 50, exitFunc);
+            screen.setOptionsMouseEvent();
         },
         mainMenu: function () {
             var screen = this,
@@ -313,7 +311,47 @@ define(['util',
             IM.addInterval(inter);
             return defer;
         },
-        drawMenuOption: function ( name, x, y ) {
+        setOptionsMouseEvent: function (  ) {
+            var screen = this;
+
+            screen.mouseMoveEvent = function ( e ) {
+                var pos = util.getEventPosition(e);
+
+                var flag = false;
+                for(var i = 0; i < screen.options.length; i++){
+                    if(screen.options[i].isInclude(pos.x, pos.y)){
+                        util.setCursor('pointer');
+                        flag = true;
+                    }
+                }
+                if(!flag){
+                    util.setCursor('default');
+                }
+            };
+
+            screen.mouseClick = function ( e ) {
+                var pos = util.getEventPosition(e);
+
+                for(var i =0 ;i < screen.options.length; i++){
+                    if(screen.options[i].isInclude(pos.x, pos.y)){
+                        screen.optionsFunc[i](e);
+                        screen.removeOptionsMouseEvent();
+                    }
+                }
+            };
+
+            global.canvasElement.addEventListener('mousemove', screen.mouseMoveEvent);
+            global.canvasElement.addEventListener('click', screen.mouseClick);
+        },
+        removeOptionsMouseEvent: function (  ) {
+            var screen = this;
+
+            global.canvasElement.removeEventListener('mousemove', screen.mouseMoveEvent);
+            global.canvasElement.removeEventListener('click', screen.mouseClick);
+            screen.options = [];
+            screen.optionsFunc = [];
+        },
+        drawMenuOption: function ( name, x, y, func ) {
             var screen = this;
             var context = global.context;
             var rect = new Rect();
@@ -328,6 +366,9 @@ define(['util',
             text.text = name;
             text.x = x;
             text.y = y + text.fontSize / 3;
+
+            screen.optionsFunc.push(func);
+            screen.options.push(rect);
 
             rect.draw(context);
             text.draw(context);

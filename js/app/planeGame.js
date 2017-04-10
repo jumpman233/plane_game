@@ -142,8 +142,6 @@ define(['jquery',
                 };
                 var exitFunc = function (  ) {
                     global.context.clearRect(0,0,global.width,global.height);
-                    window.clearInterval(game.gaming);
-                    sound.stopBackgroundMusic();
                     game.mainMenu.call(game);
                 };
 
