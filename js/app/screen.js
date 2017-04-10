@@ -15,7 +15,8 @@ define(['util',
 'bkAnimate',
 'hardAnimate',
 'ballBkAnimate',
-'storeMenu'],function ( util, Warehouse, Position, dataManager, player, global, Rect, Text, IM,menuAnimate,bkAnimate, hardAnimate, ballBkAnimate, storeMenu ) {
+'storeMenu',
+'fightBk'],function ( util, Warehouse, Position, dataManager, player, global, Rect, Text, IM,menuAnimate,bkAnimate, hardAnimate, ballBkAnimate, storeMenu, fightBk ) {
     function Screen(  ) {
         this.optWidth = 200;
         this.optHeight = 30;
@@ -114,17 +115,32 @@ define(['util',
             if(!params || !params.easy || !params.medium || !params.hard || !params.hell){
                 throw  TypeError('Screen hardMenu(): params are not right!');
             }
-            var defer = $.Deferred();
+            var defer = $.Deferred(),
+                screen = this,
+                flag1 = false,
+                flag2 = false;
+
+            var checkFinish = function ( str ) {
+                if(flag1 && flag2){
+                    defer.resolve(str);
+                    IM.clearIntervalList();
+                }
+            };
 
             var removeAnimate = function ( str ) {
                 hardAnimate.remove();
                 ballBkAnimate.remove();
                 hardAnimate.removeEvent();
+                screen.fadeTo(16, 16, 16)
+                    .then(function (  ) {
+                        flag1 = true;
+                        checkFinish(str);
+                    });
 
                 IM.addInterval(function (  ) {
                     if(hardAnimate.isRemoved() && ballBkAnimate.isRemoved()){
-                        defer.resolve(str);
-                        IM.clearIntervalList();
+                        flag2 = true;
+                        checkFinish(str);
                     }
                 });
             };
@@ -145,8 +161,8 @@ define(['util',
 
             IM.addInterval(function (  ) {
                 global.clearRect();
-                hardAnimate.draw();
                 ballBkAnimate.draw();
+                hardAnimate.draw();
             });
 
             return defer;
@@ -164,6 +180,7 @@ define(['util',
         },
         drawMainMenu: function ( startListener, storeListener ) {
             var defer = $.Deferred();
+            global.canvasElement.style.backgroundColor = '#ddd';
             menuAnimate.mainMenu.init(startListener, storeListener);
             var draw = function (  ) {
                 global.clearRect();
@@ -257,6 +274,45 @@ define(['util',
 
             return defer;
         },
+        fadeTo: function ( r, g, b ) {
+            var color = util.getColor(global.canvasElement.style.backgroundColor),
+                isR = false,
+                isG = false,
+                isB = false,
+                defer = $.Deferred();
+
+            var inter = function (  ) {
+                if(color.r < r){
+                    color.r++;
+                } else if(color.r > r){
+                    color.r--;
+                } else{
+                    isR = true;
+                }
+                if(color.g < g){
+                    color.g++;
+                } else if(color.g > g){
+                    color.g--;
+                } else{
+                    isG = true;
+                }
+                if(color.b < b){
+                    color.b++;
+                } else if(color.b > b){
+                    color.b--;
+                } else{
+                    isB = true;
+                }
+                global.canvasElement.style.backgroundColor = util.resolveColor(color.r, color.g, color.b);
+                if(isG && isB && isR){
+                    defer.resolve();
+                    IM.removeInterval(inter);
+                }
+            };
+
+            IM.addInterval(inter);
+            return defer;
+        },
         drawMenuOption: function ( name, x, y ) {
             var screen = this;
             var context = global.context;
@@ -323,24 +379,9 @@ define(['util',
             this.context.drawImage(obj.img, image.x,image.y,image.width,image.height);
             this.context.closePath();
         },
-        drawFightBk: function () {
-            var game = this;
-            var ctx = global.context;
-            ctx.globalAlpha = 0.8;
-            ctx.drawImage(game.backgoundImg.img,0, -ctx.canvas.height*2+game.position,ctx.canvas.width,ctx.canvas.height*2);
-            ctx.drawImage(game.backgoundImg.img,0, -ctx.canvas.height*4+game.position,ctx.canvas.width,ctx.canvas.height*2);
-            ctx.drawImage(game.backgoundImg.img,0, game.position,ctx.canvas.width,ctx.canvas.height*2);
-            ctx.globalAlpha = 1;
-
-            game.position++;
-            if(game.position>=ctx.canvas.height*2){
-                game.position = 0;
-            }
-        },
-
         draw: function () {
             var screen = this;
-            // screen.drawFightBk();
+            fightBk.draw(global.context);
             screen.drawScore();
             screen.drawLife();
 
@@ -372,6 +413,20 @@ define(['util',
                 var missile = dataManager.missiles[i];
                 missile.draw(global.context);
                 missile.move();
+            }
+        },
+        drawFightBk: function () {
+            var game = this;
+            var ctx = global.context;
+            ctx.globalAlpha = 0.8;
+            ctx.drawImage(game.backgoundImg.img,0, -ctx.canvas.height*2+game.position,ctx.canvas.width,ctx.canvas.height*2);
+            ctx.drawImage(game.backgoundImg.img,0, -ctx.canvas.height*4+game.position,ctx.canvas.width,ctx.canvas.height*2);
+            ctx.drawImage(game.backgoundImg.img,0, game.position,ctx.canvas.width,ctx.canvas.height*2);
+            ctx.globalAlpha = 1;
+
+            game.position++;
+            if(game.position>=ctx.canvas.height*2){
+                game.position = 0;
             }
         }
     };

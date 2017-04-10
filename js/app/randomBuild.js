@@ -47,7 +47,6 @@ define(['global',
         createEnemyPlane: function ( ) {
             var rb = this,
                 isCreate = false,
-                x = 0,
                 curDiff = rb.curDiff,
                 enemyData = curDiff.enemies,
                 list = [];

@@ -175,6 +175,18 @@ define(['position','global'],function ( Position, global ) {
                 throw TypeError('util resolveColor(): params are not right!')
             }
         },
+        getColor: function ( str ) {
+          if(typeof str !== 'string'){
+              throw TypeError('util getColor(): params are not right!');
+          } else{
+              str = str.split('(')[1].split(')')[0].split(',');
+              return {
+                  r: str[0],
+                  g: str[1],
+                  b: str[2]
+              }
+          }
+        },
         randomPN: function (  ) {
             return (Math.random() > 0.5 ? 1 : -1);
         },

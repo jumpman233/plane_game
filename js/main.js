@@ -39,7 +39,8 @@ require.config({
         'aniImage': 'app/animate/aniImage',
         'ballBkAnimate': 'app/animate/ballBkAnimate',
         'storeMenu': 'app/animate/storeMenu',
-        'popper': 'app/animate/popper'
+        'popper': 'app/animate/popper',
+        'fightBk': 'app/animate/fightBk'
     }
 });
 
