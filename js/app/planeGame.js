@@ -17,7 +17,7 @@ define(['jquery',
     'loadAnimate',
     'bkAnimate',
     'menuAnimate'],
-    function ( jquery, util, Position,Screen, Warehouse, Player, GameEventHandler, global, dataManager ,sound, randomBuild, IntervalManager, loadAnimate, bkAnimate, menuAnimate) {
+    function ( jquery, util, Position,Screen, Warehouse, player, GameEventHandler, global, dataManager ,sound, randomBuild, IntervalManager, loadAnimate, bkAnimate, menuAnimate) {
         'use strict';
 
         function PlaneGame(params) {
@@ -179,7 +179,7 @@ define(['jquery',
                     //     dataManager.resolveMissile(missile);
                     // }
 
-                    Player.shoot();
+                    player.shoot();
 
                     Screen.draw();
 
@@ -202,8 +202,8 @@ define(['jquery',
 
                 sound.backgroundAudio.pause();
                 global.context.clearRect(0,0,global.width,global.height);
-                Player.plane.position  = new Position(global.width/2,global.height-100);
-                Player.plane.drawImg();
+                player.plane.position  = new Position(global.width/2,global.height-100);
+                player.plane.drawImg();
                 global.context.font = "30px Courier New";
                 global.context.fillStyle = "#333";
                 global.context.textAlign = 'center';
@@ -249,7 +249,7 @@ define(['jquery',
                         return Screen.init();
                     })
                     .then(function (  ) {
-                        return Player.init({
+                        return player.init({
                             plane: Warehouse.getPlaneByType(1)
                         });
                     })
