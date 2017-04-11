@@ -16,7 +16,8 @@ define(['util',
 'hardAnimate',
 'ballBkAnimate',
 'storeMenu',
-'fightBk'],function ( util, Warehouse, Position, dataManager, player, global, Rect, Text, IM,menuAnimate,bkAnimate, hardAnimate, ballBkAnimate, storeMenu, fightBk ) {
+'fightBk',
+'gameOverAnimate'],function ( util, Warehouse, Position, dataManager, player, global, Rect, Text, IM,menuAnimate,bkAnimate, hardAnimate, ballBkAnimate, storeMenu, fightBk, gameOverAnimate ) {
     function Screen(  ) {
         this.optWidth = 200;
         this.optHeight = 30;
@@ -129,11 +130,11 @@ define(['util',
                 hardAnimate.remove();
                 ballBkAnimate.remove();
                 hardAnimate.removeEvent();
-                // util.fadeTo(100, 100, 100)
-                //     .then(function (  ) {
-                //         flag1 = true;
-                //         checkFinish(str);
-                //     });
+                util.fadeTo(100, 100, 100)
+                    .then(function (  ) {
+                        flag1 = true;
+                        checkFinish(str);
+                    });
 
                 IM.addInterval(function (  ) {
                     if(hardAnimate.isRemoved() && ballBkAnimate.isRemoved()){
@@ -166,6 +167,28 @@ define(['util',
 
             return defer;
         },
+        gameOverMenu: function ( params ) {
+            global.setToDefaultBKColor();
+            global.context.clearRect(0,0,global.width,global.height);
+
+            gameOverAnimate.init(params);
+
+            IM.clearIntervalList();
+
+            var draw = function (  ) {
+                global.clearRect();
+                gameOverAnimate.draw(global.context);
+            };
+
+            IM.addInterval(draw);
+
+            // player.plane.position  = new Position(global.width/2,global.height-100);
+            // player.plane.drawImg();
+            // global.context.font = "30px Courier New";
+            // global.context.fillStyle = "#333";
+            // global.context.textAlign = 'center';
+            // global.context.fillText("Game Over",global.width/2,global.height/2);
+        },
         startMenuBk: function (  ) {
             if(!bkAnimate.isPlaying() || !IM.haveInterval('bk')){
                 var draw = function (  ) {
@@ -179,7 +202,7 @@ define(['util',
         },
         drawMainMenu: function ( startListener, storeListener ) {
             var defer = $.Deferred();
-            global.canvasElement.style.backgroundColor = '#222';
+            global.setToDefaultBKColor();
             menuAnimate.mainMenu.init(startListener, storeListener);
             var draw = function (  ) {
                 global.clearRect();
@@ -388,7 +411,6 @@ define(['util',
             screen.drawScore();
             screen.drawLife();
 
-            player.draw(global.context);
 
             for(var i in dataManager.enemy_bullets){
                 var bullet = dataManager.enemy_bullets[i];
@@ -417,6 +439,8 @@ define(['util',
                 missile.draw(global.context);
                 missile.move();
             }
+
+            player.draw(global.context);
         },
         drawFightBk: function () {
             var game = this;

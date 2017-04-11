@@ -207,15 +207,19 @@ define(['jquery',
                 IntervalManager.addInterval(gameTest);
             },
             gameOver: function () {
-                var game = this;
+                var game = this,
+                    playerData = player.getData();
 
-                global.context.clearRect(0,0,global.width,global.height);
-                player.plane.position  = new Position(global.width/2,global.height-100);
-                player.plane.drawImg();
-                global.context.font = "30px Courier New";
-                global.context.fillStyle = "#333";
-                global.context.textAlign = 'center';
-                global.context.fillText("Game Over",global.width/2,global.height/2);
+                Screen.gameOverMenu({
+                    scoreValue: player.score,
+                    moneyValue: playerData.money,
+                    returnMain: function (  ) {
+                        game.mainMenu();
+                    },
+                    onceAgain: function (  ) {
+                        
+                    }
+                });
                 game.isPause = true;
             },
             init: function (config) {

@@ -16,6 +16,7 @@ define([],function () {
         this.optFont = 16;
         this.frameNum = 0;
         this.difficuly = '';
+        this.defaultBGColor = '#ddd';
     }
     Global.prototype = {
         constructor: Global,
@@ -37,6 +38,9 @@ define([],function () {
             });
             defer.resolve();
             return defer;
+        },
+        setToDefaultBKColor: function (  ) {
+            this.canvasElement.style.backgroundColor = this.defaultBGColor;
         },
         clearRect: function (  ) {
             if(this.context){

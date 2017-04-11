@@ -40,7 +40,8 @@ require.config({
         'ballBkAnimate': 'app/animate/ballBkAnimate',
         'storeMenu': 'app/animate/storeMenu',
         'popper': 'app/animate/popper',
-        'fightBk': 'app/animate/fightBk'
+        'fightBk': 'app/animate/fightBk',
+        'gameOverAnimate': 'app/animate/gameOverAnimate'
     }
 });
 

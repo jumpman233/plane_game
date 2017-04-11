@@ -3,8 +3,9 @@
  */
 
 define(['gameEventHandler',
-    'util'
-    ],function (GameEventHandler, util) {
+    'util',
+    'ball'
+    ],function (GameEventHandler, util, Ball) {
     'use strict';
     function Player() {
         this.plane = null;
@@ -16,11 +17,13 @@ define(['gameEventHandler',
         this.speed = 0;
         this.toPos = null;
         this.money = 0;
+
         this.isDead = false;
         this.isDying = false;
         this.dieFrame = 0;
         this.isFade = false;
         this.fadeFinish = false;
+        this.explodeBall = new Ball;
     }
     Player.prototype = {
         getTool: function (tool) {
@@ -184,17 +187,17 @@ define(['gameEventHandler',
                 player.shoot();
                 player.move();
             } else{
-                player.plane.draw(ctx);
                 flag1 = player.drawExplosion(ctx);
-                if(!player.isFade){
-                    util.fadeTo(255, 255, 255, 5)
-                        .then(function (  ) {
-                            player.fadeFinish = true;
-                        });
-                    player.isFade = true;
-                }
+                // if(!player.isFade){
+                //     util.fadeTo(255, 255, 255, 1)
+                //         .then(function (  ) {
+                //             player.fadeFinish = true;
+                //         });
+                //     player.isFade = true;
+                // }
+                player.plane.draw(ctx);
             }
-            if(flag1 && player.fadeFinish) {
+            if(flag1) {
                 player.isDead = true;
             }
         },
@@ -205,6 +208,16 @@ define(['gameEventHandler',
                 pos = util.copy(this.plane.position),
                 maxWidth = 40,
                 x1, x2, x3, x4, x5, x6, y1, y2, y3, y4, y5, y6;
+            player.explodeBall.color = util.resolveColor(240, 240, 240, 1);
+            player.explodeBall.x = pos.x;
+            player.explodeBall.y = pos.y;
+            if(player.dieFrame <= maxWidth){
+                player.explodeBall.radius += 0.5;
+            } else if(player.explodeBall.radius > 0 && player.dieFrame <= maxWidth * 2) {
+                player.explodeBall.radius -= 0.5;
+            } else{
+                player.explodeBall.radius += 10;
+            }
             player.dieFrame++;
             if(player.dieFrame >= maxWidth){
                 x1 = maxWidth;
@@ -245,6 +258,7 @@ define(['gameEventHandler',
                 ctx.restore();
             };
 
+            player.explodeBall.draw(ctx);
             if(player.dieFrame <= maxWidth){
                 drawOne(x1, x2, y1, y2);
             } else if(player.dieFrame <= maxWidth * 2){
@@ -258,10 +272,8 @@ define(['gameEventHandler',
                 drawOne(x1, x2, y1, y2);
                 drawOne(x3, x4, y3, y4);
                 drawOne(x5, x6, y5, y6);
-                return true;
             }
-
-            return false;
+            return player.explodeBall.radius >= width;
         }
     };
     return new Player();
