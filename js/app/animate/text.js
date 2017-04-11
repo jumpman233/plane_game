@@ -11,6 +11,7 @@ define(['graph', 'util'], function ( Graph, util ) {
         this.textAlign = 'center';
         this.color = '#444';
         this.text = '';
+        this.scale = 1;
     }
 
     Text.prototype = util.copy(Graph.prototype);
@@ -23,8 +24,10 @@ define(['graph', 'util'], function ( Graph, util ) {
         context.save();
         context.fillStyle = text.color;
         context.textAlign = text.textAlign;
+        context.translate(text.x, text.y);
+        context.scale(text.scale, text.scale);
         context.font = text.getFont();
-        context.fillText(text.text, text.x, text.y);
+        context.fillText(text.text, 0, 0);
         context.restore();
     };
     Text.prototype.isInBound = function ( context ) {

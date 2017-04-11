@@ -17,6 +17,8 @@ define([],function () {
         this.frameNum = 0;
         this.difficuly = '';
         this.defaultBGColor = '#ddd';
+        this.selectColor = '#ddd';
+        this.selectDefaultColor = '#fff';
     }
     Global.prototype = {
         constructor: Global,

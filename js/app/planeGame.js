@@ -162,15 +162,17 @@ define(['jquery',
                 game.playing = true;
                 game.isPause = false;
                 global.frameNum = 0;
-                // IntervalManager.addInterval(function (  ) {
-                //     global.clearRect();
-                //     bkAnimate.draw(global.context);
-                // });
+                player.ready();
+                dataManager.reset();
                 util.setCursor('none');
 
                 GameEventHandler.keydown(function ( e ) {
-                    if(e.keyCode == 27 && !game.isPause){
-                        game.pause();
+                    if(e.keyCode == 27){
+                        if(!game.isPause){
+                            game.resume();
+                        } else{
+                            game.pause();
+                        }
                     }
                 });
 
@@ -212,13 +214,13 @@ define(['jquery',
 
                 Screen.gameOverMenu({
                     scoreValue: player.score,
-                    moneyValue: playerData.money,
-                    returnMain: function (  ) {
-                        game.mainMenu();
-                    },
-                    onceAgain: function (  ) {
-                        
-                    }
+                    moneyValue: playerData.money
+                }, function (  ) {
+                    game.test1();
+                }, function (  ) {
+                    game.mainMenu();
+                }, function ( money ) {
+                    player.setData('money', money);
                 });
                 game.isPause = true;
             },

@@ -21,8 +21,6 @@ define(['gameEventHandler',
         this.isDead = false;
         this.isDying = false;
         this.dieFrame = 0;
-        this.isFade = false;
-        this.fadeFinish = false;
         this.explodeBall = new Ball;
     }
     Player.prototype = {
@@ -87,6 +85,12 @@ define(['gameEventHandler',
             this.setData(playerData);
             this.updateData();
         },
+        ready: function (  ) {
+            var player = this;
+
+            player.updateData();
+            player.addEvent();
+        },
         updateData: function (  ) {
             var player = this,
                 playerData = player.getData();
@@ -98,9 +102,22 @@ define(['gameEventHandler',
             player.plane.damage = playerData.damage;
             player.speed = playerData.speed;
             player.curSpeed = 0;
+
+            player.isDead = false;
+            player.isDying = false;
+            player.explodeBall = new Ball;
+            player.dieFrame = 0;
         },
-        setData: function ( data ) {
-            localStorage.setItem('playerData', JSON.stringify(data));
+        setData: function ( ) {
+            var data = this.getData();
+            if(arguments.length === 1 && typeof arguments[0] === 'object'){
+                localStorage.setItem('playerData', JSON.stringify(arguments[0]));
+            } else if(arguments.length === 2 && typeof arguments[0] === 'string' && typeof arguments[1] === 'number'){
+                data[arguments[0]] = arguments[1];
+                this.setData(data);
+            } else{
+                throw TypeError('player setData: params are not right!');
+            }
         },
         upgrade: function ( str ) {
             var player = this,
@@ -143,6 +160,11 @@ define(['gameEventHandler',
             player.plane.role = 'player';
             player.updateData();
 
+            defer.resolve();
+        },
+        addEvent: function (  ) {
+            var player = this;
+
             player.geh.mouseMove(function (e) {
                 player.toPos = util.getEventPosition(e);
             });
@@ -151,7 +173,6 @@ define(['gameEventHandler',
                     player.resetData();
                 }
             });
-            defer.resolve();
         },
         shoot: function (  ) {
             if(this.plane && typeof this.plane.shoot){
@@ -163,9 +184,13 @@ define(['gameEventHandler',
         move: function (  ) {
             var player = this,
                 curPos = player.plane.position,
-                dis = curPos.calDis(player.toPos),
+                dis,
                 ang = 0;
-
+            if(player.toPos){
+                dis = curPos.calDis(player.toPos)
+            } else {
+                return;
+            }
             if(dis <= player.speed){
                 curPos.x = player.toPos.x;
                 curPos.y = player.toPos.y;

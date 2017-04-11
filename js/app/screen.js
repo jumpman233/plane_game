@@ -167,13 +167,36 @@ define(['util',
 
             return defer;
         },
-        gameOverMenu: function ( params ) {
+        gameOverMenu: function ( params, onceAgainEvent, returnMainEvent, resolveMon ) {
             global.setToDefaultBKColor();
             global.context.clearRect(0,0,global.width,global.height);
 
-            gameOverAnimate.init(params);
+            gameOverAnimate.init(params, function (  ) {
+                removeInter()
+                    .then(function (  ) {
+                        onceAgainEvent();
+                    });
+            }, function (  ) {
+                removeInter()
+                    .then(function (  ) {
+                        returnMainEvent();
+                    })
+            }, resolveMon);
 
             IM.clearIntervalList();
+
+            var removeInter = function (  ) {
+                var defer = $.Deferred();
+                gameOverAnimate.remove();
+                IM.addInterval(function (  ) {
+                    if(gameOverAnimate.isRemoved()){
+                        IM.removeInterval('removeGameOver');
+                        IM.removeInterval(draw);
+                        defer.resolve();
+                    }
+                }, 'removeGameOver');
+                return defer;
+            };
 
             var draw = function (  ) {
                 global.clearRect();

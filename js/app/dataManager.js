@@ -27,6 +27,13 @@ define(['util',
                 manager.enemy_bullets.push(bullet);
             }
         },
+        reset: function (  ) {
+            this.enemy_bullets = [];
+            this.player_bullets = [];
+            this.tools = [];
+            this.enemies = [];
+            this.missiles = [];
+        },
         resolveEnemy: function ( enemy ) {
             var manager = this;
 
