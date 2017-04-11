@@ -129,15 +129,16 @@ define(['util',
                 hardAnimate.remove();
                 ballBkAnimate.remove();
                 hardAnimate.removeEvent();
-                screen.fadeTo(255, 255, 255)
-                    .then(function (  ) {
-                        flag1 = true;
-                        checkFinish(str);
-                    });
+                // util.fadeTo(100, 100, 100)
+                //     .then(function (  ) {
+                //         flag1 = true;
+                //         checkFinish(str);
+                //     });
 
                 IM.addInterval(function (  ) {
                     if(hardAnimate.isRemoved() && ballBkAnimate.isRemoved()){
                         flag2 = true;
+                        flag1 = true;
                         checkFinish(str);
                     }
                 });
@@ -178,7 +179,7 @@ define(['util',
         },
         drawMainMenu: function ( startListener, storeListener ) {
             var defer = $.Deferred();
-            global.canvasElement.style.backgroundColor = '#ddd';
+            global.canvasElement.style.backgroundColor = '#222';
             menuAnimate.mainMenu.init(startListener, storeListener);
             var draw = function (  ) {
                 global.clearRect();
@@ -270,45 +271,6 @@ define(['util',
             global.canvasElement.addEventListener('mousemove',menuMouseMove,false);
             global.canvasElement.addEventListener('mousedown', menuMouseDown, false);
 
-            return defer;
-        },
-        fadeTo: function ( r, g, b ) {
-            var color = util.getColor(global.canvasElement.style.backgroundColor),
-                isR = false,
-                isG = false,
-                isB = false,
-                defer = $.Deferred();
-
-            var inter = function (  ) {
-                if(color.r < r){
-                    color.r++;
-                } else if(color.r > r){
-                    color.r--;
-                } else{
-                    isR = true;
-                }
-                if(color.g < g){
-                    color.g++;
-                } else if(color.g > g){
-                    color.g--;
-                } else{
-                    isG = true;
-                }
-                if(color.b < b){
-                    color.b++;
-                } else if(color.b > b){
-                    color.b--;
-                } else{
-                    isB = true;
-                }
-                global.canvasElement.style.backgroundColor = util.resolveColor(color.r, color.g, color.b);
-                if(isG && isB && isR){
-                    defer.resolve();
-                    IM.removeInterval(inter);
-                }
-            };
-
-            IM.addInterval(inter);
             return defer;
         },
         setOptionsMouseEvent: function (  ) {

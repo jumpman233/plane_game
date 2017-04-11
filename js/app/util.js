@@ -2,7 +2,7 @@
  * Created by lzh on 2017/2/28.
  */
 
-define(['position','global'],function ( Position, global ) {
+define(['position','global', 'intervalManager'],function ( Position, global, IM ) {
     /**
      * GameUtil
      */
@@ -186,6 +186,80 @@ define(['position','global'],function ( Position, global ) {
                   b: str[2]
               }
           }
+        },
+        fadeTo: function ( r, g, b, dx ) {
+            var util = this,
+                color = util.getColor(global.canvasElement.style.backgroundColor),
+                isR = false,
+                isG = false,
+                isB = false,
+                defer = $.Deferred();
+            if(dx === undefined) {
+                dx = 1;
+            }
+            r= parseInt(r);
+            g = parseInt(g);
+            b = parseInt(b);
+            color.r = parseInt(color.r);
+            color.g = parseInt(color.g);
+            color.b = parseInt(color.b);
+            dx = parseInt(dx);
+
+            var inter = function (  ) {
+                if(color.r < r){
+                    if(r - color.r >= dx){
+                        color.r += dx;
+                    } else{
+                        color.r = r;
+                    }
+                } else if(color.r > r){
+                    if(color.r - r >= dx){
+                        color.r -= dx;
+                    } else{
+                        color.r = r;
+                    }
+                } else{
+                    isR = true;
+                }
+                if(color.g < g){
+                    if(g - color.g >= dx){
+                        color.g += dx;
+                    } else{
+                        color.g = g;
+                    }
+                } else if(color.g > g){
+                    if(color.g - g >= dx){
+                        color.g -= dx;
+                    } else{
+                        color.g = g;
+                    }
+                } else{
+                    isG = true;
+                }
+                if(color.b < g){
+                    if(b - color.b >= dx){
+                        color.b += dx;
+                    } else{
+                        color.b = b;
+                    }
+                } else if(color.b > g){
+                    if(color.b - b >= dx){
+                        color.b -= dx;
+                    } else{
+                        color.b = b;
+                    }
+                } else{
+                    isB = true;
+                }
+                global.canvasElement.style.backgroundColor = util.resolveColor(color.r, color.g, color.b);
+                if(isG && isB && isR){
+                    IM.removeInterval(inter);
+                    defer.resolve();
+                }
+            };
+
+            IM.addInterval(inter);
+            return defer;
         },
         randomPN: function (  ) {
             return (Math.random() > 0.5 ? 1 : -1);

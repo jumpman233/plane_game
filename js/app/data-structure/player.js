@@ -16,6 +16,11 @@ define(['gameEventHandler',
         this.speed = 0;
         this.toPos = null;
         this.money = 0;
+        this.isDead = false;
+        this.isDying = false;
+        this.dieFrame = 0;
+        this.isFade = false;
+        this.fadeFinish = false;
     }
     Player.prototype = {
         getTool: function (tool) {
@@ -56,13 +61,24 @@ define(['gameEventHandler',
 
             return playerData;
         },
+        die: function (  ) {
+            var defer = $.Deferred(),
+                player = this;
+            if(player.curLife > 0){
+                throw TypeError('player die(): player is not die!');
+            }
+            player.geh.removeAllEvents();
+            player.isDying = true;
+
+            return defer;
+        },
         resetData: function (  ) {
             var playerData = {
                 speed: 5,
                 damage: 5,
                 shootRate: 30,
                 bulletSpeed: 5,
-                maxLife: 3,
+                maxLife: 1,
                 money: 500
             };
             this.setData(playerData);
@@ -157,12 +173,95 @@ define(['gameEventHandler',
                 ang = curPos.includeAng(player.toPos);
                 curPos.x += Math.sin(util.angToRed(ang)) * player.curSpeed;
                 curPos.y -= Math.cos(util.angToRed(ang)) * player.curSpeed;
-                debugger;
             }
         },
         draw: function ( ctx ) {
-            this.plane.draw(ctx);
-            this.move();
+            var player = this,
+                flag1;
+
+            if(!player.isDying){
+                player.plane.draw(ctx);
+                player.shoot();
+                player.move();
+            } else{
+                player.plane.draw(ctx);
+                flag1 = player.drawExplosion(ctx);
+                if(!player.isFade){
+                    util.fadeTo(255, 255, 255, 5)
+                        .then(function (  ) {
+                            player.fadeFinish = true;
+                        });
+                    player.isFade = true;
+                }
+            }
+            if(flag1 && player.fadeFinish) {
+                player.isDead = true;
+            }
+        },
+        drawExplosion: function ( ctx) {
+            var width = ctx.canvas.width,
+                height = ctx.canvas.height,
+                player = this,
+                pos = util.copy(this.plane.position),
+                maxWidth = 40,
+                x1, x2, x3, x4, x5, x6, y1, y2, y3, y4, y5, y6;
+            player.dieFrame++;
+            if(player.dieFrame >= maxWidth){
+                x1 = maxWidth;
+                x2 = -maxWidth;
+            } else{
+                x1 = player.dieFrame;
+                x2 = -player.dieFrame;
+            }
+            y1 = y2 = -10 - pos.y;
+
+            if(player.dieFrame >= maxWidth * 2){
+                y3 = 200 + maxWidth;
+                y4 = 200 - maxWidth;
+            } else{
+                y3 = 200 + (player.dieFrame - maxWidth);
+                y4 = 200 - (player.dieFrame - maxWidth);
+            }
+            x3 = x4 = 20 + width - pos.x;
+
+            if(player.dieFrame >= maxWidth * 3){
+                y5 = 400 + maxWidth;
+                y6 = 400 - maxWidth;
+            } else{
+                y5 = 400 + (player.dieFrame - maxWidth * 2);
+                y6 = 400 - (player.dieFrame - maxWidth * 2);
+            }
+            x5 = x6 = -20 - pos.x;
+            var drawOne = function ( x_1, x_2, y_1, y_2 ) {
+                ctx.save();
+                ctx.translate(pos.x, pos.y);
+                ctx.beginPath();
+                ctx.moveTo(0, 0);
+                ctx.lineTo(x_1, y_1);
+                ctx.lineTo(x_2, y_2);
+                ctx.closePath();
+                ctx.fillStyle = util.resolveColor(0, 0, 0, 0.7);
+                ctx.fill();
+                ctx.restore();
+            };
+
+            if(player.dieFrame <= maxWidth){
+                drawOne(x1, x2, y1, y2);
+            } else if(player.dieFrame <= maxWidth * 2){
+                drawOne(x1, x2, y1, y2);
+                drawOne(x3, x4, y3, y4);
+            } else if(player.dieFrame <= maxWidth * 3){
+                drawOne(x1, x2, y1, y2);
+                drawOne(x3, x4, y3, y4);
+                drawOne(x5, x6, y5, y6);
+            } else{
+                drawOne(x1, x2, y1, y2);
+                drawOne(x3, x4, y3, y4);
+                drawOne(x5, x6, y5, y6);
+                return true;
+            }
+
+            return false;
         }
     };
     return new Player();

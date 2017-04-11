@@ -86,7 +86,9 @@ define(['util',
                     player.curLife--;
                 }
             }
-            if(player.curLife <= 0){
+            if(player.curLife <= 0 && !player.isDying){
+                player.die();
+            } else if(player.curLife <= 0 && player.isDead){
                 gameOver();
             }
 

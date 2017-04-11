@@ -190,8 +190,6 @@ define(['jquery',
                     //     dataManager.resolveMissile(missile);
                     // }
 
-                    player.shoot();
-
                     Screen.draw();
 
                     dataManager.judge(function ( plane ) {
@@ -211,7 +209,6 @@ define(['jquery',
             gameOver: function () {
                 var game = this;
 
-                sound.backgroundAudio.pause();
                 global.context.clearRect(0,0,global.width,global.height);
                 player.plane.position  = new Position(global.width/2,global.height-100);
                 player.plane.drawImg();

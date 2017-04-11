@@ -65,7 +65,7 @@ define(['util', 'ball'], function ( util, Ball ) {
         removing = true;
         baseSpeed = 3;
         for(var i in balls){
-            balls[i].vy = baseSpeed + Math.random() * 2;
+            balls[i].vy = baseSpeed * 2 + Math.random() * 2;
         }
     };
 

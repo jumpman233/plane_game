@@ -33,6 +33,13 @@ define([],function (  ) {
             });
             if(params.backgroundAudio){
                 sound.backgroundAudio = params.backgroundAudio;
+                window.setInterval(function (  ) {
+                    if(sound.backgroundAudio.ended){
+                        sound.backgroundAudio.load();
+                        sound.backgroundAudio.play();
+                    } else{
+                    }
+                },1000);
                 sound.backgroundAudio.loop = true;
             }
             this.addSoundChangeEvent(function (  ) {
@@ -46,9 +53,14 @@ define([],function (  ) {
             if(sound.backgroundAudio.paused){
                 sound.backgroundAudio.play();
             } else{
-                sound.stopBackgroundMusic();
                 sound.backgroundAudio.play();
             }
+        },
+        replayBackgroundMusic: function (  ) {
+            var sound = this;
+
+            sound.backgroundAudio.load();
+            sound.backgroundAudio.play();
         },
         stopBackgroundMusic: function (  ) {
             var sound = this;
