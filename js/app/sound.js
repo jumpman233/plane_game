@@ -2,7 +2,7 @@
  * Created by lzh on 2017/2/28.
  */
 
-define([],function (  ) {
+define(['global'],function ( global ) {
     function Sound(  ) {
         this.backgroundAudio = null;
     }
@@ -10,25 +10,31 @@ define([],function (  ) {
         constructor: Sound,
         init: function ( params ) {
             var sound = this;
-            var defer = $.Deferred();
-            $('#soundImg').click(function () {
-                if($('#soundSlider').attr('display') == 'false'){
-                    $('#soundSlider').attr('display', 'true');
-                    $('#soundSlider').css('display','inline-block');
-                    $('#sound').css('left','780px');
+            var defer = $.Deferred(),
+                soundImg = $('#soundImg'),
+                soundSlider = $('#soundSlider'),
+                soundEle = $('#sound'),
+                left = global.canvasElement.offsetLeft + global.width - 140;
+            soundEle.css('left', (left + 104) + 'px');
+            soundEle.css('visibility', 'visible');
+            soundImg.click(function () {
+                if(soundSlider.attr('display') == 'false'){
+                    soundSlider.attr('display', 'true');
+                    soundSlider.css('display','inline-block');
+                    soundEle.css('left', left + 'px');
                 } else{
-                    $('#soundSlider').attr('display', 'false');
-                    $('#soundSlider').css('display','none');
-                    $('#sound').css('left','884px');
+                    soundSlider.attr('display', 'false');
+                    soundSlider.css('display','none');
+                    soundEle.css('left', (left + 104) + 'px');
                 }
             });
             $(document).click(function ( e ) {
-                if(e.target != $('#soundImg')[0] &&
-                    e.target != $('#soundSlider')[0] &&
-                    $('#soundSlider').attr('display') == 'true'){
-                    $('#soundSlider').attr('display', 'false');
-                    $('#soundSlider').css('display','none');
-                    $('#sound').css('left','884px');
+                if(e.target != soundImg[0] &&
+                    e.target != soundSlider[0] &&
+                    soundSlider.attr('display') == 'true'){
+                    soundSlider.attr('display', 'false');
+                    soundSlider.css('display','none');
+                    soundEle.css('left', (left + 104)+'px');
                 }
             });
             if(params.backgroundAudio){
@@ -42,8 +48,11 @@ define([],function (  ) {
                 },1000);
                 sound.backgroundAudio.loop = true;
             }
+            sound.backgroundAudio.volume = localStorage.getItem('sound') || 1;
+            $('#soundSlider').attr('value', sound.backgroundAudio.volume);
             this.addSoundChangeEvent(function (  ) {
                 sound.backgroundAudio.volume = sound.getCurSound();
+                localStorage.setItem('sound', sound.backgroundAudio.volume);
             });
             defer.resolve();
             return defer;
