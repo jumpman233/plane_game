@@ -130,7 +130,7 @@ define(['util',
                 hardAnimate.remove();
                 ballBkAnimate.remove();
                 hardAnimate.removeEvent();
-                util.fadeTo(100, 100, 100)
+                util.fadeTo(16, 16, 16)
                     .then(function (  ) {
                         flag1 = true;
                         checkFinish(str);
@@ -139,7 +139,6 @@ define(['util',
                 IM.addInterval(function (  ) {
                     if(hardAnimate.isRemoved() && ballBkAnimate.isRemoved()){
                         flag2 = true;
-                        flag1 = true;
                         checkFinish(str);
                     }
                 });
@@ -173,6 +172,9 @@ define(['util',
 
             gameOverAnimate.init(params, function (  ) {
                 removeInter()
+                    .then(function (  ) {
+                        return util.fadeTo(0, 0, 0, 5);
+                    })
                     .then(function (  ) {
                         onceAgainEvent();
                     });

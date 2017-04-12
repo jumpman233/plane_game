@@ -2,7 +2,7 @@
  * Created by lzh on 2017/3/9.
  */
 
-define(['util', 'ball'], function ( util, Ball ) {
+define(['util', 'ball', 'rect'], function ( util, Ball, Rect ) {
     var balls = [],
         perCreate = 1,
         perLen = 0,
@@ -15,6 +15,10 @@ define(['util', 'ball'], function ( util, Ball ) {
         baseSpeed = 1,
         removing = false,
         removed = false;
+
+    var createRect = function (  ) {
+
+    };
 
     var createBalls = function (  ) {
         for(var i = 0; i < perCreate; i++){

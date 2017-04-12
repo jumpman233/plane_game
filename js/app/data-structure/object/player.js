@@ -11,9 +11,7 @@ define(['gameEventHandler',
         this.plane = null;
         this.maxLife = 0;
         this.curLife = 0;
-        this.curSpeed = 0;
         this.score = 0;
-        this.aSpeed = 0.1;
         this.speed = 0;
         this.toPos = null;
         this.money = 0;
@@ -75,7 +73,7 @@ define(['gameEventHandler',
         },
         resetData: function (  ) {
             var playerData = {
-                speed: 5,
+                speed: 7,
                 damage: 5,
                 shootRate: 30,
                 bulletSpeed: 5,
@@ -101,7 +99,6 @@ define(['gameEventHandler',
             player.plane.shootRate = playerData.shootRate;
             player.plane.damage = playerData.damage;
             player.speed = playerData.speed;
-            player.curSpeed = 0;
 
             player.isDead = false;
             player.isDying = false;
@@ -195,12 +192,9 @@ define(['gameEventHandler',
                 curPos.x = player.toPos.x;
                 curPos.y = player.toPos.y;
             } else{
-                if(player.curSpeed < player.speed){
-                    player.curSpeed += player.aSpeed;
-                }
                 ang = curPos.includeAng(player.toPos);
-                curPos.x += Math.sin(util.angToRed(ang)) * player.curSpeed;
-                curPos.y -= Math.cos(util.angToRed(ang)) * player.curSpeed;
+                curPos.x += Math.sin(util.angToRed(ang)) * player.speed;
+                curPos.y -= Math.cos(util.angToRed(ang)) * player.speed;
             }
         },
         draw: function ( ctx ) {
@@ -278,12 +272,11 @@ define(['gameEventHandler',
                 ctx.lineTo(x_1, y_1);
                 ctx.lineTo(x_2, y_2);
                 ctx.closePath();
-                ctx.fillStyle = util.resolveColor(0, 0, 0, 0.7);
+                ctx.fillStyle = util.resolveColor(200, 200, 200, 0.7);
                 ctx.fill();
                 ctx.restore();
             };
 
-            player.explodeBall.draw(ctx);
             if(player.dieFrame <= maxWidth){
                 drawOne(x1, x2, y1, y2);
             } else if(player.dieFrame <= maxWidth * 2){
@@ -298,6 +291,7 @@ define(['gameEventHandler',
                 drawOne(x3, x4, y3, y4);
                 drawOne(x5, x6, y5, y6);
             }
+            player.explodeBall.draw(ctx);
             return player.explodeBall.radius >= width;
         }
     };
