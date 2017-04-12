@@ -101,15 +101,7 @@ define(['jquery',
             },
             rankingMenu: function (  ) {
                 var game = this,
-                    ranking = localStorage.getItem('ranking'),
-                    data;
-
-                if(!ranking){
-                    localStorage.setItem('ranking', JSON.stringify(game.getNewRanking()));
-                    ranking= localStorage.getItem('ranking');
-                    console.log("??");
-                }
-                data = JSON.parse(ranking).data;
+                    data = game.getRankingData();
 
                 Screen.rankMenu(data, function (  ) {
                     game.mainMenu();
@@ -145,19 +137,38 @@ define(['jquery',
                         game.test1();
                     })
             },
-            getNewRanking: function (  ) {
-                return {
-                    data:[0, 0, 0, 0, 0]
-                };
+            resetRanking: function (  ) {
+                this.setRanking([0, 0, 0, 0, 0]);
             },
-            updateRanking: function ( data ) {
+            setRanking: function ( data ) {
                 if(Array.isArray(data)){
                     localStorage.setItem('ranking', JSON.stringify({
                         data: data
-                    }))
-                } else {
-                    throw TypeError('planeGame updateRanking(): params are not right!');
+                    }));
                 }
+            },
+            getRankingData: function (  ) {
+                var data = JSON.parse(localStorage.getItem('ranking')).data;
+                if(!data || (data && data.length !== 5)){
+                    this.resetRanking();
+                    data = JSON.parse(localStorage.getItem('ranking')).data;
+                }
+                return data;
+            },
+            updateRanking: function ( val ) {
+                var data = this.getRankingData(),
+                    flag = val > data[data.length - 1];
+                if(flag) {
+                    if(Array.isArray(data)){
+                        data.push(val);
+                        data.sort(function ( a, b ) {
+                            return b - a;
+                        });
+                        data.pop();
+                    }
+                    this.setRanking(data);
+                }
+                return flag;
             },
             pause: function (  ) {
                 var game = this;
@@ -240,7 +251,10 @@ define(['jquery',
 
                 Screen.gameOverMenu({
                     scoreValue: player.score,
-                    moneyValue: playerData.money
+                    moneyValue: playerData.money,
+                    updateRanking : function ( val ) {
+                        return game.updateRanking(val);
+                    }
                 }, function (  ) {
                     game.test1();
                 }, function (  ) {

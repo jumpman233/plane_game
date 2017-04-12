@@ -4,8 +4,8 @@
 
 define(['gameEventHandler',
     'util',
-    'ball'
-    ],function (GameEventHandler, util, Ball) {
+    'ball',
+    'global'],function (GameEventHandler, util, Ball, global) {
     'use strict';
     function Player() {
         this.plane = null;
@@ -99,6 +99,9 @@ define(['gameEventHandler',
             player.plane.shootRate = playerData.shootRate;
             player.plane.damage = playerData.damage;
             player.speed = playerData.speed;
+            player.plane.curBullet = 0;
+            player.plane.position.x = global.width / 2;
+            player.plane.position.y = global.height / 2;
 
             player.isDead = false;
             player.isDying = false;
@@ -151,10 +154,6 @@ define(['gameEventHandler',
             player.geh = GameEventHandler;
 
             player.plane = params.plane;
-            player.plane.position.x = 300;
-            player.plane.position.y = 300;
-            player.plane.curBullet = 0;
-            player.plane.role = 'player';
             player.updateData();
 
             defer.resolve();

@@ -96,14 +96,11 @@ define(['text', 'global', 'rect', 'util'], function ( Text, global, Rect, util )
     var moveOut = function (  ) {
         if(rankText.scale > 0){
             rankText.scale -= 0.05;
-        } else if(rankList[rankList.length - 1].scale >= 0){
             for(var i = 0; i < rankList.length; i++){
                 if(rankList[i].scale >= 0){
-                    rankList[i].scale -= 0.1;
-                    break;
+                    rankList[i].scale -= 0.05;
                 }
             }
-        } else if(backText.scale >= 0 && backRect.scale >= 0){
             backText.scale -= 0.05;
             backRect.scale -= 0.05;
         } else{

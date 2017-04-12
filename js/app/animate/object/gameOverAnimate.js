@@ -11,6 +11,7 @@ define(['global', 'text', 'rect', 'util'], function ( global, Text, Rect, util )
         onceAgainRect = new Rect(),
         returnMainText = new Text(),
         returnMainRect = new Rect(),
+        newRecordText = new Text(),
         onceAgainTextTarget = {x: 0, y: 0},
         onceAgainRectTarget = {x: 0, y: 0},
         returnMainTextTarget = {x: 0, y: 0},
@@ -30,7 +31,10 @@ define(['global', 'text', 'rect', 'util'], function ( global, Text, Rect, util )
         isRemoving,
         isRemoved,
         dScore,
-        resolveMoney;
+        resolveMoney,
+        updateRanking,
+        isNewRecord,
+        dAng = 5;
 
     function updateScore(  ) {
         scoreText.text = 'SCORE: ' + score;
@@ -46,6 +50,7 @@ define(['global', 'text', 'rect', 'util'], function ( global, Text, Rect, util )
         isFinish = false;
         isRemoving = false;
         isRemoved = false;
+        isNewRecord = false;
         ds = 0.05;
 
         width = global.width;
@@ -63,6 +68,8 @@ define(['global', 'text', 'rect', 'util'], function ( global, Text, Rect, util )
         returnMainClick = returnMainEvent;
         resolveMoney = resolveMon;
 
+        updateRanking = params.updateRanking;
+
         fontSize = height / 100 * 3;
         dh = fontSize * 2;
 
@@ -79,6 +86,15 @@ define(['global', 'text', 'rect', 'util'], function ( global, Text, Rect, util )
         scoreText.y = indexH;
         scoreText.scale = 0;
         indexH += dh * 2;
+
+        newRecordText.text = 'New Record!';
+        newRecordText.color = 'red';
+        newRecordText.fontSize = fontSize * 0.75;
+        newRecordText.rotate = 0;
+        newRecordText.x = baseW + scoreText.fontSize * scoreText.text.toString().length / 2;
+        newRecordText.y = scoreText.y - scoreText.fontSize;
+        newRecordText.scale = 0;
+        newRecordText.dAng = dAng;
 
         updateMoney();
         moneyText.fontSize = fontSize * 1.5;
@@ -153,16 +169,35 @@ define(['global', 'text', 'rect', 'util'], function ( global, Text, Rect, util )
     };
 
     var easeMove = function ( sta, des ) {
-        sta.x += (des.x - sta.x) * 0.03;
+        sta.x += (des.x - sta.x) * 0.07;
         sta.y += (des.y - sta.y) * 0.03;
     };
 
     var drawIn = function ( ) {
         if(gameOverText.scale <= 1){
             gameOverText.scale += ds;
-        } else if(scoreText.scale <= 1 && moneyText.scale <= 1){
+        } else if(scoreText.scale <= 1){
             scoreText.scale += ds;
+            if(!isNewRecord && updateRanking(score)){
+                isNewRecord = true;
+            }
+        } else if(isNewRecord && newRecordText.scale <= 1){
+            newRecordText.scale += ds / 2;
+            var ang = util.redToAng(newRecordText.rotate);
+            if(ang >= 30){
+                newRecordText.dAng = -dAng;
+            } else if(ang <= -30){
+                newRecordText.dAng = dAng;
+            }
+            newRecordText.rotate += util.angToRed(newRecordText.dAng);
+        } else if(moneyText.scale <= 1){
             moneyText.scale += ds;
+        } else if(Math.abs(onceAgainTextTarget.x - onceAgainText.x) >= 1 &&
+            Math.abs(onceAgainRectTarget.x - onceAgainRect.x) >= 1){
+            easeMove(onceAgainRect, onceAgainRectTarget);
+            easeMove(onceAgainText, onceAgainTextTarget);
+            easeMove(returnMainRect, returnMainRectTarget);
+            easeMove(returnMainText, returnMainTextTarget);
         } else if(score > 0){
             dScore = parseInt(score / 50);
             if(dScore < 10){
@@ -175,12 +210,6 @@ define(['global', 'text', 'rect', 'util'], function ( global, Text, Rect, util )
             money += Math.floor(dScore / 10);
             updateScore();
             updateMoney();
-        } else if(Math.abs(onceAgainTextTarget.x - onceAgainText.x) >= 1 &&
-            Math.abs(onceAgainRectTarget.x - onceAgainRect.x) >= 1){
-            easeMove(onceAgainRect, onceAgainRectTarget);
-            easeMove(onceAgainText, onceAgainTextTarget);
-            easeMove(returnMainRect, returnMainRectTarget);
-            easeMove(returnMainText, returnMainTextTarget);
         } else if(!isFinish){
             isFinish = true;
             registerEvents();
@@ -189,8 +218,8 @@ define(['global', 'text', 'rect', 'util'], function ( global, Text, Rect, util )
     };
 
     var drawOut = function ( ) {
-        if(Math.abs(onceAgainTextTarget.x - onceAgainText.x) >= 10 &&
-            Math.abs(onceAgainRectTarget.x - onceAgainRect.x) >= 10){
+        if(Math.abs(onceAgainTextTarget.x - onceAgainText.x) >= 20 &&
+            Math.abs(onceAgainRectTarget.x - onceAgainRect.x) >= 20){
             onceAgainRect.move();
             onceAgainText.move();
             returnMainRect.move();
@@ -198,6 +227,7 @@ define(['global', 'text', 'rect', 'util'], function ( global, Text, Rect, util )
         } else if(scoreText.scale >= 0 && moneyText.scale >= 0){
             scoreText.scale -= ds;
             moneyText.scale -= ds;
+            newRecordText.scale -= ds;
         } else if(gameOverText.scale >= 0){
             gameOverText.scale -= ds;
         } else{
@@ -221,6 +251,8 @@ define(['global', 'text', 'rect', 'util'], function ( global, Text, Rect, util )
         scoreText.draw(ctx);
         moneyText.draw(ctx);
 
+        newRecordText.draw(ctx);
+
         onceAgainRect.draw(ctx);
         onceAgainText.draw(ctx);
 
@@ -232,15 +264,17 @@ define(['global', 'text', 'rect', 'util'], function ( global, Text, Rect, util )
     var remove = function (  ) {
         isRemoving = true;
 
+        clearAllEvents();
+
         returnMainRectTarget.x = width + returnMainRect.width * 1.5;
         returnMainTextTarget.x = width + returnMainRect.width * 1.5;
-        returnMainRect.vx = 10;
-        returnMainText.vx = 10;
+        returnMainRect.vx = 20;
+        returnMainText.vx = 20;
 
         onceAgainTextTarget.x = -onceAgainRect.width * 1.5;
         onceAgainRectTarget.x = -onceAgainRect.width * 1.5;
-        onceAgainRect.vx = -10;
-        onceAgainText.vx = -10;
+        onceAgainRect.vx = -20;
+        onceAgainText.vx = -20;
 
     };
 

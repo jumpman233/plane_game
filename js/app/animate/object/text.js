@@ -16,6 +16,8 @@ define(['graph', 'util'], function ( Graph, util ) {
         this.color = '#444';
         this.text = text || '';
         this.scale = 1;
+        this.rotate = 0;
+        this.dAng = 0;
     }
 
     Text.prototype = util.copy(Graph.prototype);
@@ -29,6 +31,7 @@ define(['graph', 'util'], function ( Graph, util ) {
         context.fillStyle = text.color;
         context.textAlign = text.textAlign;
         context.translate(text.x, text.y);
+        context.rotate(text.rotate);
         context.scale(text.scale, text.scale);
         context.font = text.getFont();
         context.fillText(text.text, 0, 0);

@@ -82,6 +82,9 @@ define(['position','global', 'intervalManager'],function ( Position, global, IM 
         angToRed: function(angle){
             return angle / 360 * 2 * Math.PI;
         },
+        redToAng: function ( radius ) {
+            return radius / Math.PI / 2 * 360;
+        },
         getEventPosition: function (e) {
             if(undefined == e){
                 return;
