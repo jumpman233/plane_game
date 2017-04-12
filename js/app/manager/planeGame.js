@@ -58,16 +58,10 @@ define(['jquery',
                 sound.playBackgroundMusic();
 
                 Screen
-                    .mainMenu()
-                    .then(function ( opt ) {
-                        switch (opt){
-                            case 0:
-                                game.hardChoose();
-                                break;
-                            case 1:
-                                game.storeMenu();
-                                break;
-                        }
+                    .mainMenu(function (  ) {
+                        game.hardChoose();
+                    },function (  ) {
+                        game.storeMenu();
                     });
             },
             storeMenu: function (  ) {
@@ -103,6 +97,19 @@ define(['jquery',
                         return game.mainMenu();
                     });
             },
+            rankingMenu: function (  ) {
+                var game = this,
+                    ranking = localStorage.getItem('ranking'),
+                    data;
+
+                if(ranking === undefined){
+                    localStorage.setItem('ranking', JSON.stringify(game.getNewRanking()));
+                    ranking= localStorage.getItem('ranking');
+                }
+                data = ranking.data;
+
+                Screen.rankMenu(data, game.updateRanking);
+            },
             hardChoose: function (  ) {
                 var game = this;
                 Screen
@@ -132,6 +139,20 @@ define(['jquery',
                         randomBuild.setCurDiff(num);
                         game.test1();
                     })
+            },
+            getNewRanking: function (  ) {
+                return {
+                    data:[0, 0, 0, 0, 0]
+                };
+            },
+            updateRanking: function ( data ) {
+                if(Array.isArray(data)){
+                    localStorage.setItem('ranking', JSON.stringify({
+                        data: data
+                    }))
+                } else {
+                    throw TypeError('planeGame updateRanking(): params are not right!');
+                }
             },
             pause: function (  ) {
                 var game = this;
