@@ -41,7 +41,8 @@ require.config({
         'storeMenu': 'app/animate/storeMenu',
         'popper': 'app/animate/object/popper',
         'fightBk': 'app/animate/fightBk',
-        'gameOverAnimate': 'app/animate/object/gameOverAnimate'
+        'gameOverAnimate': 'app/animate/object/gameOverAnimate',
+        'rankMenu': 'app/animate/rankMenu'
     }
 });
 

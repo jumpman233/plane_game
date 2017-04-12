@@ -6,7 +6,6 @@
  * there is only one interval running request, so I write IntervalManager to manage
  */
 define(['global'], function ( global ) {
-    'use strict';
     function IntervalManager(  ) {
         this.interval = null;
         this.interList = [];
@@ -60,7 +59,7 @@ define(['global'], function ( global ) {
         }
 
         var interFunc = function (  ) {
-            for(var i in im.interList){
+            for(var i = 0; i < im.interList.length; i++){
                 im.interList[i]();
             }
         };

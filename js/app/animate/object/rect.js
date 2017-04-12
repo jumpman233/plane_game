@@ -12,6 +12,7 @@ define(['graph', 'util'], function ( Graph, util ) {
         this.height = 10;
         this.fillColor = '#fff';
         this.strokeColor = '#333';
+        this.scale = 1;
     }
     Rect.prototype = util.copy(Graph.prototype);
     Rect.prototype.constructor= Rect;
@@ -23,6 +24,7 @@ define(['graph', 'util'], function ( Graph, util ) {
         ctx.strokeStyle = rect.strokeColor;
 
         ctx.shadowColor = "#333"; // string
+        ctx.scale(rect.scale, rect.scale);
         //Color of the shadow;  RGB, RGBA, HSL, HEX, and other inputs are valid.
         ctx.shadowOffsetX = 0; // integer
         //Horizontal distance of the shadow, in relation to the text.

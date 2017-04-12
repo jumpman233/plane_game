@@ -94,6 +94,8 @@ define(['warehouse', 'aniImage', 'util', 'text', 'global'], function ( warehouse
         hellText.x = x4;
 
         isInit = true;
+        removed = false;
+        removing = false;
     };
 
     var easeMoveToTarget = function ( x1, y1, x2, y2 ) {

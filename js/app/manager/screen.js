@@ -17,7 +17,11 @@ define(['util',
 'ballBkAnimate',
 'storeMenu',
 'fightBk',
-'gameOverAnimate'],function ( util, Warehouse, Position, dataManager, player, global, Rect, Text, IM,menuAnimate,bkAnimate, hardAnimate, ballBkAnimate, storeMenu, fightBk, gameOverAnimate ) {
+'gameOverAnimate',
+'rankMenu'],function ( util, Warehouse, Position, dataManager,
+                       player, global, Rect, Text, IM,
+                       menuAnimate,bkAnimate, hardAnimate, ballBkAnimate,
+                       storeMenu, fightBk, gameOverAnimate, rankMenu ) {
     'use strict';
     function Screen(  ) {
         this.optWidth = 200;
@@ -63,28 +67,30 @@ define(['util',
             screen.drawMenuOption('Exit', width/2, height/2 + 50, exitFunc);
             screen.setOptionsMouseEvent();
         },
-        mainMenu: function () {
+        mainMenu: function (startFunc, storeFunc, rankFunc) {
             var screen = this,
                 defer = $.Deferred();
 
             var startGameClickEvent = function (  ) {
                 screen
                     .removeMainMenu(true)
-                    .then(function (  ) {
-                        defer.resolve(0);
-                    });
+                    .then(startFunc);
             };
             var storeGameClickEvent = function (  ) {
                 screen.removeMainMenu(false)
-                    .then(function (  ) {
-                        defer.resolve(1);
-                    });
+                    .then(storeFunc);
+            };
+            var rankClickEvent= function (  ) {
+                screen.removeMainMenu(false)
+                    .then(rankFunc);
             };
             screen
                 .drawMainMenu(function ( x, y ) {
                     screen.setOptionEvent(x, y, startGameClickEvent);
                 }, function ( x, y ) {
                     screen.setOptionEvent(x, y, storeGameClickEvent);
+                }, function ( x, y ) {
+                    screen.setOptionEvent(x, y, rankClickEvent);
                 });
             return defer;
         },
@@ -167,6 +173,33 @@ define(['util',
 
             return defer;
         },
+        rankMenu: function ( data, backEvent ) {
+            var screen = this;
+
+            var checkRemoved = function (  ) {
+                return rankMenu.isRemoved();
+            };
+
+            rankMenu.init(data, function (  ) {
+                IM.addInterval(function (  ) {
+                    if(checkRemoved()){
+                        IM.clearIntervalList();
+                        backEvent();
+                    }
+                });
+                rankMenu.remove();
+            });
+
+            IM.addInterval(function (  ) {
+                global.clearRect();
+
+                rankMenu.draw();
+
+                if(bkAnimate.isPlaying()){
+                    bkAnimate.draw(global.context);
+                }
+            });
+        },
         gameOverMenu: function ( params, onceAgainEvent, returnMainEvent, resolveMon ) {
             global.setToDefaultBKColor();
             global.context.clearRect(0,0,global.width,global.height);
@@ -226,10 +259,10 @@ define(['util',
                 }, 'bk');
             }
         },
-        drawMainMenu: function ( startListener, storeListener ) {
+        drawMainMenu: function ( startListener, storeListener, rankClickListener ) {
             var defer = $.Deferred();
             global.setToDefaultBKColor();
-            menuAnimate.mainMenu.init(startListener, storeListener);
+            menuAnimate.mainMenu.init(startListener, storeListener, rankClickListener);
             var draw = function (  ) {
                 global.clearRect();
                 menuAnimate.mainMenu.draw(global.context);
@@ -257,8 +290,8 @@ define(['util',
 
                 inter = function (  ) {
                     if(menuAnimate.mainMenu.isRemoved() && bkAnimate.isRemoved()){
-                        IM.clearIntervalList();
                         defer.resolve();
+                        IM.clearIntervalList();
                     }
                 };
                 IM.addInterval(inter);
@@ -289,36 +322,17 @@ define(['util',
 
             screen.options.push(rect);
 
-            function menuMouseMove (event) {
-                var pos = util.getEventPosition(event);
-                var flag = false;
-                for(var i in screen.options){
-                    var opt = screen.options[i];
-                    if(opt.isInclude(pos.x, pos.y)){
-                        util.setCursor('pointer');
-                        flag = true;
-                        break;
-                    }
-                }
-                if(!flag){
-                    util.setCursor('default');
-                }
-            }
-
-            function menuMouseDown ( event ) {
+            function menuClick ( event ) {
                 var pos = util.getEventPosition(event);
                 if(rect.isInclude(pos.x, pos.y)){
                     screen.removeAllOptions();
                     util.setCursor('default');
-                    global.canvasElement.removeEventListener('mousemove', menuMouseMove);
-                    global.canvasElement.removeEventListener('mousedown', menuMouseDown);
+                    screen.removeOptionsMouseEvent();
                     callback();
                 }
             }
-            screen.optionsFunc.push(menuMouseMove);
-            screen.optionsFunc.push(menuMouseDown);
-            global.canvasElement.addEventListener('mousemove',menuMouseMove,false);
-            global.canvasElement.addEventListener('mousedown', menuMouseDown, false);
+            screen.optionsFunc.push(menuClick);
+            global.canvasElement.addEventListener('click', menuClick, false);
 
             return defer;
         },
@@ -357,8 +371,9 @@ define(['util',
         removeOptionsMouseEvent: function (  ) {
             var screen = this;
 
-            global.canvasElement.removeEventListener('mousemove', screen.mouseMoveEvent);
-            global.canvasElement.removeEventListener('click', screen.mouseClick);
+            for(var i = 0; i < screen.optionsFunc.length; i++){
+                global.canvasElement.removeEventListener('click', screen.optionsFunc[i]);
+            }
             screen.options = [];
             screen.optionsFunc = [];
         },

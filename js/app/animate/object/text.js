@@ -4,14 +4,17 @@
 
 define(['graph', 'util'], function ( Graph, util ) {
     'use strict';
-    function Text(  ) {
+    function Text( text ) {
+        if(text && typeof text !== 'string'){
+            throw TypeError('Text constructor: param \'text\' is not String!');
+        }
         Graph.apply(this, arguments);
 
         this.fontSize = '20';
         this.fontFamily = 'Tahoma Arial';
         this.textAlign = 'center';
         this.color = '#444';
-        this.text = '';
+        this.text = text || '';
         this.scale = 1;
     }
 

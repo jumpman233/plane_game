@@ -22,10 +22,14 @@ define(['global', 'rect', 'text', 'util'], function ( global, Rect, Text , util)
         storeText = new Text(),
         storeRect = new Rect(),
         storeOptTarget = {x: 0, y:0},
+        rankText = new Text(),
+        rankRect = new Rect(),
+        rankOptTarget = {x: 0, y: 0},
         startClickListener = null,
-        storeClickListener = null;
+        storeClickListener = null,
+        rankClickListener = null;
 
-    var initMenuData = function ( startClickLis, storeClickLis ) {
+    var initMenuData = function ( startClickLis, storeClickLis, rankClickLis ) {
         if(global.width == 0 && global.height == 0){
             throw TypeError('initMenuData: global has not been init!');
         }
@@ -37,6 +41,7 @@ define(['global', 'rect', 'text', 'util'], function ( global, Rect, Text , util)
         context = global.context;
         startClickListener = startClickLis;
         storeClickListener = storeClickLis;
+        rankClickListener = rankClickLis;
 
         resetMainMenu();
     };
@@ -60,6 +65,9 @@ define(['global', 'rect', 'text', 'util'], function ( global, Rect, Text , util)
         storeOptTarget.x = width / 2;
         storeOptTarget.y = height / 5 + dh * 3;
 
+        rankOptTarget.x = width / 2;
+        rankOptTarget.y = height / 5 + dh * 4;
+
         gameNameText.x = width / 2;
         gameNameText.y = -optHeight;
         gameNameText.fontSize = optFont * 2;
@@ -79,13 +87,24 @@ define(['global', 'rect', 'text', 'util'], function ( global, Rect, Text , util)
         storeRect.width = optWidth;
         storeRect.height = optHeight;
         storeRect.fillColor = '#fff';
-
         storeRect.x = width / 2 - optWidth / 2;
         storeRect.y = height + optHeight;
+
         storeText.x = width / 2;
         storeText.y = height + optHeight;
         storeText.text = 'STORE';
         storeText.fontSize = optFont;
+
+        rankRect.width = optWidth;
+        rankRect.height = optHeight;
+        rankRect.fillColor = '#fff';
+        rankRect.x = width / 2 - optWidth / 2;
+        rankRect.y = height + optHeight;
+
+        rankText.x = width / 2;
+        rankText.y = height + optHeight;
+        rankText.text = 'RANKING';
+        rankText.fontSize = optFont;
 
         mainMenuComplete = false;
         mainMenuRemoving = false;
@@ -96,13 +115,18 @@ define(['global', 'rect', 'text', 'util'], function ( global, Rect, Text , util)
         var pos = util.getEventPosition(event);
         if(startRect.isInclude(pos.x, pos.y)){
             startRect.fillColor = '#ddd';
-        } else{
-            startRect.fillColor = '#fff';
-        }
-        if(storeRect.isInclude(pos.x, pos.y)){
+            util.setCursor('pointer');
+        } else if(storeRect.isInclude(pos.x, pos.y)){
             storeRect.fillColor = '#ddd';
+            util.setCursor('pointer');
+        } else if(rankRect.isInclude(pos.x, pos.y)){
+            rankRect.fillColor = '#ddd';
+            util.setCursor('pointer');
         } else{
+            util.setCursor('default');
+            rankRect.fillColor = '#fff';
             storeRect.fillColor = '#fff';
+            startRect.fillColor = '#fff';
         }
     };
 
@@ -111,7 +135,9 @@ define(['global', 'rect', 'text', 'util'], function ( global, Rect, Text , util)
             d2 = easeMoveToTarget(startText.x, startText.y, startOptTarget.x, startOptTarget.y),
             d3 = easeMoveToTarget(startRect.x, startRect.y, startOptTarget.x - optWidth / 2, startOptTarget.y - optHeight * 0.7),
             d4 = easeMoveToTarget(storeRect.x, storeRect.y, storeOptTarget.x - optWidth / 2, storeOptTarget.y - optHeight * 0.7),
-            d5 = easeMoveToTarget(storeText.x, storeText.y, storeOptTarget.x, storeOptTarget.y);
+            d5 = easeMoveToTarget(storeText.x, storeText.y, storeOptTarget.x, storeOptTarget.y),
+            d6 = easeMoveToTarget(rankRect.x, rankRect.y, rankOptTarget.x - optWidth / 2, rankOptTarget.y - optHeight * 0.7),
+            d7 = easeMoveToTarget(rankText.x, rankText.y, rankOptTarget.x, rankOptTarget.y);
 
         gameNameText.x += d1.dx;
         gameNameText.y += d1.dy;
@@ -126,17 +152,27 @@ define(['global', 'rect', 'text', 'util'], function ( global, Rect, Text , util)
         storeRect.x += d4.dx;
         storeRect.y += d4.dy;
 
+        rankText.x += d7.dx;
+        rankText.y += d7.dy;
+        rankRect.x += d6.dx;
+        rankRect.y += d6.dy;
+
         gameNameText.draw(ctx);
 
         startRect.draw(ctx);
         startText.draw(ctx);
+
         storeRect.draw(ctx);
         storeText.draw(ctx);
+
+        rankRect.draw(ctx);
+        rankText.draw(ctx);
 
         if(Math.abs(gameNameText.y - gameNameTarget.y) <= 1 && !mainMenuComplete){
             mainMenuComplete = true;
             startClickListener(startOptTarget.x, startOptTarget.y);
             storeClickListener(storeOptTarget.x, storeOptTarget.y);
+            rankClickListener(rankOptTarget.x, rankOptTarget.y);
             global.canvasElement.addEventListener('mousemove', mouseMove);
         }
     };
@@ -146,6 +182,8 @@ define(['global', 'rect', 'text', 'util'], function ( global, Rect, Text , util)
         startText.draw(ctx);
         storeRect.draw(ctx);
         storeText.draw(ctx);
+        rankRect.draw(ctx);
+        rankText.draw(ctx);
         gameNameText.draw(ctx);
 
         startText.move();
@@ -153,6 +191,8 @@ define(['global', 'rect', 'text', 'util'], function ( global, Rect, Text , util)
         gameNameText.move();
         storeText.move();
         storeRect.move();
+        rankRect.move();
+        rankText.move();
 
         if(startText.y - optHeight > height &&
             startRect.y - optHeight > height &&
@@ -182,7 +222,10 @@ define(['global', 'rect', 'text', 'util'], function ( global, Rect, Text , util)
             vy2 = - (Math.random() * 10 + 5),
             vx3 = (Math.random() * 10 + 2) * (Math.random() < 0.5 ? 1 : -1),
             vy3 = - (Math.random() * 10 + 5),
-            ay3 =  Math.random() + 1;
+            ay3 =  Math.random() + 1,
+            vx4 = (Math.random() * 10 + 2) * (Math.random() < 0.5 ? 1 : -1),
+            vy4 = - (Math.random() * 10 + 5),
+            ay4 =  Math.random() + 1;
 
         global.canvasElement.removeEventListener('mousemove', mouseMove);
 
@@ -193,6 +236,10 @@ define(['global', 'rect', 'text', 'util'], function ( global, Rect, Text , util)
         storeText.vx = storeRect.vx = vx3;
         storeText.vy = storeRect.vy = vy3;
         storeText.ay = storeRect.ay = ay3;
+
+        rankText.vx = rankRect.vx = vx4;
+        rankText.vy = rankRect.vy = vy4;
+        rankText.ay = rankRect.ay = ay4;
 
         gameNameText.vx = vx2;
         gameNameText.vy = vy2;

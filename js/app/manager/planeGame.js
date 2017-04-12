@@ -62,6 +62,8 @@ define(['jquery',
                         game.hardChoose();
                     },function (  ) {
                         game.storeMenu();
+                    },function (  ) {
+                        game.rankingMenu();
                     });
             },
             storeMenu: function (  ) {
@@ -102,13 +104,16 @@ define(['jquery',
                     ranking = localStorage.getItem('ranking'),
                     data;
 
-                if(ranking === undefined){
+                if(!ranking){
                     localStorage.setItem('ranking', JSON.stringify(game.getNewRanking()));
                     ranking= localStorage.getItem('ranking');
+                    console.log("??");
                 }
-                data = ranking.data;
+                data = JSON.parse(ranking).data;
 
-                Screen.rankMenu(data, game.updateRanking);
+                Screen.rankMenu(data, function (  ) {
+                    game.mainMenu();
+                });
             },
             hardChoose: function (  ) {
                 var game = this;
