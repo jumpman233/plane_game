@@ -245,8 +245,6 @@ define(['jquery',
                 IntervalManager.start(1000 / config.fps);
                 IntervalManager.addInterval(loading);
 
-                game.warehouse = Warehouse;
-
                 game
                     .getConfig(config)
                     .then(function (  ) {

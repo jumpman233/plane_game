@@ -4,6 +4,7 @@
 
 define(['util',
 'flyObject'], function ( util, FlyObject ) {
+    'use strict';
     /**
      * bullet
      * object can be shot

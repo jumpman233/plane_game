@@ -3,6 +3,7 @@
  */
 
 define(['global'],function ( global ) {
+    'use strict';
     function Sound(  ) {
         this.backgroundAudio = null;
     }

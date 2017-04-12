@@ -5,6 +5,7 @@
 define(['util',
 'player',
 'randomBuild'],function ( util, player, rm ) {
+    'use strict';
     function DataManager(  ) {
         this.enemy_bullets = [];
         this.player_bullets = [];

@@ -3,6 +3,7 @@
  */
 
 define([], function (  ) {
+    'use strict';
     var virtualFuntion = function (  ) {
         throw TypeError('you are using a virtual function!')
     };

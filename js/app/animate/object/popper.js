@@ -3,6 +3,7 @@
  */
 
 define(['position'], function ( Position ) {
+    'use strict';
     function Popper( x, y, text ) {
         this.position = new Position(x, y);
         this.text = text;

@@ -6,6 +6,7 @@
  * there is only one interval running request, so I write IntervalManager to manage
  */
 define(['global'], function ( global ) {
+    'use strict';
     function IntervalManager(  ) {
         this.interval = null;
         this.interList = [];

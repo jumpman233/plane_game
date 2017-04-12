@@ -3,6 +3,7 @@
  */
 
 define(['warehouse', 'aniImage', 'util', 'text', 'global'], function ( warehouse, AniImage, util, Text, global ) {
+    'use strict';
     var easyImg = null,
         midImg = null,
         hardImg = null,

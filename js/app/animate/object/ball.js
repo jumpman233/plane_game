@@ -3,6 +3,7 @@
  */
 
 define(['graph', 'util'], function ( Graph, util ) {
+    'use strict';
     function Ball(  ) {
         Graph.apply(this, arguments);
         this.radius = 5;

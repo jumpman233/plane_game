@@ -3,6 +3,7 @@
  */
 
 define(['graph', 'util'], function ( Graph, util ) {
+    'use strict';
     function Rect(  ) {
         Graph.apply(this, arguments);
         this.x = 0;

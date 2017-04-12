@@ -3,6 +3,7 @@
  */
 
 define(['global', 'ball', 'util'], function ( global, Ball, util ) {
+    'use strict';
     var width,
         ballBaseR,
         ballMaxR,

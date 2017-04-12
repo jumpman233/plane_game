@@ -18,6 +18,7 @@ define(['util',
 'storeMenu',
 'fightBk',
 'gameOverAnimate'],function ( util, Warehouse, Position, dataManager, player, global, Rect, Text, IM,menuAnimate,bkAnimate, hardAnimate, ballBkAnimate, storeMenu, fightBk, gameOverAnimate ) {
+    'use strict';
     function Screen(  ) {
         this.optWidth = 200;
         this.optHeight = 30;

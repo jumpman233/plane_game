@@ -3,6 +3,7 @@
  */
 
 define(['graph', 'util'], function ( Graph, util ) {
+    'use strict';
     function RegularTriangle(  ) {
         Graph.apply(this, arguments);
         this.len = 1;

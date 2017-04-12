@@ -5,6 +5,7 @@
 define(['util',
 'position',
 'global'], function ( util, Position, global ) {
+    'use strict';
     /**
      * FlyObject
      * a basic class of fly object

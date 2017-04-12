@@ -3,6 +3,7 @@
  */
 
 define(['regularTriangle', 'util'], function ( Triangle, util ) {
+    'use strict';
     var shapeList = [],
         max_speed = 10,
         speed = 1,

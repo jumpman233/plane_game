@@ -3,6 +3,7 @@
  */
 
 define(['util'],function ( util ) {
+    'use strict';
     function virtualFunc(  ) {
         throw TypeError('this method is virtual!');
     }

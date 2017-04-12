@@ -3,6 +3,7 @@
  */
 
 define(['behNode'],function ( behNode ) {
+    'use strict';
     function BehTree(  ) {
         this.root = null;
     }

@@ -7,6 +7,7 @@ define(['global',
     'text',
     'util',
     'popper'], function ( global, Rect, Text, util, Popper ) {
+    'use strict';
     var storeText = new Text,
         backText = new Text,
         backRect = new Rect,

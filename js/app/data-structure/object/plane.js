@@ -9,6 +9,7 @@ define(['util',
     'behTree',
     'behNode'
 ],function ( util, FlyObject, dataManager, sound) {
+    'use strict';
     /**
      * plane
      * object can shoot

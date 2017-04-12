@@ -3,6 +3,7 @@
  */
 
 define(['graph', 'util'], function ( Graph, util ) {
+    'use strict';
     function AniImage( img, width, height ) {
         Graph.apply(this, arguments);
         this.img = img;

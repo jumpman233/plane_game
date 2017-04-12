@@ -3,6 +3,7 @@
  */
 
 define(['global', 'rect', 'text', 'util'], function ( global, Rect, Text , util) {
+    'use strict';
     var context = null,
         optWidth = 0,
         optHeight = 0,

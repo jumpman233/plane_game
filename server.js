@@ -73,5 +73,5 @@ process.on('exit', function (  ) {
     console.log("bye!");
 });
 
-console.log("server is running at 127.0.0.1:3000");
+console.log("server is running at 127.0.0.1:"+port);
 

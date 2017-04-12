@@ -12,6 +12,7 @@ define(['util',
     'tool',
     'bulletStyle',
     'enemy'],function ( util, Plane, FlyObject, Position, Missile, Bullet, Item, Tool , BulletStyle, Enemy) {
+    'use strict';
     function Warehouse() {
         this.bulletTypeList = [];
         this.planeTypeList = [];

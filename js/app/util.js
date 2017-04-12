@@ -3,6 +3,7 @@
  */
 
 define(['position','global', 'intervalManager'],function ( Position, global, IM ) {
+    'use strict';
     /**
      * GameUtil
      */

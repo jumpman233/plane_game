@@ -3,6 +3,7 @@
  */
 
 define(['util', 'ball', 'rect'], function ( util, Ball, Rect ) {
+    'use strict';
     var balls = [],
         perCreate = 1,
         perLen = 0,

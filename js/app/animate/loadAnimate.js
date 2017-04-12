@@ -3,6 +3,7 @@
  */
 
 define(['ball', 'text'],function ( Ball , Text) {
+    'use strict';
     var b1 = new Ball();
     var b2 = new Ball();
     var text = new Text();
