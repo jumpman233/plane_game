@@ -1,9 +1,9 @@
 [{
   "name": "upgrade",
-  "src": "img/upgrade.png",
+  "src": "img/tool/upgrade.png",
   "weight": 20
 },{
   "name": "addLife",
-  "src": "img/addLife.png",
+  "src": "img/tool/addLife.png",
   "weight": 10
 }]

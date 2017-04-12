@@ -1,6 +1,6 @@
 [{
   "type": 1,
-  "src": "img/missile.png",
+  "src": "img/missile/missile.png",
   "maxFollow": 5,
   "maxRotate": 5,
   "width": 20,

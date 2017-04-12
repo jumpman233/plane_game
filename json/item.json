@@ -1,21 +1,21 @@
 [{
   "name": "life",
-  "src": "img/heart.png",
+  "src": "img/item/heart.png",
   "height": 30,
   "width": 30
 },{
   "name": "background",
-  "src": "img/background1.jpg"
+  "src": "img/item/background1.jpg"
 },{
   "name": "easy-cloud",
-  "src": "img/cloud-1.png"
+  "src": "img/item/hard-choose/cloud-1.png"
 },{
   "name": "mid-cloud",
-  "src": "img/cloud-2.png"
+  "src": "img/item/hard-choose/cloud-2.png"
 },{
   "name": "hard-cloud",
-  "src": "img/cloud-3.png"
+  "src": "img/item/hard-choose/cloud-3.png"
 },{
   "name": "hell-cloud",
-  "src": "img/cloud-4.png"
+  "src": "img/item/hard-choose/cloud-4.png"
 }]

@@ -1,6 +1,6 @@
 [{
 	"type": 1,
-	"src": "img/skull.png",
+	"src": "img/bullet/skull.png",
 	"height": 20,
 	"width": 20,
     "speed": 20,
@@ -8,7 +8,7 @@
 	"damage": 10
 },{
 	"type": 2,
-	"src": "img/bullet-1.png",
+	"src": "img/bullet/bullet-1.png",
 	"height": 30,
 	"width": 30,
 	"direction": 1,

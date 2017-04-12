@@ -99,15 +99,6 @@ define(['position','global', 'intervalManager'],function ( Position, global, IM 
             return pos.x <= rectX+ rectW && pos.x >= rectX &&
                 pos.y >= rectY && pos.y <= rectY + rectH;
         },
-        sleep: function (duration) {
-            var start = new Date();
-            while(true){
-                var time = new Date();
-                if(time.getTime()-start.getTime() > duration){
-                    break;
-                }
-            }
-        },
         dirtyCheck: function (list) {
             var util = this;
             if(list[0] && list[0].className == 'missile'){
