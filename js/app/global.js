@@ -27,11 +27,15 @@ define([],function () {
                 throw TypeError('Global init():params are not right!');
             }
 
-            var defer = $.Deferred();
+            var defer = $.Deferred(),
+                width = window.innerWidth,
+                height = window.innerHeight;
             this.canvasElement = $('#'+params.canvasId)[0];
+            this.canvasElement.width = width;
+            this.canvasElement.height = height;
             this.context = this.canvasElement.getContext('2d');
-            this.width = this.context.canvas.width;
-            this.height = this.context.canvas.height;
+            this.width = this.canvasElement.width;
+            this.height = this.canvasElement.height;
             Object.defineProperty(this, 'fps', {
                 writable: false,
                 configurable: false,

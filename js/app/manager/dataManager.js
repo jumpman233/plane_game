@@ -73,13 +73,13 @@ define(['util',
             /**
              * TODO
              */
-            // for(var i in dm.enemies){
-            //     var plane = dm.enemies[i];
-            //     if(plane && util.collisionTest(plane, player.plane)){
-            //         dm.enemies.splice(i,1);
-            //         player.curLife--;
-            //     }
-            // }
+            for(var i in dm.enemies){
+                var plane = dm.enemies[i].plane;
+                if(plane && util.collisionTest(plane, player.plane)){
+                    dm.enemies.splice(i,1);
+                    player.curLife--;
+                }
+            }
 
             //check if enemies' bullets have collision with player's plane
             for(var i in dm.enemy_bullets){
