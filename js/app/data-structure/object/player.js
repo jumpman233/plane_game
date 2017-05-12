@@ -50,12 +50,11 @@ define(['gameEventHandler',
             }
         },
         getData: function (  ) {
-            var playerData;
+            var playerData = localStorage.getItem('playerData');
 
-            if(localStorage.getItem('playerData')){
-                playerData = JSON.parse(localStorage.getItem('playerData'));
-            } else{
+            if(!playerData){
                 this.resetData();
+                playerData = JSON.parse(localStorage.getItem('playerData'));
             }
 
             return playerData;
@@ -109,10 +108,10 @@ define(['gameEventHandler',
             player.dieFrame = 0;
         },
         setData: function ( ) {
-            var data = this.getData();
             if(arguments.length === 1 && typeof arguments[0] === 'object'){
                 localStorage.setItem('playerData', JSON.stringify(arguments[0]));
             } else if(arguments.length === 2 && typeof arguments[0] === 'string' && typeof arguments[1] === 'number'){
+                var data = this.getData();
                 data[arguments[0]] = arguments[1];
                 this.setData(data);
             } else{
