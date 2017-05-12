@@ -54,10 +54,10 @@ define(['gameEventHandler',
 
             if(!playerData){
                 this.resetData();
-                playerData = JSON.parse(localStorage.getItem('playerData'));
+                playerData = localStorage.getItem('playerData');
             }
 
-            return playerData;
+            return JSON.parse(playerData);
         },
         die: function (  ) {
             var defer = $.Deferred(),
