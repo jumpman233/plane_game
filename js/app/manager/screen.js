@@ -402,9 +402,12 @@ define(['util',
         drawScore: function () {
             var screen = this;
             var context = global.context;
+            context.save();
             context.font = "16px Georgia";
             context.textAlign = 'left';
+            context.fillStyle = '#fff';
             context.fillText("Score: " + player.score,10,20);
+            context.restore();
         },
         drawLife: function () {
             var screen = this;

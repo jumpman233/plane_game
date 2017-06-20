@@ -1,39 +1,52 @@
 [{
   "difficulty": "easy",
+
+  "frequency": 2,
   "enemies": [{
+    "enemyType": 1,
     "canShoot": false,
-    "toolDrop": 0.05,
-    "possibility": 70,
-    "score": 5,
-    "min_num": 1,
-    "max_num": 3
+    "toolDrop": 0.04,
+    "possibility": 0.6,
+    "score": 15,
+    "speed": 3,
+    "min_num": 2,
+    "max_num": 4,
+    "secureDis": 100
   }, {
+    "enemyType": 2,
     "canShoot": true,
-    "toolDrop": 0.4,
-    "possibility": 30,
-    "score": 40,
+    "toolDrop": 0.2,
+    "possibility": 0.3,
+    "speed": 2,
+    "score": 120,
     "min_num": 1,
-    "max_num": 3
+    "max_num": 1,
+    "secureDis": 50
   }]
 },{
   "difficulty": "medium",
-  "e1": {
+  "frequency": 2,
+  "enemies": [{
+    "enemyType": 1,
+    "canShoot": false,
+    "toolDrop": 0.1,
+    "possibility": 0.6,
+    "score": 15,
+    "speed": 3,
+    "min_num": 2,
+    "max_num": 4,
+    "secureDis": 100
+  }, {
+    "enemyType": 2,
     "canShoot": true,
-    "toolDrop": 0.05,
-    "possibility": 60,
-    "score": 10,
+    "toolDrop": 0.2,
+    "possibility": 0.3,
+    "speed": 2,
+    "score": 120,
     "min_num": 1,
-    "max_num": 3
-  },
-  "e2": {
-    "canShoot": true,
-    "toolDrop": 0.3,
-    "possibility": 40,
-    "score": 80
-  },
-  "e3":{
-    "possibility": 0
-  }
+    "max_num": 1,
+    "secureDis": 50
+  }]
 },{
   "difficulty": "hard",
   "frequency": 2,

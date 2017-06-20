@@ -148,8 +148,12 @@ define(['jquery',
                 }
             },
             getRankingData: function (  ) {
-                var data = JSON.parse(localStorage.getItem('ranking')).data;
-                if(!data || (data && data.length !== 5)){
+                var data = localStorage.getItem('ranking');
+                try{
+                    console.log("!");
+                    data = JSON.parse(data).data;
+                } catch (e){
+                    console.log("?");
                     this.resetRanking();
                     data = JSON.parse(localStorage.getItem('ranking')).data;
                 }
@@ -221,13 +225,13 @@ define(['jquery',
                     global.clearRect();
 
                     var planes = randomBuild.createEnemyPlane();
-                    // var missile = randomBuild.createMissile(1/fps/10);
+                    var missile = randomBuild.createMissile(1/60/5);
                     if(planes !== undefined){
                         dataManager.resolveEnemy(planes);
                     }
-                    // if(missile){
-                    //     dataManager.resolveMissile(missile);
-                    // }
+                    if(missile){
+                        dataManager.resolveMissile(missile);
+                    }
 
                     Screen.draw();
 

@@ -182,18 +182,20 @@ define(['gameEventHandler',
                 dis,
                 ang = 0;
             if(player.toPos){
-                dis = curPos.calDis(player.toPos)
+                dis = curPos.calDis(player.toPos);
             } else {
                 return;
             }
-            if(dis <= player.speed){
-                curPos.x = player.toPos.x;
-                curPos.y = player.toPos.y;
-            } else{
-                ang = curPos.includeAng(player.toPos);
-                curPos.x += Math.sin(util.angToRed(ang)) * player.speed;
-                curPos.y -= Math.cos(util.angToRed(ang)) * player.speed;
-            }
+            curPos.x = player.toPos.x;
+            curPos.y = player.toPos.y;
+            // if(dis <= player.speed){
+            //     curPos.x = player.toPos.x;
+            //     curPos.y = player.toPos.y;
+            // } else{
+            //     ang = curPos.includeAng(player.toPos);
+            //     curPos.x += Math.sin(util.angToRed(ang)) * player.speed;
+            //     curPos.y -= Math.cos(util.angToRed(ang)) * player.speed;
+            // }
         },
         draw: function ( ctx ) {
             var player = this,

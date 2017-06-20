@@ -98,7 +98,7 @@ define(['global',
         },
         createMissile: function ( probability ) {
             if(Math.random() < probability){
-                var missile = warehouse.getMissileByType(1);
+                var missile = this.warehouse.getMissileByType(1);
                 var x = Math.random()*global.width;
                 missile.position.x = x;
                 missile.position.y = 0;
@@ -115,7 +115,7 @@ define(['global',
             }
 
             var rand = Math.random();
-            if(rand > probability){
+            if(rand > 0.3){
                 return;
             }
 
